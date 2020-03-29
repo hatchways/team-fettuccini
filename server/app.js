@@ -3,6 +3,7 @@ const express = require("express");
 const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const connectDB = require("./db");
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
@@ -36,4 +37,6 @@ app.use(function(err, req, res, next) {
   res.json({ error: err });
 });
 
-module.exports = app;
+connectDB();
+app.listen(3000, ()=>console.log('server started on port 3000'));
+//module.exports = app;

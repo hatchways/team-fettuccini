@@ -49,6 +49,11 @@ code {
   max-width: 300px;
 }
 
+.Form-container > form > label {
+  float: left;
+  font-weight: bold;
+}
+
 .Form-text-input {
   width: 100%;
   padding: 12px 20px;
@@ -58,6 +63,11 @@ code {
   border-radius: 4px;
   box-sizing: border-box;
   font-size: 20px;
+}
+
+.Form-warning {
+  color: red;
+  transition-duration: 0.5s;
 }
 
 .Form-submit {

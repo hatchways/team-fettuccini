@@ -49,8 +49,8 @@ class SignUp extends Component {
       return <Redirect to='/' />
     }
     return (
-      <div>
-        <Typography>Sign up</Typography>
+      <>
+        <Typography className="Form-title">Sign up</Typography>
         <form onSubmit={this.handleSubmit}>
           <input
             className='Form-text-input'
@@ -82,7 +82,7 @@ class SignUp extends Component {
             placeholder="Enter Password Again" />
           <button className='Form-submit' type='submit'>Sign Up</button>
         </form>
-      </div>
+      </>
     );
   }
 }

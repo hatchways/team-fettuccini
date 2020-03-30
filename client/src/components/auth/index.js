@@ -26,11 +26,9 @@ class Auth extends Component {
           <Login /> :
           <SignUp />}
 
-        <div>
-          {text} have an account? &nbsp;
+        {text} have an account? &nbsp;
           <span className={`Form-switch ${this.state.login && 'Form-tab-selected'}`} onClick={() => this.setState({ login: true })}>Log In</span>
-          <span className={`Form-switch ${!this.state.login && 'Form-tab-selected'}`} onClick={() => this.setState({ login: false })}>Sign Up</span>
-        </div>
+        <span className={`Form-switch ${!this.state.login && 'Form-tab-selected'}`} onClick={() => this.setState({ login: false })}>Sign Up</span>
       </div>
 
     )

@@ -38,8 +38,8 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div>
-        <Typography>Sign In</Typography>
+      <>
+        <Typography className="Form-title">Sign In</Typography>
         <form onSubmit={this.handleSubmit}>
           <input
             className='Form-text-input'
@@ -57,7 +57,7 @@ export default class Login extends Component {
             placeholder="Enter Password" />
           <button className='Form-submit' type='submit'>Sign In</button>
         </form>
-      </div>
+      </>
     );
   }
 }

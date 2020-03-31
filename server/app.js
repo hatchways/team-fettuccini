@@ -10,6 +10,8 @@ const pingRouter = require("./routes/ping");
 
 const { json, urlencoded } = express;
 
+const Game = require("./engine/Game.js");
+
 var app = express();
 
 app.use(logger("dev"));
@@ -37,6 +39,13 @@ app.use(function(err, req, res, next) {
   res.json({ error: err });
 });
 
-connectDB();
-app.listen(3000, ()=>console.log('server started on port 3000'));
+//connectDB();
+//app.listen(3000, ()=>console.log('server started on port 3000'));
 //module.exports = app;
+
+let aGame = new Game();
+aGame.nextSpyHint(1,"hmmm");
+aGame.nextWordGuess(1);
+aGame.nextSpyHint(2,"hey");
+aGame.nextWordGuess(2);
+aGame.nextWordGuess(3);

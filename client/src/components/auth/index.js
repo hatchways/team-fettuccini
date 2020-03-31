@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import Login from './Login'
 import SignUp from './SignUp'
 
@@ -10,29 +10,23 @@ const landinPageStyle = theme => ({
   }
 });
 
-class Auth extends Component {
-  constructor(props) {
-    super()
-    this.state = {
-      login: true
-    }
-  }
 
-  render() {
-    const text = this.state.login ? "Don't" : "Already"
-    return (
-      <div className='Form-container'>
-        {this.state.login ?
-          <Login /> :
-          <SignUp />}
+function Auth() {
+  const [login, switchLogin] = useState(true)
+  const text = login ? "Don't" : "Already"
 
-        {text} have an account? &nbsp;
-          <span className={`Form-switch ${this.state.login && 'Form-tab-selected'}`} onClick={() => this.setState({ login: true })}>Log In</span>
-        <span className={`Form-switch ${!this.state.login && 'Form-tab-selected'}`} onClick={() => this.setState({ login: false })}>Sign Up</span>
-      </div>
+  return (
+    <div className='Form-container'>
+      {login ?
+        <Login /> :
+        <SignUp />}
 
-    )
-  }
+      {text} have an account? &nbsp;
+          <span className={`Form-switch ${login && 'Form-tab-selected'}`} onClick={() => switchLogin(!login)}>Sign In</span>
+      <span className={`Form-switch ${!login && 'Form-tab-selected'}`} onClick={() => switchLogin(!login)}>Sign Up</span>
+    </div>
+
+  )
 }
 
 export default withStyles(landinPageStyle)(Auth);

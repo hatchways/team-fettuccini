@@ -1,19 +1,13 @@
-const auth = {
-  // isAuthenticated: false,
+export default ({
   authenticate(cb) {
-    // auth.isAuthenticated = true;
     window.localStorage.setItem('token', true);
-
-    setTimeout(cb, 100); // fake async
+    cb()
   },
   signout(cb) {
-    // auth.isAuthenticated = false;
     window.localStorage.removeItem('token')
-    setTimeout(cb, 100);
+    cb()
   },
   isAuthenticated() {
     return window.localStorage.hasOwnProperty('token')
   }
-};
-
-export default auth
+});

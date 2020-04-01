@@ -42,12 +42,7 @@ export default class SignUp extends Component {
 
     let res
     try {
-      res = await this.props.dummyAuth(this.state)
-      if (res.error) {
-        this.setState({ ...this.state, error: res.error })
-      } else {
-        window.localStorage.setItem('token', res.token);
-      }
+      res = await this.props.login()
     } catch (error) {
       console.log(error.message)
     }
@@ -75,7 +70,7 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="name">Name:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-TextField'
+            className='Form-text-input'
             id="name"
             name="name"
             type="text"
@@ -86,7 +81,7 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="email">Email:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-TextField'
+            className='Form-text-input'
             name="email"
             id="email"
             type="email"
@@ -97,7 +92,7 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="password">Password:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-TextField'
+            className='Form-text-input'
             id="password"
             name="password"
             type="password"
@@ -109,7 +104,7 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-TextField'
+            className='Form-text-input'
             id="passwordConfirm"
             name="passwordConfirm"
             type="password"

@@ -5,8 +5,6 @@ import { withStyles } from "@material-ui/core/styles";
 import Login from './Login'
 import SignUp from './SignUp'
 
-import dummyAuth from './dummyAuth'
-
 import auth from './auth'
 
 const landinPageStyle = theme => ({
@@ -37,8 +35,8 @@ function Auth() {
         <div className='Form-container'>
           <button onClick={login}>Log in</button>
           {signIn ?
-            <Login dummyAuth={dummyAuth} /> :
-            <SignUp dummyAuth={dummyAuth} />}
+            <Login login={login} /> :
+            <SignUp login={login} />}
 
           {text} have an account? &nbsp;
           <span className={`Form-switch ${signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign In</span>

@@ -7,7 +7,8 @@ export default class Login extends Component {
     super(props)
     this.state = {
       email: '',
-      password: ''
+      password: '',
+      error: ''
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
@@ -23,14 +24,11 @@ export default class Login extends Component {
 
     let res
     try {
-      res = await this.props.dummyAuth(this.state)
+      res = await this.props.login()
       if (res.error) {
         this.setState({ ...this.state, error: res.error })
         window.alert('error')
       } else {
-        window.alert('OK')
-        window.localStorage.setItem('token', res.token);
-
         this.setState({ ...this.state, error: '' })
       }
     } catch (error) {
@@ -40,9 +38,7 @@ export default class Login extends Component {
 
 
   render() {
-    if (window.localStorage.token) {
-      return <Redirect to='/newgame' />
-    }
+    const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
     return (
       <>
         <Typography className="Form-title">Sign In</Typography>
@@ -69,6 +65,7 @@ export default class Login extends Component {
             onChange={this.handleChange}
             placeholder="Password"
             required />
+          {errorMessage}
           <button className='Form-submit' type='submit'>Sign In</button>
         </form>
       </>

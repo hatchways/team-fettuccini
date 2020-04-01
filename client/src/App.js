@@ -23,10 +23,7 @@ function App() {
         <NavBar />
         <Switch>
           <Route exact path="/" component={Auth} />
-          <ProtectedRoute exact path="/newgame">
-            <NewGame />
-          </ProtectedRoute>
-          {/* <ProtectedRoute exact path="/newgame" component={NewGame} /> */}
+          <ProtectedRoute exact path="/newgame" component={NewGame} />
         </Switch>
 
       </BrowserRouter>

@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
 import { TextField, FormLabel, Typography } from "@material-ui/core";
 
 export default class Login extends Component {

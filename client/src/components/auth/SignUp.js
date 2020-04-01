@@ -1,12 +1,6 @@
 import React, { Component } from "react";
 import { Typography, FormLabel, TextField } from "@material-ui/core";
-import { withStyles } from "@material-ui/core/styles";
-
-const authStyle = theme => ({
-  landingContainer: {
-    margin: theme.spacing(2)
-  }
-});
+// import { withStyles } from "@material-ui/core/styles";
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -40,9 +34,8 @@ export default class SignUp extends Component {
       return
     }
 
-    let res
     try {
-      res = await this.props.login()
+      await this.props.login()
     } catch (error) {
       console.log(error.message)
     }

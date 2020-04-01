@@ -1,18 +1,13 @@
-import React, { useEffects } from "react";
+import React from "react";
 import { MuiThemeProvider } from "@material-ui/core";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
-
-import { theme } from "./themes/theme";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import NavBar from "./components/NavBar";
-
 import Auth from "./components/auth";
-import auth from "./components/auth/auth";
 import ProtectedRoute from "./ProtectedRoute";
+import NewGame from "./components/protected/newGame";
 
-import NewGame from "./components/protected/NewGame";
-
-
+import { theme } from "./themes/theme";
 import "./App.css";
 
 function App() {

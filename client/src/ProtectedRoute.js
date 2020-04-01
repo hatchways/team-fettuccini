@@ -1,13 +1,16 @@
 import React, { Component } from "react";
 import { Redirect, Route } from "react-router-dom";
 
-export default function PrivateRoute({ children, loggedIn, ...rest }) {
+import auth from './components/auth/auth'
+
+export default function PrivateRoute({ children, ...rest }) {
+
   console.log(rest)
   return (
     <Route
 
       render={({ location }) =>
-        loggedIn === true ? (
+        auth.isAuthenticated === true ? (
           children
         ) : (
             <Redirect

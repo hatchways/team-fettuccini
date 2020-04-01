@@ -51,6 +51,7 @@ export default class Login extends Component {
           <TextField
             variant="outlined"
             className='Form-text-input'
+            id="email"
             name="email"
             type="email"
             value={this.state.email}
@@ -61,6 +62,7 @@ export default class Login extends Component {
           <TextField
             variant="outlined"
             className='Form-text-input'
+            id="password"
             name="password"
             type="password"
             value={this.state.password}

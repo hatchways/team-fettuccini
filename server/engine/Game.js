@@ -15,11 +15,23 @@ class Game {
 
 	constructor() {
 		this.state = gameState.RED_SPY;
+		this.board = null;
+		this.redLeft = 0;
+		this.blueLeft = 0;
+		this.numGuessesLeft = 0;
+		this.spyHint = "";
+		this.madeGuess = false;
+		this.reset();
+	}
+
+	reset() {
+		this.state = gameState.RED_SPY;
 		this.board = new Board();
 		this.redLeft = 9;
 		this.blueLeft = 8;
 		this.numGuessesLeft = 0;
 		this.spyHint = "";
+		this.madeGuess = false;
 	}
 
 	getBoardInfo() {
@@ -91,12 +103,28 @@ class Game {
 				this.state = gameState.RED_SPY;
 				break;
 		}
-		return gameState;
+		return this.state;
+	}
+
+	endTurn() {
+		if (this.state == gameState.BLUE_SPY || this.state == gameState.RED_SPY) {
+			console.log("Can't end turn during a Spy Master move");
+			return;
+		}
+		if (!this.madeGuess) {
+			console.log("Have to make at least one guess for a turn");
+			return;
+		}
+		this.madeGuess = false;
+		return this.nextTurn();
 	}
 
 	nextWordGuess(wordNum) {
 		var word = this.board.get_words()[wordNum];
-		if (this.isGameOver()) return;
+		if (this.isGameOver()) {
+			console.log("The game is over.");
+			return;
+		}
 		if (this.state == gameState.RED_SPY || this.state == gameState.BLUE_SPY) {
 			console.log("It is the field operators turn.");
 			return;
@@ -106,9 +134,11 @@ class Game {
 			console.log("The word "+word+" has already been chosen");
 			return;
 		}
+		//console.log("Guessing word "+word);
+		this.madeGuess = true;
 		if (person == word_state.ASSASSIN) {
 			console.log("Assassin Hit");
-			if (gameState == turn.RED_FIELD) {
+			if (this.state == gameState.RED_FIELD) {
 				this.state = gameState.BLUE;
 				console.log("Blue wins");
 			} else {
@@ -119,27 +149,27 @@ class Game {
 			this.blueLeft--;
 			console.log("Blue Agent hit");
 			if (this.state == gameState.RED_FIELD) {
-				this.nextTurn();
+				return this.nextTurn();
 			} else if (this.state == gameState.BLUE_FIELD) {
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
-				if (this.numGuessesLeft==0) this.nextTurn();
+				if (this.numGuessesLeft==0) return this.nextTurn();
 				else this.checkIfWon();
 			}
 		} else if (person == word_state.RED) {
 			this.redLeft--;
 			console.log("Red Agent hit");
 			if (this.state == gameState.BLUE_FIELD) {
-				this.nextTurn();
+				return this.nextTurn();
 			} else if (this.state == gameState.RED_FIELD) {
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
-				if (this.numGuessesLeft==0) this.nextTurn();
+				if (this.numGuessesLeft==0) return this.nextTurn();
 				else this.checkIfWon();
 			}
 		} else {
 			console.log("Civilian hit");
-			this.nextTurn();
+			return this.nextTurn();
 		}
 	}
 
@@ -152,7 +182,7 @@ class Game {
 		console.log("New Spy Hint is "+word+ " for "+guesses);
 		this.spyHint = word;
 		this.numGuessesLeft = guesses;
-		this.nextTurn();
+		return this.nextTurn();
 	}
 
 	checkIfWon() {
@@ -177,4 +207,4 @@ class Game {
 	}
 }
 
-module.exports = Game;
+module.exports = {Game, gameState};

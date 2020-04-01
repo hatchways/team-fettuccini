@@ -42,7 +42,7 @@ class Board {
 				red--;
 			}
 			this.word_list[i]=new GameWord(word, this.state);
-			console.log("Created new word for board "+word+" "+this.state);
+			console.log("Created new word for board "+word+" "+this.state+ " index " + i);
 		}
 	}
 

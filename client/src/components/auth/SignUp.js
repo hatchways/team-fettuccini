@@ -1,22 +1,21 @@
 import React, { Component } from "react";
-import { Typography } from "@material-ui/core";
-import { Redirect } from "react-router-dom";
+import { Typography, FormLabel, TextField } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
 
 const authStyle = theme => ({
   landingContainer: {
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(2)
   }
 });
 
-class SignUp extends Component {
+export default class SignUp extends Component {
   constructor(props) {
     super(props)
     this.state = {
       name: '',
       email: '',
-      password1: '',
-      password2: '',
+      password: '',
+      passwordConfirm: '',
       error: ''
     }
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -31,21 +30,31 @@ class SignUp extends Component {
     })
   }
 
-  handleSubmit(event) {
+  async handleSubmit(event) {
     event.preventDefault()
 
     let error = ''
-    if (this.state.password1 !== this.state.password2) {
+    if (this.state.password !== this.state.passwordConfirm) {
       error = "Passwords must match"
       this.setState({ ...this.state, error })
       return
     }
 
-    window.alert('passed')
-    this.setState({ ...this.state, error })
+    let res
+    try {
+      res = await this.props.dummyAuth(this.state)
+      if (res.error) {
+        this.setState({ ...this.state, error: res.error })
+      } else {
+        window.localStorage.setItem('token', res.token);
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
   }
+
   handleConfirmPassword(event) {
-    let error = this.state.password1 !== event.target.value
+    let error = this.state.password !== event.target.value
       ? "Passwords must match"
       : '';
 
@@ -57,50 +66,54 @@ class SignUp extends Component {
   }
 
   render() {
-    if (this.props.token) {
-      return <Redirect to='/' />
-    }
-
     const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
 
     return (
       <>
         <Typography className="Form-title">Sign up</Typography>
         <form onSubmit={this.handleSubmit}>
-          <label for="name">Name:</label>
-          <input
-            className='Form-text-input'
+          <FormLabel htmlFor="name">Name:</FormLabel>
+          <TextField
+            variant="outlined"
+            className='Form-text-TextField'
+            id="name"
             name="name"
             type="text"
             value={this.state.name}
             onChange={this.handleChange}
             placeholder="Enter your Name"
             required />
-          <label for="email">Email:</label>
-          <input
-            className='Form-text-input'
+          <FormLabel htmlFor="email">Email:</FormLabel>
+          <TextField
+            variant="outlined"
+            className='Form-text-TextField'
             name="email"
+            id="email"
             type="email"
             value={this.state.email}
             onChange={this.handleChange}
             placeholder="Enter your Email"
             required />
-          <label for="email">Password:</label>
-          <input
-            className='Form-text-input'
-            name="password1"
+          <FormLabel htmlFor="password">Password:</FormLabel>
+          <TextField
+            variant="outlined"
+            className='Form-text-TextField'
+            id="password"
+            name="password"
             type="password"
             minLength='6'
-            value={this.state.password1}
+            value={this.state.password}
             onChange={this.handleChange}
             placeholder="Enter Password"
             required />
-          <label for="email">Confirm Password:</label>
-          <input
-            className='Form-text-input'
-            name="password2"
+          <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
+          <TextField
+            variant="outlined"
+            className='Form-text-TextField'
+            id="passwordConfirm"
+            name="passwordConfirm"
             type="password"
-            value={this.state.password2}
+            value={this.state.passwordConfirm}
             onChange={this.handleConfirmPassword}
             placeholder="Enter Password Again" />
           {errorMessage}
@@ -110,4 +123,4 @@ class SignUp extends Component {
     );
   }
 }
-export default withStyles(authStyle)(SignUp);
+// export default withStyles(authStyle)(SignUp);

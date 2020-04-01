@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Typography } from "@material-ui/core";
 import { Redirect } from "react-router-dom";
+import { TextField, FormLabel, Typography } from "@material-ui/core";
 
 export default class Login extends Component {
   constructor(props) {
@@ -20,20 +20,36 @@ export default class Login extends Component {
   }
   async handleSubmit(event) {
     event.preventDefault()
+
+    let res
+    try {
+      res = await this.props.dummyAuth(this.state)
+      if (res.error) {
+        this.setState({ ...this.state, error: res.error })
+        window.alert('error')
+      } else {
+        window.alert('OK')
+        window.localStorage.setItem('token', res.token);
+
+        this.setState({ ...this.state, error: '' })
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
   }
 
 
   render() {
-    if (this.props.token) {
-      return <Redirect to='/' />
+    if (window.localStorage.token) {
+      return <Redirect to='/newgame' />
     }
-
     return (
       <>
         <Typography className="Form-title">Sign In</Typography>
         <form onSubmit={this.handleSubmit}>
-          <label for="email">Email:</label>
-          <input
+          <FormLabel htmlFor="email">Email:</FormLabel>
+          <TextField
+            variant="outlined"
             className='Form-text-input'
             name="email"
             type="email"
@@ -41,8 +57,9 @@ export default class Login extends Component {
             onChange={this.handleChange}
             placeholder="johndoe@gmail.com"
             required />
-          <label for="password">Password:</label>
-          <input
+          <FormLabel htmlFor="password">Password:</FormLabel>
+          <TextField
+            variant="outlined"
             className='Form-text-input'
             name="password"
             type="password"

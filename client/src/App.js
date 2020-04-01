@@ -26,7 +26,7 @@ function App() {
           <ProtectedRoute exact path="/newgame">
             <NewGame />
           </ProtectedRoute>
-          {/* <ProtectedRoute exact path="/newgame"  component={NewGame} /> */}
+          {/* <ProtectedRoute exact path="/newgame" component={NewGame} /> */}
         </Switch>
 
       </BrowserRouter>

@@ -10,7 +10,7 @@ export default function () {
     <h1>
       CODINGWORDS
     </h1>
-    {auth.isAuthenticated ? <button
+    {auth.isAuthenticated() ? <button
       onClick={() => {
         auth.signout(() => history.push("/"));
       }}

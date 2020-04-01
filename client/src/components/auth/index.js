@@ -17,10 +17,6 @@ const landinPageStyle = theme => ({
 
 
 function Auth() {
-  // if (window.localStorage.token) {
-  //   return <Redirect to='/newgame' />
-  // }
-
   const [signIn, switchLogin] = useState(true)
   const text = signIn ? "Don't" : "Already"
 
@@ -34,9 +30,9 @@ function Auth() {
     });
   };
 
-  let loggedIn = window.localStorage.hasOwnPorperty('token') || false
+
   return (
-    (loggedIn) ? <Redirect to="/newgame" />
+    (auth.isAuthenticated()) ? <Redirect to="/newgame" />
       : (
         <div className='Form-container'>
           <button onClick={login}>Log in</button>

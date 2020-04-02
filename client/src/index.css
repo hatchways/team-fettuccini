@@ -25,7 +25,7 @@ code {
 
 /* auth form */
 
-.Form-title::after {
+.title::after {
   content: ' ';
   border-bottom: 2px solid rgb(53, 229, 53);
   max-width: 80px;
@@ -33,7 +33,7 @@ code {
   margin: 1em auto;
 }
 
-.Form-container {
+.container {
   margin: 50px auto;
   padding: 20px;
   background-color: white;
@@ -44,12 +44,12 @@ code {
   box-shadow: 0px 2px 5px 5px #888888;
 }
 
-.Form-container > form {
+.container > form {
   margin: 0 auto;
   max-width: 300px;
 }
 
-.Form-container > form > label {
+.container > form > label {
   float: left;
   font-weight: bold;
 }

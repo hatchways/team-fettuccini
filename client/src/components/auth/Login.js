@@ -40,7 +40,7 @@ export default class Login extends Component {
     const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
     return (
       <>
-        <Typography className="Form-title">Sign In</Typography>
+        <Typography className="title">Sign In</Typography>
         <form onSubmit={this.handleSubmit}>
           <FormLabel htmlFor="email">Email:</FormLabel>
           <TextField

@@ -32,7 +32,7 @@ function Auth() {
   return (
     (auth.isAuthenticated()) ? <Redirect to="/newgame" />
       : (
-        <div className='Form-container'>
+        <div className='container'>
           <button onClick={login}>Log in</button>
           {signIn ?
             <Login login={login} /> :

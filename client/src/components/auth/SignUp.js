@@ -58,7 +58,7 @@ export default class SignUp extends Component {
 
     return (
       <>
-        <Typography className="Form-title">Sign up</Typography>
+        <Typography className="title">Sign up</Typography>
         <form onSubmit={this.handleSubmit}>
           <FormLabel htmlFor="name">Name:</FormLabel>
           <TextField

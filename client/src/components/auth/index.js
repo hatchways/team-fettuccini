@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 
+import { Typography, Paper, Button } from "@material-ui/core";
+
 import Login from './Login'
 import SignUp from './SignUp'
 
@@ -31,8 +33,9 @@ function Auth(props) {
   return (
     (auth.isAuthenticated()) ? <Redirect to="/newgame" />
       : (
-        <div className='container'>
-          <button onClick={login}>Log in</button>
+        <Paper>
+          <Button variant="contained" color="primary" onClick={login}>Log in</Button>
+          <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>
           {signIn ?
             <Login login={login} /> :
             <SignUp login={login} />}
@@ -40,7 +43,7 @@ function Auth(props) {
           {text} have an account? &nbsp;
           <span className={`Form-switch ${signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign In</span>
           <span className={`Form-switch ${!signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign Up</span>
-        </div>
+        </Paper>
 
       )
   )

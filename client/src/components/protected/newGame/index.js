@@ -1,4 +1,4 @@
-import React, { useRef, Fragment } from "react";
+import React, { Fragment } from "react";
 
 import { Typography, Paper, Button, FormLabel, TextField } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
@@ -34,19 +34,20 @@ export default class NewGame extends React.Component {
   }
 
   render() {
+    console.log('props', this.props)
 
     const { list } = this.state
 
     const mappedEmails = list.length > 0 ? (this.state.list.map((email, idx) => (
       <div key={`invite${idx}`}>
-        <CheckIcon />
+        <CheckIcon variant="checkIcon" />
         {email}&nbsp;
         <span className="italic">invited</span>
       </div>))) : null
 
     return <Fragment>
-      <Paper className="container">
-        <Typography className="title">New Game</Typography>
+      <Paper>
+        <Typography variant="h4">New Game</Typography>
         <div>
           <div>
             <form onSubmit={this.handleSubmit}>
@@ -73,6 +74,8 @@ export default class NewGame extends React.Component {
           <div>
             <FormLabel>Or share link:</FormLabel>
             <Button variant="outlined" onClick={this.copyLink}><LinkIcon />Copy</Button>
+            <CheckIcon variant="colorPrimary" />
+            <CheckIcon />
           </div>
         </div>
         <div>

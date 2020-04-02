@@ -1,5 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
+import { FormLabel, TextField, Button } from "@material-ui/core";
 
 import auth from './auth/auth'
 
@@ -10,12 +11,14 @@ export default function () {
     <h1>
       CODINGWORDS
     </h1>
-    {auth.isAuthenticated() ? <button
+    {auth.isAuthenticated() ? <Button
+      variant="contained"
+      color="primary"
       onClick={() => {
         auth.signout(() => history.push("/"));
       }}
     >
       Sign out
-      </button> : null}
+      </Button> : null}
   </div>
 }

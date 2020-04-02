@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { TextField, FormLabel, Typography } from "@material-ui/core";
+import { TextField, FormLabel, Button } from "@material-ui/core";
 
 export default class Login extends Component {
   constructor(props) {
@@ -40,7 +40,6 @@ export default class Login extends Component {
     const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
     return (
       <>
-        <Typography className="title">Sign In</Typography>
         <form onSubmit={this.handleSubmit}>
           <FormLabel htmlFor="email">Email:</FormLabel>
           <TextField
@@ -65,7 +64,7 @@ export default class Login extends Component {
             placeholder="Password"
             required />
           {errorMessage}
-          <button className='Form-submit' type='submit'>Sign In</button>
+          <Button variant="contained" color="primary" type='submit'>Sign In</Button>
         </form>
       </>
     );

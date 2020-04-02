@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Typography, FormLabel, TextField } from "@material-ui/core";
-// import { withStyles } from "@material-ui/core/styles";
+import { FormLabel, TextField, Button } from "@material-ui/core";
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -58,7 +57,6 @@ export default class SignUp extends Component {
 
     return (
       <>
-        <Typography className="title">Sign up</Typography>
         <form onSubmit={this.handleSubmit}>
           <FormLabel htmlFor="name">Name:</FormLabel>
           <TextField
@@ -105,7 +103,7 @@ export default class SignUp extends Component {
             onChange={this.handleConfirmPassword}
             placeholder="Enter Password Again" />
           {errorMessage}
-          <button className='Form-submit' type='submit'>Sign Up</button>
+          <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
         </form>
       </>
     );

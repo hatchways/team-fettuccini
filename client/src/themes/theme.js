@@ -4,11 +4,49 @@ export const theme = createMuiTheme({
   typography: {
     fontFamily: '"Roboto"',
     fontSize: 12,
-    h1: {
-      textAlign: 'center'
+    h4: {
+      textAlign: 'center',
+      "&:after": {
+        content: 'close-quote',
+        borderBottom: "2px solid rgb(53, 229, 53)",
+        maxWidth: "80px",
+        display: "block",
+        margin: "1em auto"
+      }
     }
   },
   palette: {
-    primary: { main: "#DF1B1B" }
+    primary: {
+      main: "rgb(53, 229, 53)"
+    },
+    secondary: { main: "#DF1B1B" }
+  },
+  overrides: {
+    MuiPaper: {
+      root: {
+        textAlign: "center",
+        margin: "50px auto",
+        padding: "20px",
+        width: "60%",
+        maxWidth: "500px"
+      }
+    },
+    // MuiButton: {
+    //   text: {
+    //     color: "white"
+    //   }
+    // },
+    MuiCheck: {
+      custom: {
+        fill: "rgb(53, 229, 53)"
+      }
+    },
+    MuiTypography: {
+      custom: {
+        textAlign: 'right',
+        marginBottom: "60px",
+        display: "block"
+      }
+    }
   }
 });

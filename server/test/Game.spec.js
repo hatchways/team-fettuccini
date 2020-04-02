@@ -15,6 +15,7 @@ chai.use(chaiHttp);
 
 describe('Game', () => {
 
+	//Function to return where all red, blue, civilian and assassins are.
   function metaGame() {
 		var g = new Game();
 		var b = g.board;
@@ -83,6 +84,18 @@ describe('Game', () => {
 	  equal(g.getState(), gameState.RED_SPY);
 	  equal(g.madeGuess,false);
 
+  });
+
+  it ("Turn cycle should stop when a team has won.", () => {
+	  var infoObj = metaGame();
+	  var g = infoObj.g;
+	  g.state = gameState.RED_WON;
+	  g.nextTurn();
+	  equal(g.getState(),gameState.RED_WON);
+	  
+	  g.state = gameState.BLUE_WON;
+	  g.nextTurn();
+	  equal(g.getState(),gameState.BLUE_WON);
   });
 
   //Spy hint tests
@@ -189,9 +202,10 @@ describe('Game', () => {
 	equal(g.madeGuess, false);
   });
 
-  it ("Should not end turn when during SPYMASTER turns", () => {
+  it ("Should not end turn during SPYMASTER turns", () => {
 	var infoObj = metaGame();
 	var g = infoObj.g;
+	//Testing with madeGuess = true
 	g.state = gameState.BLUE_SPY;
 	g.madeGuess = true;
 	g.endTurn();
@@ -203,7 +217,7 @@ describe('Game', () => {
 	g.endTurn();
 	equal(g.state, gameState.RED_SPY);
 	equal(g.madeGuess, true);
-
+	//Testing with madGuess=false
 	g.state = gameState.BLUE_SPY;
 	g.madeGuess = false;
 	g.endTurn();
@@ -223,6 +237,7 @@ describe('Game', () => {
 	var g = infoObj.g;
 	var words = g.board.get_words();
 
+	//Choose some words.
 	words[infoObj.ri[0]].choose();
 	words[infoObj.ri[1]].choose();
 	words[infoObj.ri[2]].choose();
@@ -244,6 +259,7 @@ describe('Game', () => {
 	var civI = 0;
 	
 	//console.log(g.getBoardInfo());
+	//Make sure that the board info gets all of the words correctly. Chosen words should return the side (ie, red, blue, etc)
 	for (var i = 0;i<boardValues.length;i++)
 	{
 		//console.log(boardValues[i]+" "+i+" "+infoObj.ri[redI]+" "+infoObj.bi[blueI]+" "+infoObj.ci[civI]+" "+infoObj.assi);

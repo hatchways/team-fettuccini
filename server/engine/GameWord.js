@@ -4,6 +4,7 @@ class GameWord {
 	constructor(word, side) {
 		this.val = word;
 		this.person = side;
+		//Variable to determine if the word has been picked.
 		this.chosen = false;
 	}
 

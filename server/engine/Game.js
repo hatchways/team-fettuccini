@@ -1,6 +1,6 @@
 const Board =  require("./Board.js");
 const GameWord = require("./GameWord.js");
-const word_state = require("./WordStates.js");
+const WordStates = require("./WordStates.js");
 
 var gameState = {
 	BLUE_WON: "Blue won",
@@ -24,6 +24,7 @@ class Game {
 		this.reset();
 	}
 
+	//Function to restart game.
 	reset() {
 		this.state = gameState.RED_SPY;
 		this.board = new Board();
@@ -34,6 +35,7 @@ class Game {
 		this.madeGuess = false;
 	}
 
+	//Function to get state of the board to be sent to front end.
 	getBoardInfo() {
 		var words = this.board.get_words();
 		var boardValues = new Array(25);
@@ -42,11 +44,11 @@ class Game {
 			var gWord = words[i];
 			if (gWord.get_chosen()) {
 				var person = gWord.get_person();
-				if (person == word_state.ASSASSIN) {
+				if (person == WordStates.ASSASSIN) {
 					boardValues[i] = "_ASSASSIN";
-				} else if (person == word_state.BLUE) {
+				} else if (person == WordStates.BLUE) {
 					boardValues[i] = "_BLUE";
-				} else if (person == word_state.RED) {
+				} else if (person == WordStates.RED) {
 					boardValues[i] = "_RED";
 				} else {
 					boardValues[i] = "_CIVILIAN";
@@ -78,6 +80,7 @@ class Game {
 		return this.guesses;
 	}
 
+	//Cycle through the turns
 	nextTurn() {
 		this.checkIfWon();
 		this.madeGuess = false;
@@ -107,6 +110,7 @@ class Game {
 		return this.state;
 	}
 
+	//End turn if the Field operator has made at least one guess.
 	endTurn() {
 		if (this.state == gameState.BLUE_SPY || this.state == gameState.RED_SPY) {
 			console.log("Can't end turn during a Spy Master move");
@@ -120,6 +124,7 @@ class Game {
 		return this.nextTurn();
 	}
 
+	//Guess the next word given the index of the word to be chosen.
 	nextWordGuess(wordNum) {
 		var word = this.board.get_words()[wordNum];
 		if (this.isGameOver()) {
@@ -130,15 +135,18 @@ class Game {
 			console.log("It is the field operators turn.");
 			return;
 		}
+
+		//Check if the word has already been chosen.
 		var person = this.board.chooseWord(word);
 		if (!person) {
 			console.log("The word "+word+" has already been chosen");
 			return;
 		}
-		//console.log("Guessing word "+word);
+		//At least one guess has been made.
 		this.madeGuess = true;
-		if (person == word_state.ASSASSIN) {
+		if (person == WordStates.ASSASSIN) {
 			console.log("Assassin Hit");
+			//When a field agent hits an assassin, the other team wins.
 			if (this.state == gameState.RED_FIELD) {
 				this.state = gameState.BLUE_WON;
 				console.log("Blue wins");
@@ -146,36 +154,44 @@ class Game {
 				this.state = gameState.RED_WON;
 				console.log("Red wins");
 			}
-		} else if (person == word_state.BLUE) {
+		} else if (person == WordStates.BLUE) {
 			this.blueLeft--;
 			console.log("Blue Agent hit");
+			//Turn ends when red field agent hits blue target
 			if (this.state == gameState.RED_FIELD) {
 				return this.nextTurn();
 			} else if (this.state == gameState.BLUE_FIELD) {
+				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
 				console.log(this.blueLeft+" blue left");
 				this.checkIfWon();
+				//Go to next turn if there are no guesses left.
 				if (this.numGuessesLeft==0) return this.nextTurn();
 			}
-		} else if (person == word_state.RED) {
+		} else if (person == WordStates.RED) {
 			this.redLeft--;
 			console.log("Red Agent hit");
+			//Turn ends when a blue field agent hits red target.
 			if (this.state == gameState.BLUE_FIELD) {
 				return this.nextTurn();
 			} else if (this.state == gameState.RED_FIELD) {
+				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
 				console.log(this.blueLeft+" red left");
 				this.checkIfWon();
+				//Go to next turn if there are no guesses left.
 				if (this.numGuessesLeft==0) return this.nextTurn();
 			}
 		} else {
+			//Go to the next turn if a civilian is hit.
 			console.log("Civilian hit");
 			return this.nextTurn();
 		}
 	}
 
+	//Function for processing a spies hint. Takes in number of words that are related and the word hint itself as parameters.
 	nextSpyHint(guesses, word) {
 		if (this.isGameOver()) return;
 		if (this.state == gameState.RED_FIELD || this.state == gameState.BLUE_FIELD) {
@@ -188,6 +204,7 @@ class Game {
 		return this.nextTurn();
 	}
 
+	//Check if a team has won and change the state accordingly.
 	checkIfWon() {
 		if (this.redLeft == 0)
 		{
@@ -201,6 +218,7 @@ class Game {
 		}
 	}
 
+	//Check if the game is over.
 	isGameOver() {
 		if (this.state == gameState.RED_WON || this.state == gameState.BLUE_WON) {
 			console.log("The game has ended");

@@ -5,7 +5,6 @@ const Dictionary = require("./Dictionary");
 class Board {
 
 	constructor() {
-		//TODO create list of 25 words along with the word state.
 		this.word_list = new Array(25);
 		var i = 0;
 		var dictSize = Dictionary.length;

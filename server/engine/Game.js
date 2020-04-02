@@ -42,11 +42,11 @@ class Game {
 			var gWord = words[i];
 			if (gWord.get_chosen()) {
 				var person = gWord.get_person();
-				if (person = word_state.ASSASSIN) {
+				if (person == word_state.ASSASSIN) {
 					boardValues[i] = "_ASSASSIN";
-				} else if (person = word_state.BLUE) {
+				} else if (person == word_state.BLUE) {
 					boardValues[i] = "_BLUE";
-				} else if (person = word_state.RED) {
+				} else if (person == word_state.RED) {
 					boardValues[i] = "_RED";
 				} else {
 					boardValues[i] = "_CIVILIAN";

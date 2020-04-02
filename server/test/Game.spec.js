@@ -65,15 +65,23 @@ describe('Game', () => {
   it ("Turn cycle should be RED_SPY->RED_FIELD->BLUE_SPY->BLUE_FIELD", () => {
 	  var infoObj = metaGame();
 	  var g = infoObj.g;
+	  g.madeGuess = false;
 	  equal(g.getState(), gameState.RED_SPY);
 	  g.nextTurn();
 	  equal(g.getState(), gameState.RED_FIELD);
+	  equal(g.madeGuess,false);
+	  g.madeGuess = false;
 	  g.nextTurn();
 	  equal(g.getState(), gameState.BLUE_SPY);
+	  equal(g.madeGuess,false);
+	  g.madeGuess = true;
 	  g.nextTurn();
 	  equal(g.getState(), gameState.BLUE_FIELD);
+	  equal(g.madeGuess,false);
+	  g.madeGuess = true;
 	  g.nextTurn();
 	  equal(g.getState(), gameState.RED_SPY);
+	  equal(g.madeGuess,false);
 
   });
 
@@ -160,7 +168,6 @@ describe('Game', () => {
 	g.madeGuess = true;
 	g.endTurn();
 	equal(g.state, gameState.BLUE_SPY);
-	equal(g.madeGuess, false);
   });
 
   it ("Should end turn of BLUE field agent", () => {
@@ -170,7 +177,6 @@ describe('Game', () => {
 	g.madeGuess = true;
 	g.endTurn();
 	equal(g.state, gameState.RED_SPY);
-	equal(g.madeGuess, false);
   });
 
   it ("Should not end turn when 0 guesses have been made", () => {
@@ -287,6 +293,142 @@ describe('Game', () => {
 		}
 	}
 	equal(eq, false);
+  });
+
+  //Next Guess
+  it ("BLUE should win when RED picks the ASSASSIN", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	g.state = gameState.RED_FIELD;
+	g.nextWordGuess(infoObj.assi);
+	equal(g.getState(), gameState.BLUE_WON);
+  });
+
+  it ("RED should win when BLUE picks the ASSASSIN", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	g.state = gameState.BLUE_FIELD;
+	g.nextWordGuess(infoObj.assi);
+	equal(g.getState(), gameState.RED_WON);
+  });
+
+  it ("RED FIELD OPERATOR turn should end when BLUE AGENT is picked", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.blueLeft;
+	g.state = gameState.RED_FIELD;
+	g.nextWordGuess(infoObj.bi[0]);
+	equal(g.getState(), gameState.BLUE_SPY);
+	equal(g.blueLeft, temp-1);
+  });
+
+  it ("BLUE FIELD OPERATOR turn should end when RED AGENT is picked", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.redLeft;
+	g.state = gameState.BLUE_FIELD;
+	g.nextWordGuess(infoObj.ri[0]);
+	equal(g.getState(), gameState.RED_SPY);
+	equal(g.redLeft, temp-1);
+  });
+
+  it ("RED FIELD OPERATOR picks a RED AGENT with guesses left. Should decrement number of guesses and stay on same turn", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.redLeft;
+	g.state = gameState.RED_FIELD;
+	g.numGuessesLeft = 2;
+	g.nextWordGuess(infoObj.ri[0]);
+	equal(g.getState(), gameState.RED_FIELD);
+	equal(g.redLeft, temp-1);
+  });
+
+  it ("RED FIELD OPERATOR picks the last RED AGENT. RED should win.", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.redLeft-1;
+	g.state = gameState.RED_FIELD;
+	g.numGuessesLeft = g.redLeft;
+
+	for (;temp>=0;temp--) {
+		g.nextWordGuess(infoObj.ri[temp]);
+		if (temp>0) equal(g.getState(), gameState.RED_FIELD);
+		else equal(g.getState(), gameState.RED_WON);
+		equal(g.redLeft, temp);
+		equal(g.numGuessesLeft, temp);
+	}
+	equal(g.getState(), gameState.RED_WON);
+  });
+
+  it ("RED FIELD OPERATOR picks a RED AGENT and has 0 guesses left. Should go to the next turn.", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.redLeft;
+	g.state = gameState.RED_FIELD;
+	g.numGuessesLeft = 1;
+	g.nextWordGuess(infoObj.ri[0]);
+	equal(g.getState(), gameState.BLUE_SPY);
+	equal(g.redLeft, temp-1);
+  });
+
+  it ("BLUE FIELD OPERATOR picks a BLUE AGENT with guesses left. Should decrement number of guesses and stay on same turn", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.blueLeft;
+	g.state = gameState.BLUE_FIELD;
+	g.numGuessesLeft = 2;
+	g.nextWordGuess(infoObj.bi[0]);
+	equal(g.getState(), gameState.BLUE_FIELD);
+	equal(g.blueLeft, temp-1);
+  });
+
+  it ("BLUE FIELD OPERATOR picks the last BLUE AGENT. BLUE should win.", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.blueLeft-1;
+	g.state = gameState.BLUE_FIELD;
+	g.numGuessesLeft = g.blueLeft;
+
+	for (;temp>=0;temp--) {
+		g.nextWordGuess(infoObj.bi[temp]);
+		if (temp>0) equal(g.getState(), gameState.BLUE_FIELD);
+		else equal(g.getState(), gameState.BLUE_WON);
+		equal(g.blueLeft, temp);
+		equal(g.numGuessesLeft, temp);
+	}
+  });
+
+  it ("BLUE FIELD OPERATOR picks a BLUE AGENT and has 0 guesses left. Should go to the next turn.", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.blueLeft;
+	g.state = gameState.BLUE_FIELD;
+	g.numGuessesLeft = 1;
+	g.nextWordGuess(infoObj.bi[0]);
+	equal(g.getState(), gameState.RED_SPY);
+	equal(g.blueLeft, temp-1);
+  });
+
+  it ("BLUE FIELD OPERATOR picks a CIVILIAN with guesses left. Should go to RED SPYMASTER next", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.blueLeft;
+	g.state = gameState.BLUE_FIELD;
+	g.numGuessesLeft = 2;
+	g.nextWordGuess(infoObj.ci[0]);
+	equal(g.getState(), gameState.RED_SPY);
+	equal(g.blueLeft, temp);
+  });
+
+  it ("RED FIELD OPERATOR picks a CIVILIAN with guesses left. Should go to BLUE SPYMASTER next", () => {
+	var infoObj = metaGame();
+	var g = infoObj.g;
+	var temp = g.redLeft;
+	g.state = gameState.RED_FIELD;
+	g.numGuessesLeft = 2;
+	g.nextWordGuess(infoObj.ci[0]);
+	equal(g.getState(), gameState.BLUE_SPY);
+	equal(g.redLeft, temp);
   });
 
   it ("Turn cycle should be RED_SPY->RED_FIELD->BLUE_SPY->BLUE_FIELD", () => {

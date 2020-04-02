@@ -80,6 +80,7 @@ class Game {
 
 	nextTurn() {
 		this.checkIfWon();
+		this.madeGuess = false;
 		if (this.isGameOver()) return;
 		switch(this.state) {
 			case gameState.RED_SPY:
@@ -139,10 +140,10 @@ class Game {
 		if (person == word_state.ASSASSIN) {
 			console.log("Assassin Hit");
 			if (this.state == gameState.RED_FIELD) {
-				this.state = gameState.BLUE;
+				this.state = gameState.BLUE_WON;
 				console.log("Blue wins");
 			} else {
-				this.state = gameState.RED;
+				this.state = gameState.RED_WON;
 				console.log("Red wins");
 			}
 		} else if (person == word_state.BLUE) {
@@ -153,8 +154,9 @@ class Game {
 			} else if (this.state == gameState.BLUE_FIELD) {
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
+				console.log(this.blueLeft+" blue left");
+				this.checkIfWon();
 				if (this.numGuessesLeft==0) return this.nextTurn();
-				else this.checkIfWon();
 			}
 		} else if (person == word_state.RED) {
 			this.redLeft--;
@@ -164,8 +166,9 @@ class Game {
 			} else if (this.state == gameState.RED_FIELD) {
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
+				console.log(this.blueLeft+" red left");
+				this.checkIfWon();
 				if (this.numGuessesLeft==0) return this.nextTurn();
-				else this.checkIfWon();
 			}
 		} else {
 			console.log("Civilian hit");

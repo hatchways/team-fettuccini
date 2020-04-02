@@ -13,46 +13,52 @@ const WordStates = require("../engine/WordStates.js");
 chai.should();
 chai.use(chaiHttp);
 
+
 describe('Game', () => {
-
+	var infoObj;
 	//Function to return where all red, blue, civilian and assassins are.
-  function metaGame() {
-		var g = new Game();
-		var b = g.board;
+  beforeEach(function() {
+	//Will run before all tests in this block
+	var g = new Game();
+	var b = g.board;
 
-		var wordList = b.get_words();
+	var wordList = b.get_words();
 
-		var rIndex = 0;
-		var bIndex = 0;
-		var cIndex = 0;
+	var rIndex = 0;
+	var bIndex = 0;
+	var cIndex = 0;
 
-		var redIndices = [];
-		var blueIndices = [];
-		var civilianIndices = [];
-		var assassinIndex = -1;
+	var redIndices = [];
+	var blueIndices = [];
+	var civilianIndices = [];
+	var assassinIndex = -1;
 
-		var i = 0;
-		for (i=0;i<wordList.length;i++) {
-			var wordObj = wordList[i];
-			var word = wordObj.get_val();
-			var person = wordObj.get_person();
+	var i = 0;
+	for (i=0;i<wordList.length;i++) {
+		var wordObj = wordList[i];
+		var word = wordObj.get_val();
+		var person = wordObj.get_person();
 
-			if (person == WordStates.BLUE) {
-				blueIndices[bIndex] = i;
-				bIndex++;
-			} else if (person == WordStates.RED) {
-				redIndices[rIndex] = i;
-				rIndex++;
-			} else if (person == WordStates.CIVILIAN) {
-				civilianIndices[cIndex] = i;
-				cIndex++;
-			} else {
-				assassinIndex = i;
-			}
+		if (person == WordStates.BLUE) {
+			blueIndices[bIndex] = i;
+			bIndex++;
+		} else if (person == WordStates.RED) {
+			redIndices[rIndex] = i;
+			rIndex++;
+		} else if (person == WordStates.CIVILIAN) {
+			civilianIndices[cIndex] = i;
+			cIndex++;
+		} else {
+			assassinIndex = i;
 		}
-		var infoObj = {g: g, assi: assassinIndex, bi: blueIndices, ri: redIndices, ci:civilianIndices};
-		return infoObj;
 	}
+	infoObj = {g: g, assi: assassinIndex, bi: blueIndices, ri: redIndices, ci:civilianIndices};
+  });
+
+  afterEach(function() {
+    //Will run after all tests in this block
+    delete infoObj;
+  });
 
 	//Check that board is initialized
   it("it should have a non-empty board", () => {
@@ -64,7 +70,6 @@ describe('Game', () => {
 
   //nextTurn test
   it ("Turn cycle should be RED_SPY->RED_FIELD->BLUE_SPY->BLUE_FIELD", () => {
-	  var infoObj = metaGame();
 	  var g = infoObj.g;
 	  g.madeGuess = false;
 	  equal(g.getState(), gameState.RED_SPY);
@@ -87,7 +92,6 @@ describe('Game', () => {
   });
 
   it ("Turn cycle should stop when a team has won.", () => {
-	  var infoObj = metaGame();
 	  var g = infoObj.g;
 	  g.state = gameState.RED_WON;
 	  g.nextTurn();
@@ -100,7 +104,7 @@ describe('Game', () => {
 
   //Spy hint tests
   it ("Spy hint not being processed properly for red spymaster", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.RED_FIELD);
@@ -109,7 +113,7 @@ describe('Game', () => {
   });
 
   it ("Spy hint not being processed properly for blue spymaster", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.BLUE_SPY;
 	g.nextSpyHint(1, "hi");
@@ -120,7 +124,7 @@ describe('Game', () => {
 
   //Check if won tests
   it ("Red should win", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.redLeft = 0;
 	g.checkIfWon();
@@ -128,7 +132,7 @@ describe('Game', () => {
   });
 
   it ("Blue should win", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.blueLeft = 0;
 	g.checkIfWon();
@@ -136,7 +140,7 @@ describe('Game', () => {
   });
 
   it ("Nobody should win yet", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.redLeft = 9;
 	g.blueLeft = 8;
@@ -146,7 +150,7 @@ describe('Game', () => {
   });
 
   it ("Failing to detect that the game is over when blue wins", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.BLUE_WON;
 	equal(g.isGameOver(), true);
@@ -154,14 +158,14 @@ describe('Game', () => {
 
   //Checking if game is over
   it ("Failing to detect that the game is over when red wins", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.RED_WON;
 	equal(g.isGameOver(), true);
   });
 
   it ("Falsely detecting a winner", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.RED_SPY;
 	equal(g.isGameOver(), false);
@@ -175,7 +179,7 @@ describe('Game', () => {
 
   //Voluntarily ending turn of field agent
   it ("Should end turn of RED Field agent", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.RED_FIELD;
 	g.madeGuess = true;
@@ -184,7 +188,7 @@ describe('Game', () => {
   });
 
   it ("Should end turn of BLUE field agent", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.BLUE_FIELD;
 	g.madeGuess = true;
@@ -193,7 +197,7 @@ describe('Game', () => {
   });
 
   it ("Should not end turn when 0 guesses have been made", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.BLUE_FIELD;
 	g.madeGuess = false;
@@ -203,7 +207,7 @@ describe('Game', () => {
   });
 
   it ("Should not end turn during SPYMASTER turns", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	//Testing with madeGuess = true
 	g.state = gameState.BLUE_SPY;
@@ -233,7 +237,7 @@ describe('Game', () => {
 
   //Board info.
   it ("Board info needs to return info of all cards on the board", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var words = g.board.get_words();
 
@@ -282,7 +286,7 @@ describe('Game', () => {
 
   //Reset
   it ("Reset should set the board to its initial state", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.BLUE_FIELD;
 	g.madeGuess = true;
@@ -313,7 +317,7 @@ describe('Game', () => {
 
   //Next Guess
   it ("BLUE should win when RED picks the ASSASSIN", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.RED_FIELD;
 	g.nextWordGuess(infoObj.assi);
@@ -321,7 +325,7 @@ describe('Game', () => {
   });
 
   it ("RED should win when BLUE picks the ASSASSIN", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	g.state = gameState.BLUE_FIELD;
 	g.nextWordGuess(infoObj.assi);
@@ -329,7 +333,7 @@ describe('Game', () => {
   });
 
   it ("RED FIELD OPERATOR turn should end when BLUE AGENT is picked", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.blueLeft;
 	g.state = gameState.RED_FIELD;
@@ -339,7 +343,7 @@ describe('Game', () => {
   });
 
   it ("BLUE FIELD OPERATOR turn should end when RED AGENT is picked", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.redLeft;
 	g.state = gameState.BLUE_FIELD;
@@ -349,7 +353,7 @@ describe('Game', () => {
   });
 
   it ("RED FIELD OPERATOR picks a RED AGENT with guesses left. Should decrement number of guesses and stay on same turn", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.redLeft;
 	g.state = gameState.RED_FIELD;
@@ -360,7 +364,7 @@ describe('Game', () => {
   });
 
   it ("RED FIELD OPERATOR picks the last RED AGENT. RED should win.", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.redLeft-1;
 	g.state = gameState.RED_FIELD;
@@ -377,7 +381,7 @@ describe('Game', () => {
   });
 
   it ("RED FIELD OPERATOR picks a RED AGENT and has 0 guesses left. Should go to the next turn.", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.redLeft;
 	g.state = gameState.RED_FIELD;
@@ -388,7 +392,7 @@ describe('Game', () => {
   });
 
   it ("BLUE FIELD OPERATOR picks a BLUE AGENT with guesses left. Should decrement number of guesses and stay on same turn", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.blueLeft;
 	g.state = gameState.BLUE_FIELD;
@@ -399,7 +403,7 @@ describe('Game', () => {
   });
 
   it ("BLUE FIELD OPERATOR picks the last BLUE AGENT. BLUE should win.", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.blueLeft-1;
 	g.state = gameState.BLUE_FIELD;
@@ -415,7 +419,7 @@ describe('Game', () => {
   });
 
   it ("BLUE FIELD OPERATOR picks a BLUE AGENT and has 0 guesses left. Should go to the next turn.", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.blueLeft;
 	g.state = gameState.BLUE_FIELD;
@@ -426,7 +430,7 @@ describe('Game', () => {
   });
 
   it ("BLUE FIELD OPERATOR picks a CIVILIAN with guesses left. Should go to RED SPYMASTER next", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.blueLeft;
 	g.state = gameState.BLUE_FIELD;
@@ -437,7 +441,7 @@ describe('Game', () => {
   });
 
   it ("RED FIELD OPERATOR picks a CIVILIAN with guesses left. Should go to BLUE SPYMASTER next", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	var temp = g.redLeft;
 	g.state = gameState.RED_FIELD;
@@ -448,7 +452,7 @@ describe('Game', () => {
   });
 
   it ("Turn cycle should be RED_SPY->RED_FIELD->BLUE_SPY->BLUE_FIELD", () => {
-	var infoObj = metaGame();
+	
 	var g = infoObj.g;
 	equal(g.getState(), gameState.RED_SPY, "First state should be RED SPYMASTER");
 	g.nextSpyHint(1, "hi");

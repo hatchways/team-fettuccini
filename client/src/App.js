@@ -17,6 +17,8 @@ function App() {
       <BrowserRouter>
         <NavBar />
         <Switch>
+          <Route exact path="/signin" render={(props) => <Auth {...props} signIn={true} />} />
+          <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
           <Route exact path="/" component={Auth} />
           <ProtectedRoute exact path="/newgame" component={NewGame} />
         </Switch>

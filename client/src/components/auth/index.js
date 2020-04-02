@@ -13,10 +13,11 @@ const landinPageStyle = theme => ({
   }
 });
 
-
-function Auth() {
-  const [signIn, switchLogin] = useState(true)
+function Auth(props) {
+  let signInProp = props.hasOwnProperty('signIn') ? props.signIn : false
+  const [signIn, switchLogin] = useState(signInProp)
   const text = signIn ? "Don't" : "Already"
+  console.log('props', props)
 
   let history = useHistory();
   let location = useLocation();

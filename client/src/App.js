@@ -19,7 +19,7 @@ function App() {
         <Switch>
           <Route exact path="/signin" render={(props) => <Auth {...props} signIn={true} />} />
           <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
-          <Route exact path="/" component={Auth} />
+          <Route path="/" component={Auth} />
           <ProtectedRoute exact path="/newgame" component={NewGame} />
         </Switch>
 

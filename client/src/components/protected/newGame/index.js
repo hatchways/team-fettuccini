@@ -72,7 +72,7 @@ export default class NewGame extends React.Component {
           <div>
             <FormLabel>Or share link:</FormLabel>
             <Button variant="outlined" onClick={this.copyLink}><LinkIcon />Copy</Button>
-            <CheckIcon variant="colorPrimary" />
+            <CheckIcon variant="primary" />
             <CheckIcon />
           </div>
         </div>

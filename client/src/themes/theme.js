@@ -31,21 +31,20 @@ export const theme = createMuiTheme({
         maxWidth: "500px"
       }
     },
-    // MuiButton: {
-    //   text: {
-    //     color: "white"
-    //   }
-    // },
     MuiCheck: {
       custom: {
         fill: "rgb(53, 229, 53)"
       }
     },
-    MuiTypography: {
-      custom: {
-        textAlign: 'right',
-        marginBottom: "60px",
-        display: "block"
+    MuiButton: {
+      contained: {
+        textAlign: "center"
+      }
+    },
+    MuiFormLabel: {
+      root: {
+        display: 'block',
+        textAlign: "left"
       }
     }
   }

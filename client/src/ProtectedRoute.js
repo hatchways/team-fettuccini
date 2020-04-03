@@ -14,3 +14,23 @@ export default function PrivateRoute({ children, ...rest }) {
       />
     );
 }
+
+// export default function PrivateRoute({ children, ...rest }) {
+//   return (
+//     <Route
+//       {...rest}
+//       render={({ location }) =>
+//         auth.isAuthenticated() ? (
+//           children
+//         ) : (
+//             <Redirect
+//               to={{
+//                 pathname: "/",
+//                 state: { from: location }
+//               }}
+//             />
+//           )
+//       }
+//     />
+//   );
+// }

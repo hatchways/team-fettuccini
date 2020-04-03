@@ -34,8 +34,6 @@ export default class NewGame extends React.Component {
   }
 
   render() {
-    console.log('props', this.props)
-
     const { list } = this.state
 
     const mappedEmails = list.length > 0 ? (this.state.list.map((email, idx) => (

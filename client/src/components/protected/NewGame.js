@@ -1,10 +1,18 @@
-import React, { Fragment } from "react";
+import React, { Component, Fragment } from "react";
 
-import { Typography, Paper, Button, FormLabel, TextField } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
 
-export default class NewGame extends React.Component {
+import { withStyles } from "@material-ui/core/styles";
+
+const newGameStyle = theme => ({
+  centerText: {
+    textAlign: 'center'
+  },
+});
+
+class NewGame extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -35,6 +43,8 @@ export default class NewGame extends React.Component {
 
   render() {
     const { list } = this.state
+    const { classes } = this.props;
+    console.log(this.props)
 
     const mappedEmails = list.length > 0 ? (this.state.list.map((email, idx) => (
       <div key={`invite${idx}`}>
@@ -46,8 +56,8 @@ export default class NewGame extends React.Component {
     return <Fragment>
       <Paper>
         <Typography variant="h4">New Game</Typography>
-        <div>
-          <div>
+        <Grid container spacing={2}>
+          <Grid item xs={8}>
             <form onSubmit={this.handleSubmit}>
               <FormLabel htmlFor="email">Invite friends via email:</FormLabel>
               {document.queryCommandSupported('copy') && <textarea
@@ -68,14 +78,12 @@ export default class NewGame extends React.Component {
               <Button variant="contained" type="submit">Send invite</Button>
             </form>
             {mappedEmails}
-          </div>
-          <div>
-            <FormLabel>Or share link:</FormLabel>
+          </Grid>
+          <Grid item xs={4} >
+            <FormLabel className={classes.centerText}>Or share link:</FormLabel>
             <Button variant="outlined" onClick={this.copyLink}><LinkIcon />Copy</Button>
-            <CheckIcon variant="primary" />
-            <CheckIcon />
-          </div>
-        </div>
+          </Grid>
+        </Grid>
         <div>
           <Button variant="contained" color="primary">create game</Button>
         </div>
@@ -83,3 +91,4 @@ export default class NewGame extends React.Component {
     </Fragment>
   }
 }
+export default withStyles(newGameStyle)(NewGame)

@@ -5,7 +5,7 @@ export const theme = createMuiTheme({
     fontFamily: '"Roboto"',
     fontSize: 12,
     h1: {
-      // could customize the h1 variant as well
+      textAlign: 'center'
     }
   },
   palette: {

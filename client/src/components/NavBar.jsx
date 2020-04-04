@@ -34,19 +34,22 @@ export default function (props) {
 
   return (
     <Box className={classes.header}>
-      <Button className={`${classes.invisible} ${classes.navSides}`}>&nbsp;</Button>
+      {auth.isAuthenticated() ? <Button
+        className={`${classes.invisible} ${classes.navSides}`}>
+        Sign out
+      </Button> : null}
+
       <Typography variant="h2" className={classes.navMain}>
         CODINGWORDS
       </Typography>
+
       {auth.isAuthenticated() ? <Button
         className={classes.navSides}
-
         variant="contained"
         color="primary"
         onClick={() => {
           auth.signout(() => history.push("/"));
-        }}
-      >
+        }}>
         Sign out
       </Button> : null}
     </Box>)

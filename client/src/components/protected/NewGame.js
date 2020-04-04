@@ -10,6 +10,22 @@ const newGameStyle = theme => ({
   centerText: {
     textAlign: 'center'
   },
+  leftText: {
+    textAlign: 'left'
+  },
+  gridContainer: {
+    flexWrap: "wrap-reverse",
+    justifyContent: "space-around",
+    margin: "10px auto"
+  },
+  standardFlex: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  standardFlexChild: {
+    flexGrow: '1',
+  },
+
 });
 
 class NewGame extends React.Component {
@@ -35,8 +51,7 @@ class NewGame extends React.Component {
   }
 
   copyLink = () => {
-    console.log(this.textArea.value)
-    this.textArea.value = 'game_url'
+    this.textArea.value = 'game_id_goes_here'
     this.textArea.select();
     document.execCommand('copy')
   }
@@ -44,7 +59,6 @@ class NewGame extends React.Component {
   render() {
     const { list } = this.state
     const { classes } = this.props;
-    console.log(this.props)
 
     const mappedEmails = list.length > 0 ? (this.state.list.map((email, idx) => (
       <div key={`invite${idx}`}>
@@ -56,30 +70,32 @@ class NewGame extends React.Component {
     return <Fragment>
       <Paper>
         <Typography variant="h4">New Game</Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={8}>
+        <Grid container spacing={2} className={classes.gridContainer}>
+          <Grid item>
             <form onSubmit={this.handleSubmit}>
               <FormLabel htmlFor="email">Invite friends via email:</FormLabel>
               {document.queryCommandSupported('copy') && <textarea
                 ref={(textarea) => this.textArea = textarea}
                 style={{ opacity: '0', position: 'absolute' }}
                 value={this.state.email} />}
-
-              <TextField
-                variant="outlined"
-                className='Form-text-input'
-                name="email"
-                id="email"
-                type="email"
-                value={this.state.email}
-                onChange={this.handleChange}
-                placeholder="Email address"
-                required />
-              <Button variant="contained" type="submit">Send invite</Button>
+              <div className={classes.standardFlex}>
+                <TextField
+                  variant="outlined"
+                  // className='Form-text-input'
+                  className={classes.standardFlexChild}
+                  name="email"
+                  id="email"
+                  type="email"
+                  value={this.state.email}
+                  onChange={this.handleChange}
+                  placeholder="Email address"
+                  required />
+                <Button variant="contained" type="submit" className={classes.standardFlexChild}>Send invite</Button>
+              </div>
             </form>
-            {mappedEmails}
+            <div className={classes.leftText}>{mappedEmails}</div>
           </Grid>
-          <Grid item xs={4} >
+          <Grid item>
             <FormLabel className={classes.centerText}>Or share link:</FormLabel>
             <Button variant="outlined" onClick={this.copyLink}><LinkIcon />Copy</Button>
           </Grid>

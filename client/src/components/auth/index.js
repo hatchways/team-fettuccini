@@ -34,7 +34,6 @@ function Auth(props) {
     (auth.isAuthenticated()) ? <Redirect to="/newgame" />
       : (
         <Paper>
-          <Button variant="contained" color="primary" onClick={login}>Log in</Button>
           <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>
           {signIn ?
             <Login login={login} /> :

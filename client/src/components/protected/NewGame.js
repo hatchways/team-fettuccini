@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from "react";
-
 import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
@@ -25,7 +24,13 @@ const newGameStyle = theme => ({
   standardFlexChild: {
     flexGrow: '1',
   },
-
+  mainFill: {
+    fill: theme.palette.primary.main
+  },
+  rotate45: {
+    transform: "rotate(-45deg)",
+    margin: '1px'
+  }
 });
 
 class NewGame extends React.Component {
@@ -62,7 +67,7 @@ class NewGame extends React.Component {
 
     const mappedEmails = list.length > 0 ? (this.state.list.map((email, idx) => (
       <div key={`invite${idx}`}>
-        <CheckIcon variant="checkIcon" />
+        <CheckIcon className={classes.mainFill} />
         {email}&nbsp;
         <span className="italic">invited</span>
       </div>))) : null
@@ -81,7 +86,6 @@ class NewGame extends React.Component {
               <div className={classes.standardFlex}>
                 <TextField
                   variant="outlined"
-                  // className='Form-text-input'
                   className={classes.standardFlexChild}
                   name="email"
                   id="email"
@@ -97,7 +101,7 @@ class NewGame extends React.Component {
           </Grid>
           <Grid item>
             <FormLabel className={classes.centerText}>Or share link:</FormLabel>
-            <Button variant="outlined" onClick={this.copyLink}><LinkIcon />Copy</Button>
+            <Button variant="outlined" onClick={this.copyLink}><LinkIcon className={classes.rotate45} />Copy</Button>
           </Grid>
         </Grid>
         <div>

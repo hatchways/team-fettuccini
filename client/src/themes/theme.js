@@ -47,6 +47,18 @@ export const theme = createMuiTheme({
         display: 'block',
         textAlign: "left"
       }
+    },
+    MuiTextField: {
+      root: {
+        width: "100%",
+        margin: "8px 0",
+        borderRadius: "4px",
+        boxSizing: "border-box",
+        fontSize: "20px"
+      }
+    },
+    authInput: {
+      marginBottom: "1em"
     }
   }
 });

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Typography, FormLabel, TextField } from "@material-ui/core";
-// import { withStyles } from "@material-ui/core/styles";
+import { FormLabel, TextField, Button } from "@material-ui/core";
 
 export default class SignUp extends Component {
   constructor(props) {
@@ -34,6 +33,12 @@ export default class SignUp extends Component {
       return
     }
 
+    if (this.state.password.length < 6) {
+      error = "Password must be at least 6 characters long"
+      this.setState({ ...this.state, error })
+      return
+    }
+
     try {
       await this.props.login()
     } catch (error) {
@@ -58,12 +63,10 @@ export default class SignUp extends Component {
 
     return (
       <>
-        <Typography className="Form-title">Sign up</Typography>
         <form onSubmit={this.handleSubmit}>
           <FormLabel htmlFor="name">Name:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-input'
             id="name"
             name="name"
             type="text"
@@ -74,7 +77,6 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="email">Email:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-input'
             name="email"
             id="email"
             type="email"
@@ -85,7 +87,6 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="password">Password:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-input'
             id="password"
             name="password"
             type="password"
@@ -97,18 +98,18 @@ export default class SignUp extends Component {
           <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
           <TextField
             variant="outlined"
-            className='Form-text-input'
             id="passwordConfirm"
             name="passwordConfirm"
             type="password"
+            minLength='6'
             value={this.state.passwordConfirm}
             onChange={this.handleConfirmPassword}
-            placeholder="Enter Password Again" />
+            placeholder="Enter Password Again"
+            required />
           {errorMessage}
-          <button className='Form-submit' type='submit'>Sign Up</button>
+          <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
         </form>
       </>
     );
   }
 }
-// export default withStyles(authStyle)(SignUp);

@@ -33,6 +33,12 @@ export default class SignUp extends Component {
       return
     }
 
+    if (this.state.password.length < 6) {
+      error = "Password must be at least 6 characters long"
+      this.setState({ ...this.state, error })
+      return
+    }
+
     try {
       await this.props.login()
     } catch (error) {
@@ -95,9 +101,11 @@ export default class SignUp extends Component {
             id="passwordConfirm"
             name="passwordConfirm"
             type="password"
+            minLength='6'
             value={this.state.passwordConfirm}
             onChange={this.handleConfirmPassword}
-            placeholder="Enter Password Again" />
+            placeholder="Enter Password Again"
+            required />
           {errorMessage}
           <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
         </form>

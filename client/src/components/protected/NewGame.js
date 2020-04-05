@@ -5,33 +5,7 @@ import CheckIcon from '@material-ui/icons/Check';
 
 import { withStyles } from "@material-ui/core/styles";
 
-const newGameStyle = theme => ({
-  centerText: {
-    textAlign: 'center'
-  },
-  leftText: {
-    textAlign: 'left'
-  },
-  gridContainer: {
-    flexWrap: "wrap-reverse",
-    justifyContent: "space-around",
-    margin: "10px auto"
-  },
-  standardFlex: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  standardFlexChild: {
-    flexGrow: '1',
-  },
-  mainFill: {
-    fill: theme.palette.primary.main
-  },
-  rotate45: {
-    transform: "rotate(-45deg)",
-    margin: '1px'
-  }
-});
+import style from "./styleWaitingNewGame"
 
 class NewGame extends React.Component {
   constructor(props) {
@@ -80,6 +54,7 @@ class NewGame extends React.Component {
             <form onSubmit={this.handleSubmit}>
               <FormLabel htmlFor="email">Invite friends via email:</FormLabel>
               {document.queryCommandSupported('copy') && <textarea
+                readOnly
                 ref={(textarea) => this.textArea = textarea}
                 style={{ opacity: '0', position: 'absolute' }}
                 value={this.state.email} />}
@@ -111,4 +86,4 @@ class NewGame extends React.Component {
     </Fragment>
   }
 }
-export default withStyles(newGameStyle)(NewGame)
+export default withStyles(style)(NewGame)

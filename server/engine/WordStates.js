@@ -1,8 +1,8 @@
-var word_state = {
+var WordStates = {
 	ASSASSIN: 'Assassin',
 	BLUE: 'Blue',
 	RED: 'Red',
 	CIVILIAN: 'Civilian'
 }
 
-module.exports = word_state;
+module.exports = WordStates;

@@ -1,4 +1,4 @@
-const word_state = require("./WordStates.js");
+const WordStates = require("./WordStates.js");
 
 class GameWord {
 	constructor(word, side) {
@@ -8,23 +8,23 @@ class GameWord {
 		this.chosen = false;
 	}
 
-	get_val() {
+	getVal() {
 		return this.val;
 	}
 
-	get_person() {
+	getPerson() {
 		return this.person;
 	}
 
-	get_chosen() {
+	getChosen() {
 		return this.chosen;
 	}
 
 	choose() {
-		if (this.chosen = true) {
+		if (this.chosen) {
 			return false;
 		}
-		chosen = true;
+		this.chosen = true;
 		return true;
 	}
 }

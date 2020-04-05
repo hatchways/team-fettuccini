@@ -6,26 +6,25 @@ class Board {
 
 	constructor() {
 		this.wordList = new Array(25);
-		var i = 0;
-		var dictSize = Dictionary.length;
-		var wordMap = {};
-		var red = 9;
-		var blue = 8;
-		var civilian = 7;
-		var assassin = 1;
-		for (i = 0;i<25;i++)
+		const dictSize = Dictionary.length;
+		const wordMap = {};
+		let red = 9;
+		let blue = 8;
+		let civilian = 7;
+		let assassin = 1;
+		for (let i = 0;i<25;i++)
 		{
-			var word;
+			let word;
 			//Make sure no word is repeated.
 			do
 			{
-				var randInt = Math.floor(Math.random() * dictSize);
+				const randInt = Math.floor(Math.random() * dictSize);
 				word = Dictionary[randInt];
 			} while (word in wordMap);
 			//indicate that the word is being used now.
 			wordMap[word] = true;
 			//Randomly choose which side to assign the word.
-			var randInt = Math.floor(Math.random()*(25-i));
+			const randInt = Math.floor(Math.random()*(25-i));
 			this.state = WordStates.RED;
 			if (randInt>=red) {
 				if (randInt>=red+blue) {
@@ -52,12 +51,12 @@ class Board {
 	chooseWord(word) {
 		//Choose the word if it is not chosen and return true. If it is already chosen, return false.
 		if (word.chosen) return false;
-		console.log("Choosing word "+word.get_val());
+		console.log("Choosing word "+word.getVal());
 		word.choose();
-		return word.get_person();
+		return word.getPerson();
 	}
 
-	get_words() {
+	getWords() {
 		return this.wordList;
 	}
 }

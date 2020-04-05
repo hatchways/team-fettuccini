@@ -1,5 +1,5 @@
 const GameWord = require("../engine/GameWord.js");
-const word_state = require("../engine/WordStates.js");
+const WordStates = require("../engine/WordStates.js");
 const Dictionary = require("../engine/Dictionary");
 const Board = require("../engine/Board.js");
 const chai = require("chai");
@@ -22,14 +22,14 @@ describe('Board', () => {
 	var red = 0;
 	var blue = 0;
 	var civ = 0;
-	var wl = b.get_words();
+	var wl = b.getWords();
 
 	for (var i = 0;i<25;i++) {
-		if (wl[i].get_person() == word_state.ASSASSIN) {
+		if (wl[i].getPerson() == WordStates.ASSASSIN) {
 			assassin++;
-		} else if (wl[i].get_person() == word_state.RED) {
+		} else if (wl[i].getPerson() == WordStates.RED) {
 			red++;
-		} else if (wl[i].get_person() == word_state.BLUE) {
+		} else if (wl[i].getPerson() == WordStates.BLUE) {
 			blue++;
 		} else {
 			civ++;
@@ -48,25 +48,25 @@ describe('Board', () => {
 	var red = 0;
 	var blue = 0;
 	var civ = 0;
-	var wl = b.get_words();
+	var wl = b.getWords();
 
 	var wordMap = {};
 	for (var i = 0;i<25;i++) {
-		equal(b.get_words()[i] in wordMap, false);
+		equal(b.getWords()[i] in wordMap, false);
 		wordMap[i] = true;
 	}
   });
 
   it ("Word is not being chosen properly", () => {
 	var b = new Board();
-	var p = b.get_words()[0].get_person();
+	var p = b.getWords()[0].getPerson();
 	//Should return false because word has not been chosen yet.
-	equal(b.get_words()[0].get_chosen(), false);
+	equal(b.getWords()[0].getChosen(), false);
 	//Should return true to show that the word has been successfully chosen.
-	equal(b.chooseWord(b.get_words()[0]), p);
+	equal(b.chooseWord(b.getWords()[0]), p);
 	//Should return false to show that the word has already been chosen.
-	equal(b.chooseWord(b.get_words()[0]), false);
+	equal(b.chooseWord(b.getWords()[0]), false);
 	//Should return true to show that the word has been chosen.
-	equal(b.get_words()[0].get_chosen(), true);
+	equal(b.getWords()[0].getChosen(), true);
   });
 });

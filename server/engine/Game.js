@@ -37,13 +37,13 @@ class Game {
 
 	//Function to get state of the board to be sent to front end.
 	getBoardInfo() {
-		var words = this.board.get_words();
-		var boardValues = new Array(25);
+		const words = this.board.getWords();
+		let boardValues = new Array(25);
 		for (var i = 0;i<25;i++)
 		{
 			var gWord = words[i];
-			if (gWord.get_chosen()) {
-				var person = gWord.get_person();
+			if (gWord.getChosen()) {
+				var person = gWord.getPerson();
 				if (person == WordStates.ASSASSIN) {
 					boardValues[i] = "_ASSASSIN";
 				} else if (person == WordStates.BLUE) {
@@ -54,7 +54,7 @@ class Game {
 					boardValues[i] = "_CIVILIAN";
 				}
 			} else {
-				boardValues[i] = gWord.get_val();
+				boardValues[i] = gWord.getVal();
 			}
 		}
 		return boardValues;
@@ -126,7 +126,7 @@ class Game {
 
 	//Guess the next word given the index of the word to be chosen.
 	nextWordGuess(wordNum) {
-		var word = this.board.get_words()[wordNum];
+		const word = this.board.getWords()[wordNum];
 		if (this.isGameOver()) {
 			console.log("The game is over.");
 			return;
@@ -137,7 +137,7 @@ class Game {
 		}
 
 		//Check if the word has already been chosen.
-		var person = this.board.chooseWord(word);
+		const person = this.board.chooseWord(word);
 		if (!person) {
 			console.log("The word "+word+" has already been chosen");
 			return;

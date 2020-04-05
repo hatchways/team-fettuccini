@@ -14,7 +14,8 @@ const {Game, gameState} = require("./engine/Game.js");
 const readline = require("readline");
 
 var app = express();
-
+app.use(express.json({extended: false}));
+app.get('/', (req, res) => res.send('API Running'));
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
@@ -23,6 +24,7 @@ app.use(express.static(join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
+app.use("/creatematch", require("./routes/creatematch"));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -40,8 +42,7 @@ app.use(function(err, req, res, next) {
   res.json({ error: err });
 });
 
-//connectDB();
-//app.listen(3000, ()=>console.log('server started on port 3000'));
-//module.exports = app;
+connectDB();
+app.listen(3000, ()=>console.log('server started on port 3000'));
 
 

@@ -21,7 +21,52 @@ class Game {
 		this.numGuessesLeft = 0;
 		this.spyHint = "";
 		this.madeGuess = false;
+		this.hostID = "";
+		this.redSpy = "";
+		this.blueSpy = "";
+		this.redField = "";
+		this.blueField = "";
 		this.reset();
+	}
+
+	setHost(id) {
+		this.hostID = "";
+	}
+
+	getHost() {
+		return this.hostID;
+	}
+
+	setRedSpy(id) {
+		this.redSpy = id;
+	}
+
+	getRedSpy() {
+		return this.redSpy;
+	}
+
+	setRedField(id) {
+		this.redField = id;
+	}
+
+	getRedField() {
+		return this.redField;
+	}
+
+	setBlueSpy(id) {
+		this.blueSpy = id;
+	}
+
+	getBlueSpy() {
+		return this.blueSpy;
+	}
+
+	setBlueField(id) {
+		this.blueField = id;
+	}
+
+	getBlueField() {
+		return this.blueField;
 	}
 
 	//Function to restart game.

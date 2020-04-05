@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 
-import { Typography, Paper, Button } from "@material-ui/core";
+import { Typography, Paper } from "@material-ui/core";
 
 import Login from './Login'
 import SignUp from './SignUp'

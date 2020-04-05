@@ -1,14 +1,6 @@
 import React, { Component } from "react";
 import { TextField, FormLabel, Button } from "@material-ui/core";
 
-import { withStyles } from "@material-ui/core/styles";
-
-const newGameStyle = theme => ({
-  centerText: {
-    textAlign: 'center'
-  }
-});
-
 export default class Login extends Component {
   constructor(props) {
     super(props)

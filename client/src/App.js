@@ -6,8 +6,8 @@ import NavBar from "./components/NavBar";
 import Auth from "./components/auth";
 
 import ProtectedRoute from "./ProtectedRoute";
-import NewGame from "./components/protected/NewGame";
 import WaitingRoom from "./components/protected/WaitingRoom";
+import Welcome from "./components/protected/Welcome";
 
 import { theme } from "./themes/theme";
 import "./App.css";
@@ -20,8 +20,9 @@ function App() {
         <Switch>
           <Route exact path="/signin" render={(props) => <Auth {...props} signIn={true} />} />
           <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
+          <ProtectedRoute exact path="/welcome" component={Welcome} />
           <ProtectedRoute exact path="/waitingroom" component={WaitingRoom} />
-          <ProtectedRoute exact path="/newgame" component={NewGame} />
+          <ProtectedRoute exact path="/match/:matchid" component={WaitingRoom} />
           <Route path="/" component={Auth} />
         </Switch>
 

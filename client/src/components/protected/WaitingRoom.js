@@ -14,7 +14,7 @@ class WaitingRoom
     this.state = {
       matchId: '',
       email: '',
-      list: []
+      list: ['You']
     }
   }
 
@@ -52,8 +52,7 @@ class WaitingRoom
       ? (this.state.list.map((email, idx) => (
         <div key={`invite${idx}`}>
           <CheckIcon className={classes.mainFill} />
-          {email}&nbsp;
-          <span className="italic">invited</span>
+          {email}
         </div>))) : null
 
     return <Fragment>
@@ -61,40 +60,19 @@ class WaitingRoom
         <Typography variant="h4">Match Id: {matchId}</Typography>
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
-            <form onSubmit={this.handleSubmit}>
-              <FormLabel htmlFor="email">Invite friends via email:</FormLabel>
-              {document.queryCommandSupported('copy') && <textarea
-                readOnly
-                ref={(textarea) => this.textArea = textarea}
-                style={{ opacity: '0', position: 'absolute' }}
-                value={this.state.email} />}
-              <div className={classes.standardFlex}>
-                <TextField
-                  variant="outlined"
-                  className={classes.standardFlexChild}
-                  name="email"
-                  id="email"
-                  type="email"
-                  value={this.state.email}
-                  onChange={this.handleChange}
-                  placeholder="Email address"
-                  required />
-                <Button variant="contained" type="submit" className={classes.standardFlexChild}>Send invite</Button>
-              </div>
-            </form>
+            <FormLabel>Players ready for match:</FormLabel>
             <div className={classes.leftText}>{mappedEmails}</div>
           </Grid>
           <Grid item>
-            <FormLabel className={classes.centerText}>Or share link:</FormLabel>
+            <FormLabel className={classes.centerText}>Share match id:</FormLabel>
             <Button variant="outlined" onClick={this.copyLink}><LinkIcon className={classes.rotate45} />Copy</Button>
           </Grid>
         </Grid>
         <div>
-          <Button variant="contained" color="primary">create game</Button>
+          <Button variant="contained" color="primary">Start Match</Button>
         </div>
       </Paper>
     </Fragment>
   }
 }
-export default withStyles(style)(WaitingRoom
-)
+export default withStyles(style)(WaitingRoom)

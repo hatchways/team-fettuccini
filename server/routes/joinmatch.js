@@ -7,12 +7,12 @@ const { check, validationResult } = require('express-validator/check');
 
 const MatchManager = require('../admin/MatchManagement.js');
 
-router.get("/", 
+router.post("/", 
 [
 	check('userID', 'User ID is required').not().isEmpty(),
 	check("matchID", "Match ID is required").not().isEmpty(),
 	check('position', "Position required").not().isEmpty(),
-	check('position', "Invalid position").isIn(["RS, RF, BS, BF"])
+	check('position', "Invalid position").isIn(["RS", "RF", "BS", "BF"])
 ],
 function(req, res, next) {
 	console.log("hello");
@@ -22,13 +22,10 @@ function(req, res, next) {
 	}
 
 	const {userID, matchID, position} = req.body;
-
+	//Put the player in the match at the given position.
 	try {
-		let gameID = MatchManager.joinMatch(userID, matchID, position);
-		const payload = {
-			matchID : gameID
-		}
-
+		const payload = MatchManager.joinMatch(matchID, userID, position);
+		console.log("here");
 		res.json(payload);
 	} catch (err) {
 		console.error(err.message);

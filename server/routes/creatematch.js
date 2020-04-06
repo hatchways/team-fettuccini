@@ -22,11 +22,8 @@ function(req, res, next) {
 
 	try {
 		let gameID = MatchManager.createMatch(hostID);
-		const payload = {
-			matchID : gameID
-		}
 
-		res.json(payload);
+		res.json(gameID);
 	} catch (err) {
 		console.error(err.message);
 		res.status(500).send('Server error');

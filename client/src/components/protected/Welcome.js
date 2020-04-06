@@ -9,7 +9,7 @@ class Welcome extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      gameId: ''
+      matchId: ''
     }
   }
 
@@ -19,9 +19,24 @@ class Welcome extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault()
-    if (this.state.gameId !== "") {
+    if (this.state.matchId !== "") {
 
     }
+  }
+
+  newGame = async () => {
+    const matchId = Math.floor(Math.random() * 100).toString()
+    try {
+      // API call to create new game
+
+    } catch (error) {
+      console.log('failed to create new game', error)
+    }
+
+    this.props.history.push({
+      pathname: `/waitingroom/${matchId}`,
+      state: { matchId }
+    })
   }
 
   render() {
@@ -32,15 +47,15 @@ class Welcome extends Component {
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <form onSubmit={this.handleSubmit}>
-              <FormLabel htmlFor="gameId">Join a Game:</FormLabel>
+              <FormLabel htmlFor="matchId">Join a Game:</FormLabel>
               <div className={classes.standardFlex}>
                 <TextField
                   variant="outlined"
                   className={classes.standardFlexChild}
-                  name="gameId"
-                  id="gameId"
+                  name="matchId"
+                  id="matchId"
                   type="text"
-                  value={this.state.gameId}
+                  value={this.state.matchId}
                   onChange={this.handleChange}
                   placeholder="Enter Game ID"
                   required />
@@ -50,7 +65,7 @@ class Welcome extends Component {
           </Grid>
           <Grid item>
             <FormLabel className={classes.centerText}>Create a Game:</FormLabel>
-            <Button variant="outlined" onClick={() => this.props.history.push("/waitingroom")}>New Game</Button>
+            <Button variant="outlined" onClick={this.newGame}>New Game</Button>
           </Grid>
         </Grid>
       </Paper>

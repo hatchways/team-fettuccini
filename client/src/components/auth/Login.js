@@ -31,7 +31,7 @@ export default class Login extends Component {
         this.setState({ ...this.state, error: '' })
       }
     } catch (error) {
-      console.log(error.message)
+      console.log('Login API error')
     }
   }
 

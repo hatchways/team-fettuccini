@@ -12,9 +12,18 @@ class WaitingRoom
   constructor(props) {
     super(props)
     this.state = {
+      matchId: '',
       email: '',
       list: []
     }
+  }
+
+  componentDidMount = () => {
+    if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
+      this.props.history.push('/welcome')
+    }
+    const { matchId } = this.props.location.state
+    this.setState({ ...this.state, matchId })
   }
 
   handleChange = (event) => {
@@ -31,25 +40,25 @@ class WaitingRoom
   }
 
   copyLink = () => {
-    this.textArea.value = 'game_id_goes_here'
+    this.textArea.value = this.state.matchId
     this.textArea.select();
     document.execCommand('copy')
   }
 
   render() {
-    const { list } = this.state
+    const { list, matchId } = this.state
     const { classes } = this.props;
-
-    const mappedEmails = list.length > 0 ? (this.state.list.map((email, idx) => (
-      <div key={`invite${idx}`}>
-        <CheckIcon className={classes.mainFill} />
-        {email}&nbsp;
-        <span className="italic">invited</span>
-      </div>))) : null
+    const mappedEmails = list.length > 0
+      ? (this.state.list.map((email, idx) => (
+        <div key={`invite${idx}`}>
+          <CheckIcon className={classes.mainFill} />
+          {email}&nbsp;
+          <span className="italic">invited</span>
+        </div>))) : null
 
     return <Fragment>
       <Paper>
-        <Typography variant="h4">New Game</Typography>
+        <Typography variant="h4">Match Id: {matchId}</Typography>
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <form onSubmit={this.handleSubmit}>

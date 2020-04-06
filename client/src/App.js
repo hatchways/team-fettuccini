@@ -21,7 +21,7 @@ function App() {
           <Route exact path="/signin" render={(props) => <Auth {...props} signIn={true} />} />
           <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
           <ProtectedRoute exact path="/welcome" component={Welcome} />
-          <ProtectedRoute exact path="/waitingroom" component={WaitingRoom} />
+          <ProtectedRoute exact path="/waitingroom/:matchId" component={WaitingRoom} />
           <ProtectedRoute exact path="/match/:matchid" component={WaitingRoom} />
           <Route path="/" component={Auth} />
         </Switch>

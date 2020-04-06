@@ -7,10 +7,30 @@ export default function PrivateRoute({ children, ...rest }) {
   return auth.isAuthenticated() ? (
     <Route {...rest}>{children}</Route>
   ) : (
-    <Redirect
-      to={{
-        pathname: "/"
-      }}
-    />
-  );
+      <Redirect
+        to={{
+          pathname: "/"
+        }}
+      />
+    );
 }
+
+// export default function PrivateRoute({ children, ...rest }) {
+//   return (
+//     <Route
+//       {...rest}
+//       render={({ location }) =>
+//         auth.isAuthenticated() ? (
+//           children
+//         ) : (
+//             <Redirect
+//               to={{
+//                 pathname: "/",
+//                 state: { from: location }
+//               }}
+//             />
+//           )
+//       }
+//     />
+//   );
+// }

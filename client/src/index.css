@@ -13,56 +13,17 @@ code {
     monospace;
 }
 
-/* NavBar */
-
-.header {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  background-color: white;
-}
-
 
 /* auth form */
 
-.Form-title::after {
-  content: ' ';
-  border-bottom: 2px solid rgb(53, 229, 53);
-  max-width: 80px;
-  display: block;
-  margin: 1em auto;
-}
-
-.Form-container {
-  margin: 50px auto;
-  padding: 20px;
-  background-color: white;
-  border-radius: 8px;
-  width:60%;
-  max-width: 500px;
-  text-align: center;
-  box-shadow: 0px 2px 5px 5px #888888;
-}
-
-.Form-container > form {
+.container > form {
   margin: 0 auto;
   max-width: 300px;
 }
 
-.Form-container > form > label {
+.container > form > label {
   float: left;
   font-weight: bold;
-}
-
-.Form-text-input {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-size: 20px;
 }
 
 .Form-warning {

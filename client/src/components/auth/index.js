@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Redirect, useHistory, useLocation } from "react-router-dom";
 import { withStyles } from "@material-ui/core/styles";
 
+import { Typography, Paper } from "@material-ui/core";
+
 import Login from './Login'
 import SignUp from './SignUp'
 
@@ -13,9 +15,8 @@ const landinPageStyle = theme => ({
   }
 });
 
-
-function Auth() {
-  const [signIn, switchLogin] = useState(true)
+function Auth(props) {
+  const [signIn, switchLogin] = useState(props.hasOwnProperty('signIn') ? props.signIn : true)
   const text = signIn ? "Don't" : "Already"
 
   let history = useHistory();
@@ -30,10 +31,10 @@ function Auth() {
 
 
   return (
-    (auth.isAuthenticated()) ? <Redirect to="/newgame" />
+    (auth.isAuthenticated()) ? <Redirect to="/waitingroom" />
       : (
-        <div className='Form-container'>
-          <button onClick={login}>Log in</button>
+        <Paper>
+          <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>
           {signIn ?
             <Login login={login} /> :
             <SignUp login={login} />}
@@ -41,7 +42,7 @@ function Auth() {
           {text} have an account? &nbsp;
           <span className={`Form-switch ${signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign In</span>
           <span className={`Form-switch ${!signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign Up</span>
-        </div>
+        </Paper>
 
       )
   )

@@ -18,22 +18,29 @@ export default class Login extends Component {
       [event.target.name]: event.target.value
     })
   }
-  async handleSubmit(event) {
+  handleSubmit(event) {
     event.preventDefault()
 
-    let res
-    try {
-      res = await this.props.login()
-      if (res.error) {
-        this.setState({ ...this.state, error: res.error })
-        window.alert('error')
-      } else {
-        this.setState({ ...this.state, error: '' })
-      }
-    } catch (error) {
-      console.log(error.message)
-    }
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+      body: JSON.stringify({ email: this.state.email, password: this.state.password })
+    };
+
+    fetch('/users/login', requestOptions)
+        .then(res => {
+          if (res.status === 200) {
+              this.props.login();
+          } else {
+            console.log(res.message);
+          }
+        })  
+        .catch (error => {
+          console.log(error.message)
+        }) 
   }
+     
+
 
 
   render() {

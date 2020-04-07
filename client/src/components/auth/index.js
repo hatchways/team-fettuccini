@@ -33,7 +33,7 @@ function Auth(props) {
   return (
     (auth.isAuthenticated()) ? <Redirect to="/welcome" />
       : (
-        <Paper>
+        <Paper className="MuiPaper-customPrimary">
           <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>
           {signIn ?
             <Login login={login} /> :

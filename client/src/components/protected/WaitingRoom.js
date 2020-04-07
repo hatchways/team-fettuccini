@@ -64,8 +64,13 @@ class WaitingRoom
         </div>))) : null
 
     return <Fragment>
-      <Paper>
+      <Paper className="MuiPaper-customPrimary">
         <Typography variant="h4">Match Id: {matchId}</Typography>
+        {document.queryCommandSupported('copy') && <textarea
+          readOnly
+          ref={(textarea) => this.textArea = textarea}
+          style={{ opacity: '0', position: 'absolute' }}
+          value={this.state.matchId} />}
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>

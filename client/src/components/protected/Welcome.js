@@ -42,7 +42,7 @@ class Welcome extends Component {
   render() {
     const { classes } = this.props
     return (<Fragment>
-      <Paper>
+      <Paper className="MuiPaper-customPrimary">
         <Typography variant="h4">Welcome Spy</Typography>
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>

@@ -1,43 +1,48 @@
 
 const {Game, gameState} = require("../engine/Game.js");
-var matchesByID = new Map();
 const matchNotFound = {info: "", message: "Match not found"};
-function getGame(matchID) {
-	if (!(matchesByID.has(matchID))) {
-		//throw exception
-	}
-	return matchesByID.get(matchID);
-}
 
-var matchManager = {
+class MatchManager {
+
+	constructor() {
+		this.matchesByID = new Map();
+	}
+
+	getGame(matchID) {
+		if (!(this.matchesByID.has(matchID))) {
+		//throw exception
+		}
+		return this.matchesByID.get(matchID);
+	}
+
 	//Create match with id of time + host id.
-	createMatch: function(hostID) {
+	createMatch(hostID) {
 		let game = new Game();
 		game.setHost(hostID);
 		let d = new Date();
 		let matchID = d.getTime()+"-"+hostID;
-		matchesByID.set(matchID, game);
+		this.matchesByID.set(matchID, game);
 		console.log("Created game "+matchID);
-		console.log("Create game "+matchesByID.get(matchID));
+		console.log("Create game "+this.matchesByID.get(matchID));
 		return {matchID: matchID};
-	},
+	}
 
 	//Match info
-	getMatchInfo: function(matchID) {
-		let game = getGame(matchID);
+	getMatchInfo(matchID) {
+		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let info  = game.getBoardInfo();
 		let state = game.getState();
 		return {info: info, state: state};
-	},
+	}
 	
 	//Join the user to the match and give the user the given position.
-	joinMatch: function (matchID, userID, position) {
+	joinMatch(matchID, userID, position) {
 		let mess = "Space is occupied";
 		console.log("Looking for "+matchID);
-		console.log(matchesByID.get(matchID));
-		if (matchesByID.has(matchID)) {
-			let game = getGame(matchID);
+		console.log(this.matchesByID.get(matchID));
+		if (this.matchesByID.has(matchID)) {
+			let game = this.getGame(matchID);
 			console.log(game);
 			if (game == undefined || game == null) return matchNotFound;
 			if (position == "BF") {
@@ -66,19 +71,19 @@ var matchManager = {
 		let retVal = {info: this.getMatchInfo(matchID), message: mess}
 		console.log("another");
 		return retVal;
-	},
+	}
 
 	//End the match.
-	endMatch: function (matchID) {
+	endMatch(matchID) {
 		//Store in db and remove from maps.
-		let mess = matchesByID.delete(matchID);
+		let mess = this.matchesByID.delete(matchID);
 		console.log(mess);
 		return {message: "Match deleted"};
-	},
+	}
 
 	//Remove the player from the match.
-	leaveMatch: function (matchID, userID) {
-		let game = getGame(matchID);
+	leaveMatch(matchID, userID) {
+		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		if (game.getBlueField() == userID) {
 			game.setBlueField("");
@@ -91,20 +96,20 @@ var matchManager = {
 		}
 		console.log(mess);
 		return {message: "Left Match"};
-	},
+	}
 
 	//Reset the match.
-	resetMatch: function (matchID) {
-		let game = getGame(matchID);
+	resetMatch(matchID) {
+		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = game.resetMatch();
 		console.log(mess);
 		return {info: this.getMatchInfo(matchID), message: mess};
-	},
+	}
 
 	//Spy turn.
-	spyCommand: function (matchID, userID, numGuesses, word) {
-		let game = getGame(matchID);
+	spyCommand(matchID, userID, numGuesses, word) {
+		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "Move failed";
 		if ((userID == game.getBlueSpy() && game.getState()==gameState.BLUE_SPY) || 
@@ -112,11 +117,11 @@ var matchManager = {
 			mess = game.nextSpyHint(numGuesses, word);
 		}
 		return this.getMatchInfo(matchID);
-	},
+	}
 
 	//Field agent turn.
-	fieldGuess: function (matchID, userID, guess) {
-		let game = getGame(matchID);
+	fieldGuess(matchID, userID, guess) {
+		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "";
 		if ((userID == game.getBlueField() && game.getState()==gameState.BLUE_FIELD) || 
@@ -125,11 +130,11 @@ var matchManager = {
 		}
 		console.log(mess);
 		return {info: this.getMatchInfo(matchID), message: mess};
-	},
+	}
 
 	//End turn of field agent.
-	endTurn: function(matchID, userID) {
-		let game = getGame(matchID);
+	endTurn(matchID, userID) {
+		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "";
 		if ((userID == game.getBlueField() && game.getState()==gameState.BLUE_FIELD) || 
@@ -142,4 +147,5 @@ var matchManager = {
 	}
 }
 
-module.exports = matchManager;
+
+module.exports = new MatchManager();

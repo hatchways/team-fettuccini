@@ -17,7 +17,8 @@ const {Game, gameState} = require("./engine/Game.js");
 const readline = require("readline");
 
 var app = express();
-
+app.use(express.json({extended: false}));
+app.get('/', (req, res) => res.send('API Running'));
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
@@ -28,9 +29,7 @@ app.use(cors());
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
-app.use(usersRouter);
-
-
+app.use("/matches", require('./routes/matches'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

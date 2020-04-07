@@ -21,7 +21,52 @@ class Game {
 		this.numGuessesLeft = 0;
 		this.spyHint = "";
 		this.madeGuess = false;
+		this.hostID = "";
+		this.redSpy = "";
+		this.blueSpy = "";
+		this.redField = "";
+		this.blueField = "";
 		this.reset();
+	}
+
+	setHost(id) {
+		this.hostID = "";
+	}
+
+	getHost() {
+		return this.hostID;
+	}
+
+	setRedSpy(id) {
+		this.redSpy = id;
+	}
+
+	getRedSpy() {
+		return this.redSpy;
+	}
+
+	setRedField(id) {
+		this.redField = id;
+	}
+
+	getRedField() {
+		return this.redField;
+	}
+
+	setBlueSpy(id) {
+		this.blueSpy = id;
+	}
+
+	getBlueSpy() {
+		return this.blueSpy;
+	}
+
+	setBlueField(id) {
+		this.blueField = id;
+	}
+
+	getBlueField() {
+		return this.blueField;
 	}
 
 	//Function to restart game.
@@ -114,11 +159,11 @@ class Game {
 	endTurn() {
 		if (this.state == gameState.BLUE_SPY || this.state == gameState.RED_SPY) {
 			console.log("Can't end turn during a Spy Master move");
-			return;
+			return "Can't End Spy turn";
 		}
 		if (!this.madeGuess) {
 			console.log("Have to make at least one guess for a turn");
-			return;
+			return "Have to make at least one guess for a turn";
 		}
 		this.madeGuess = false;
 		return this.nextTurn();
@@ -201,7 +246,9 @@ class Game {
 		console.log("New Spy Hint is "+word+ " for "+guesses);
 		this.spyHint = word;
 		this.numGuessesLeft = guesses;
-		return this.nextTurn();
+		let n = this.nextTurn();
+		console.log(n);
+		return this.getBoardInfo();
 	}
 
 	//Check if a team has won and change the state accordingly.

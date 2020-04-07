@@ -4,6 +4,7 @@ const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const connectDB = require("./db");
+const cors = require("cors");
 
 
 const indexRouter = require("./routes/index");
@@ -19,6 +20,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
+app.use(cors());
 
 
 app.use("/", indexRouter);
@@ -45,6 +47,5 @@ app.use(function(err, req, res, next) {
 
 
 connectDB();
-app.listen(3000, ()=>console.log('server started on port 3000'));
 
 module.exports = app;

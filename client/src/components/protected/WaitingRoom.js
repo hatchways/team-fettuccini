@@ -45,6 +45,14 @@ class WaitingRoom
     document.execCommand('copy')
   }
 
+  startMatch = () => {
+    const { matchId } = this.state
+    this.props.history.push({
+      pathname: `/match/${matchId}`,
+      state: { matchId }
+    })
+  }
+
   render() {
     const { list, matchId } = this.state
     const { classes } = this.props;
@@ -69,7 +77,7 @@ class WaitingRoom
           </Grid>
         </Grid>
         <div>
-          <Button variant="contained" color="primary">Start Match</Button>
+          <Button variant="contained" color="primary" onClick={this.startMatch}>Start Match</Button>
         </div>
       </Paper>
     </Fragment>

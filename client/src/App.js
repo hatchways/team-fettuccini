@@ -8,6 +8,7 @@ import Auth from "./components/auth";
 import ProtectedRoute from "./ProtectedRoute";
 import WaitingRoom from "./components/protected/WaitingRoom";
 import Welcome from "./components/protected/Welcome";
+import Match from "./components/protected/Match";
 
 import { theme } from "./themes/theme";
 import "./App.css";
@@ -22,7 +23,7 @@ function App() {
           <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
           <ProtectedRoute exact path="/welcome" component={Welcome} />
           <ProtectedRoute exact path="/waitingroom/:matchId" component={WaitingRoom} />
-          <ProtectedRoute exact path="/match/:matchid" component={WaitingRoom} />
+          <ProtectedRoute exact path="/match/:matchId" component={Match} />
           <Route path="/" component={Auth} />
         </Switch>
 

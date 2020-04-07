@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, TextField, Grid, List, ListItem } from "@material-ui/core";
 
 import MappedWords from './MappedWords'
-
 import { withStyles } from "@material-ui/styles";
 
 const style = (theme) => ({
@@ -75,9 +74,16 @@ class Match extends Component {
     return (<Fragment>
       <Grid container spacing={2} className={classes.gridContainer}>
         <Grid item xs={4}>
-          <Paper>
-            Chat
-        </Paper>
+          <Paper style={{maxHeight: 30, overflow: 'auto'}}>
+            <List>
+              <ListItem>
+                Hello
+              </ListItem>
+              <ListItem>
+                Bye
+              </ListItem>
+            </List>
+          </Paper>
         </Grid>
         <Grid item xs={8}>
           <Paper>

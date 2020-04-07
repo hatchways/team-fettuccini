@@ -46,17 +46,19 @@ export default class SignUp extends Component {
     };
 
     fetch('/users', requestOptions)
-        .then(res => {
-          if (res.status === 201){
-            this.props.login();
-          } else {
-            console.log(res.message);
-          }
-        })
-        .catch (error => {
-          console.log(error.message)
-        }) 
-    
+      .then(res => {
+        if (res.status === 201) {
+          return res.json()
+        } else {
+          console.log(res.message);
+        }
+      }).then(data => {
+        this.props.login(data.user);
+      })
+      .catch(error => {
+        console.log(error.message)
+      })
+
 
   }
 

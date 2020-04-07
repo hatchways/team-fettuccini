@@ -23,10 +23,10 @@ function Auth(props) {
   let location = useLocation();
 
   let { from } = location.state || { from: { pathname: "/" } };
-  let login = () => {
-    auth.authenticate(() => {
+  let login = (user) => {
+    auth.authenticate(user, (() => {
       history.replace(from);
-    });
+    }));
   };
 
 

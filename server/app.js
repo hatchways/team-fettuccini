@@ -4,9 +4,12 @@ const { join } = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const connectDB = require("./db");
+const cors = require("cors");
+
 
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
+const usersRouter = require("./routes/users");
 
 const { json, urlencoded } = express;
 
@@ -21,6 +24,8 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
+app.use(cors());
+
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
@@ -43,6 +48,5 @@ app.use(function(err, req, res, next) {
 });
 
 connectDB();
+
 module.exports = app;
-
-

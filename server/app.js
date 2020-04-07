@@ -24,10 +24,7 @@ app.use(express.static(join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/ping", pingRouter);
-app.use("/creatematch", require("./routes/creatematch"));
-app.use("/joinmatch", require("./routes/joinmatch"));
-app.use("/nextmove", require("./routes/nextmove"));
-app.use("/gameinfo", require("./routes/ping"));
+app.use("/matches", require('./routes/matches'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

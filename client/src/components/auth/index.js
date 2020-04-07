@@ -31,7 +31,7 @@ function Auth(props) {
 
 
   return (
-    (auth.isAuthenticated()) ? <Redirect to="/waitingroom" />
+    (auth.isAuthenticated()) ? <Redirect to="/newgame" />
       : (
         <Paper>
           <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>

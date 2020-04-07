@@ -11,7 +11,14 @@ router.post("/users", async (req, res) => {
         await user.save();
       
         const token = await user.generateAuthToken();
-        res.status(201).send({ user, token });
+        
+        res.cookie('token', token, {
+            expires: new Date(Date.now() + 60*60*24*30),  // 30 days
+            secure: false,
+            httpOnly: true,
+        });
+        
+        res.status(201).send({ user });
     } catch (error) {
         res.status(400).send(error);
     }
@@ -36,7 +43,7 @@ router.post("/users/login", async(req, res) => {
             httpOnly: true,
         });
         
-        res.send({ user });
+        res.status(200).send({ user });
 
   } catch (error) {
       res.status(400).send(error)
@@ -45,7 +52,7 @@ router.post("/users/login", async(req, res) => {
 })
 
 
-router.get("/users/test", auth, async(req, res) => {
+router.get("/users/newgame", auth, async(req, res) => {
     res.send(req.user);
 })
 

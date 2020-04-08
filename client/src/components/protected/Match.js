@@ -21,12 +21,13 @@ const style = (theme) => ({
   standardFlex: {
     display: 'flex',
     flexWrap: 'wrap',
-    '&>.Match-standardFlexChild-61': {
-      '&>.MuiGrid-item': {
-        margin: "10px",
-        '&>button': {
-          width: '100%'
-        }
+  },
+  flexRow: {
+    margin: "10px",
+    justifyContent: 'space-evenly',
+    '&>.MuiGrid-item': {
+      '&>button': {
+        width: '100%'
       }
     }
   },
@@ -40,51 +41,27 @@ const style = (theme) => ({
   }
 });
 
-const words = [
-  "pair",
-  "straw",
-  "scientist",
-  "over",
-  "tell",
-  "creature",
-  "story",
-  "entirely",
-  "building",
-  "sweet",
-  "went",
-  "continent",
-  "pile",
-  "movement",
-  "camp",
-  "add",
-  "substance",
-  "again",
-  "take",
-  "clock",
-  "border",
-  "gone",
-  "wrote",
-  "equator",
-  "case"
-]
-
 class Match extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      matchId: ''
+      matchId: '',
+      words: [],
+      turn: ''
     }
   }
   componentDidMount = () => {
     if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
       this.props.history.push('/welcome')
     }
-    const { matchId } = this.props.location.state
-    this.setState({ ...this.state, matchId })
+    const { matchId, matchState } = this.props.location.state
+    console.log(matchState)
+    this.setState({ ...this.state, matchId, words: matchState.info })
   }
 
   render() {
     const { classes } = this.props;
+    const { words } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>

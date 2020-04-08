@@ -7,19 +7,23 @@ const mapRow = (words) => words.map(word => (
   </Grid>))
 
 export default ({ words, classes }) => {
+  console.log(words)
+  if (words.length > 0) {
+    let mapped = []
+    let low, high
+    for (let i = 0; i < 6; i++) {
+      low = i + 4 * i
+      high = 5 * i + 5
 
-  let mapped = []
-  let low, high
-  for (let i = 0; i < 6; i++) {
-    low = i + 4 * i
-    high = 5 * i + 5
+      mapped.push(
+        <Grid container item key={`row-${i}`} className={classes.flexRow}>
+          {mapRow(words.slice(low, high))}
+        </Grid>
+      )
+    }
 
-    mapped.push(
-      <Grid container item key={`row-${i}`} className={classes.standardFlexChild}>
-        {mapRow(words.slice(low, high))}
-      </Grid>
-    )
+    return mapped
+  } else {
+    return null
   }
-
-  return mapped
 }

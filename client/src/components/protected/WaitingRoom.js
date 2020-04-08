@@ -20,7 +20,8 @@ class WaitingRoom
         RS: { n: 0, name: "Red Spy Master" },
         RF: { n: 1, name: "Red Field Agent" },
         BS: { n: 1, name: "Blue Spy Master" },
-        BF: { n: 1, name: "Blue Field Agent" }
+        BF: { n: 1, name: "Blue Field Agent" },
+        matchState: []
       }
     }
   }
@@ -37,29 +38,29 @@ class WaitingRoom
       userID: auth.getUserInfo().id,
       position
     })
-    console.log(reqBody)
-    console.log(this.props)
-    // try {
-    res = await fetch(`/${matchId}/joinmatch`, {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-      body: reqBody
-    })
-    res = await res.json()
-    console.log('res', res)
-    this.setState({
-      ...this.state,
-      matchId,
-      playerList:
-        [...this.state.playerList, {
-          name: auth.getUserInfo().username,
-          position: roles[position].name
-        }],
-      roles
-    })
-    // } catch (error) {
-    //   console.log("API error /:matchid/joinmatch")
-    // }
+
+    try {
+      res = await fetch(`/matches/${matchId}/joinmatch`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+
+      this.setState({
+        ...this.state,
+        matchId,
+        playerList:
+          [...this.state.playerList, {
+            name: auth.getUserInfo().username,
+            position: roles[position].name
+          }],
+        roles,
+        matchState: res.info
+      })
+    } catch (error) {
+      console.log("API error /:matchid/joinmatch")
+    }
 
   }
 
@@ -82,10 +83,10 @@ class WaitingRoom
   }
 
   startMatch = () => {
-    const { matchId } = this.state
+    const { matchId, matchState } = this.state
     this.props.history.push({
       pathname: `/match/${matchId}`,
-      state: { matchId }
+      state: { matchId, matchState }
     })
   }
 

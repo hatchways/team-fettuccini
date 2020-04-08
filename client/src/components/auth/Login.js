@@ -35,9 +35,9 @@ export default class Login extends Component {
           console.error('API error /users/login ', res);
         }
       }).then(data => {
+        // console.error('data.user ', data.user);
+        // console.error('data.user.username ', data.user.username);
         this.props.login(data.user);
-        console.error('data.user ', data.user);
-        console.error('data.user.username ', data.user.username);
       })
       .catch(error => {
         console.log(error.message)

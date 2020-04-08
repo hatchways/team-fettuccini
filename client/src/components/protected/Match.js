@@ -58,20 +58,17 @@ class ChatBox extends React.Component {
 	constructor(props) {
 		super(props);
 		this.messages = [
-      {
-        msg : "First"
-      },
-      {
-        msg : "Second"
-      }
+      "First",
+      "Second",
+      "Third"
     ];
 	}
 	render() {
-    const text = this.messages.map((step,desc)=>{
-      return (<ListItem>{desc}</ListItem>);
+    const text = this.messages.map((step,index)=>{
+      return (<ListItem>{step}</ListItem>);
     });
 		return (
-			<Paper style={{maxHeight: 30, overflow: 'auto'}}>
+			<Paper style={{maxHeight: 300, overflow: 'auto'}}>
         <List>
           {text}
         </List>

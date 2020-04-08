@@ -62,7 +62,20 @@ class ChatBox extends React.Component {
       "Second",
       "Third"
     ];
-	}
+    this.currentMsg = "hi";
+  }
+  
+  setCurrentMsg(msg) {
+    this.currentMsg = msg;
+  }
+
+  sendCurrentMsg() {
+    if (this.currentMsg=="") return;
+    this.messages.push(this.currentMsg);
+    this.currentMsg = "";
+    this.forceUpdate();
+  }
+
 	render() {
     const text = this.messages.map((step,index)=>{
       return (<ListItem>{step}</ListItem>);
@@ -72,9 +85,9 @@ class ChatBox extends React.Component {
         <List>
           {text}
         </List>
-        <Input>
+        <Input onChange={event=>this.setCurrentMsg(event.target.value)}>
         </Input>
-        <Button style={{height: 30}} color='primary' variant='contained'>
+        <Button onClick={()=>this.sendCurrentMsg()} style={{height: 30}} color='primary' variant='contained'>
           Submit Hint
         </Button>
       </Paper>

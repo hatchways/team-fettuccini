@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, TextField, Grid, List, ListItem } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, TextField, Grid, List, ListItem, Input } from "@material-ui/core";
 
 import MappedWords from './MappedWords'
 import { withStyles } from "@material-ui/styles";
@@ -72,6 +72,11 @@ class ChatBox extends React.Component {
         <List>
           {text}
         </List>
+        <Input>
+        </Input>
+        <Button style={{height: 30}} color='primary' variant='contained'>
+          Submit Hint
+        </Button>
       </Paper>
 		);
 	}

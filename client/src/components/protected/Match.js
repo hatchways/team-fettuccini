@@ -11,16 +11,43 @@ import matchDictionary from './matchDictionary'
 
 import { withStyles } from "@material-ui/styles";
 import styleMatch from "./styleMatch";
+import GameOutcome from "./GameOutcome";
+
+const style = (theme) => ({
+  centerText: {
+    textAlign: "center",
+    marginBottom: "0.5em",
+  },
+  leftText: {
+    textAlign: "left",
+  },
+  gridContainer: {
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    margin: "10px auto",
+  },
+  standardFlex: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  standardFlexChild: {
+    flexGrow: "1",
+  },
+});
 
 class Match extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       matchId: '',
       userId: '',
       words: [],
       positionState: "",
-      guessesLeft: 0
+      guessesLeft: 0,
+      isOver: false,
+      winner: "blue",
+      blueScore: 5,
+      redScore: 3,
     }
     this.submitHint = this.submitHint.bind(this)
     this.ping = this.ping.bind(this)
@@ -28,8 +55,11 @@ class Match extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
-      this.props.history.push('/welcome')
+    if (
+      this.props.location.state == null ||
+      this.props.match.params.matchId !== this.props.location.state.matchId
+    ) {
+      this.props.history.push("/welcome");
     }
     const { matchId, matchState } = this.props.location.state
     console.log('\n\nmatchState', matchState)
@@ -42,6 +72,12 @@ class Match extends Component {
       positionState: matchState.state
     })
   }
+
+  testEndMatch = () => {
+    let { isOver } = this.state;
+    isOver = true;
+    this.setState({ ...this.state, isOver });
+  };
 
   isSpyTurn() {
     return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
@@ -203,7 +239,7 @@ class Match extends Component {
   render() {
     // console.log('local state', this.state)
     const { classes } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message } = this.state;
+    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, blueScore, redScore } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
@@ -226,6 +262,13 @@ class Match extends Component {
           </Paper>
         </Grid>
       </Grid>
+        <GameOutcome
+          isOver={isOver}
+          winner={winner}
+          blueScore={blueScore}
+          redScore={redScore}
+        />
+        <button onClick={this.testEndMatch}>End match (for testing)</button>
     </Fragment>)
   }
 }

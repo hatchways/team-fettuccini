@@ -1,12 +1,12 @@
-import React, { Component, Fragment } from "react";
+import React from "react";
 import { Button, Grid } from "@material-ui/core";
 
 const mapRow = (words) => words.map(word => (
-  <Grid item xs={4} key={word} className="standardFlexChild">
+  <Grid item xs={2} key={word}>
     <Button variant="contained">{word}</Button>
   </Grid>))
 
-export default ({ words }) => {
+export default ({ words, classes }) => {
 
   let mapped = []
   let low, high
@@ -15,7 +15,7 @@ export default ({ words }) => {
     high = 5 * i + 5
 
     mapped.push(
-      <Grid container item spacing={1} key={`row-${i}`}>
+      <Grid container item key={`row-${i}`} className={classes.standardFlexChild}>
         {mapRow(words.slice(low, high))}
       </Grid>
     )

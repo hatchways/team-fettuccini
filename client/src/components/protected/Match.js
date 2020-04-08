@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
+import { Paper, Grid } from "@material-ui/core";
 
 import MappedWords from './MappedWords'
 
@@ -21,9 +21,22 @@ const style = (theme) => ({
   standardFlex: {
     display: 'flex',
     flexWrap: 'wrap',
+    '&>.Match-standardFlexChild-61': {
+      '&>.MuiGrid-item': {
+        margin: "10px",
+        '&>button': {
+          width: '100%'
+        }
+      }
+    }
   },
   standardFlexChild: {
     flexGrow: '1',
+  },
+  paper: {
+    margin: "50px auto",
+    padding: "20px",
+    maxWidth: "700px",
   }
 });
 
@@ -73,17 +86,17 @@ class Match extends Component {
   render() {
     const { classes } = this.props;
     return (<Fragment>
-      <Grid container spacing={2} className={classes.gridContainer}>
+      <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
           <Paper>
             Chat
         </Paper>
         </Grid>
-        <Grid item xs={8}>
-          <Paper>
-            <MappedWords words={words} />
-          </Paper>
-        </Grid>
+        <Paper className={classes.paper}>
+          <Grid container item xs={12} className={classes.standardFlex}>
+            <MappedWords classes={classes} words={words} />
+          </Grid>
+        </Paper>
       </Grid>
     </Fragment>)
   }

@@ -21,8 +21,11 @@ class Welcome extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault()
-    if (this.state.matchId !== "") {
-
+    let { matchId } = this.state
+    if (matchId !== "") {
+      this.props.history.push({
+        pathname: `/waitingroom/${matchId}`
+      })
     }
   }
 
@@ -46,8 +49,7 @@ class Welcome extends Component {
       matchId = res.matchID
       console.log('res ', res)
       this.props.history.push({
-        pathname: `/waitingroom/${matchId}`,
-        state: { matchId }
+        pathname: `/waitingroom/${matchId}`
       })
     } catch (error) {
       console.log('failed to create new game', error)

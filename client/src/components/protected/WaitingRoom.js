@@ -16,50 +16,62 @@ class WaitingRoom
     this.state = {
       matchId: '',
       playerList: [],
-      roles: { RS: 0, RF: 0, BS: 0, BF: 0 }
+      roles: {
+        RS: { n: 0, name: "Red Spy Master" },
+        RF: { n: 1, name: "Red Field Agent" },
+        BS: { n: 1, name: "Blue Spy Master" },
+        BF: { n: 1, name: "Blue Field Agent" }
+      }
     }
   }
 
   componentDidMount = async () => {
-    // this only works for users that have crated the game...
-    // if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
-    //   this.props.history.push('/welcome')
-    // }
+
     let { roles } = this.state
     let position = this.assignTeam()
+    roles[position].n += 1
 
     let res
-    const { matchId } = this.props.match.params.matchId
+    const { matchId } = this.props.match.params
     let reqBody = JSON.stringify({
       userID: auth.getUserInfo().id,
       position
     })
     console.log(reqBody)
     console.log(this.props)
-    try {
-      res = await fetch(`/${this.props.match.params.matchId}/joinmatch`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      res = await res.json()
-      console.log('res', res)
-      this.setState({ ...this.state, matchId, playerList: [...this.state.playerList, { name: auth.getUserInfo().username, position }] })
-    } catch (error) {
-      console.log("API error /:matchid/joinmatch")
-    }
+    // try {
+    res = await fetch(`/${matchId}/joinmatch`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+      body: reqBody
+    })
+    res = await res.json()
+    console.log('res', res)
+    this.setState({
+      ...this.state,
+      matchId,
+      playerList:
+        [...this.state.playerList, {
+          name: auth.getUserInfo().username,
+          position: roles[position].name
+        }],
+      roles
+    })
+    // } catch (error) {
+    //   console.log("API error /:matchid/joinmatch")
+    // }
 
   }
 
   assignTeam = () => {
     let { roles } = this.state
 
-    if (roles.RS === 0) {
+    if (roles.RS.n === 0) {
       return 'RS'
-    } else if (roles.BS === 0) {
+    } else if (roles.BS.n === 0) {
       return 'BS'
     } else {
-      return roles.RF > roles.BF ? 'BF' : 'RF'
+      return roles.RF.n > roles.BF.n ? 'BF' : 'RF'
     }
   }
 

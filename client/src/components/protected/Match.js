@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, TextField, Grid, List, ListItem, Input } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, TextField, Grid, List, ListItem, Input, Select } from "@material-ui/core";
 
 import MappedWords from './MappedWords'
 import { withStyles } from "@material-ui/styles";
@@ -63,16 +63,31 @@ class ChatBox extends React.Component {
       "Third"
     ];
     this.currentMsg = "hi";
+    this.numWords = 1;
   }
   
   setCurrentMsg(msg) {
     this.currentMsg = msg;
   }
 
+  setNumWords(num) {
+    this.numWords = num;
+  }
+
   sendCurrentMsg() {
     if (this.currentMsg=="") return;
+    const word = this.currentMsg;
+    const numWords = this.numWords;
     this.messages.push(this.currentMsg);
     this.currentMsg = "";
+
+    /*var spyHintReq = new XMLHttpRequest();
+    spyHintReq.addEventListener('load', () => {
+      // update the state of the component with the result here
+      console.log(xhr.responseText)
+    });
+    spyHintReq.open('POST', 'https://localhost:3001/matches/');
+    spyHintReq.send();*/
     this.forceUpdate();
   }
 
@@ -85,6 +100,10 @@ class ChatBox extends React.Component {
         <List>
           {text}
         </List>
+        #
+        <Input onChange={event=>this.setNumWords(event.target.value)} style={{width:20}}>
+        </Input>
+        Hint
         <Input onChange={event=>this.setCurrentMsg(event.target.value)}>
         </Input>
         <Button onClick={()=>this.sendCurrentMsg()} style={{height: 30}} color='primary' variant='contained'>

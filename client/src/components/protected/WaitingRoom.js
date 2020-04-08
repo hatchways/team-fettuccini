@@ -7,36 +7,60 @@ import { withStyles } from "@material-ui/core/styles";
 
 import style from "./styleWaitingNewGame"
 
+import auth from '../auth/auth'
+
 class WaitingRoom
   extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       matchId: '',
-      email: '',
-      list: ['You']
+      playerList: [],
+      roles: { RS: 0, RF: 0, BS: 0, BF: 0 }
     }
   }
 
-  componentDidMount = () => {
-    if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
-      this.props.history.push('/welcome')
-    }
-    const { matchId } = this.props.location.state
-    this.setState({ ...this.state, matchId })
-  }
+  componentDidMount = async () => {
+    // this only works for users that have crated the game...
+    // if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
+    //   this.props.history.push('/welcome')
+    // }
+    let { roles } = this.state
+    let position = this.assignTeam()
 
-  handleChange = (event) => {
-    this.setState({
-      ...this.state,
-      [event.target.name]: event.target.value
+    let res
+    const { matchId } = this.props.match.params.matchId
+    let reqBody = JSON.stringify({
+      userID: auth.getUserInfo().id,
+      position
     })
+    console.log(reqBody)
+    console.log(this.props)
+    try {
+      res = await fetch(`/${this.props.match.params.matchId}/joinmatch`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+      console.log('res', res)
+      this.setState({ ...this.state, matchId, playerList: [...this.state.playerList, { name: auth.getUserInfo().username, position }] })
+    } catch (error) {
+      console.log("API error /:matchid/joinmatch")
+    }
+
   }
 
-  handleSubmit = (event) => {
-    event.preventDefault()
-    let list = [...this.state.list, this.state.email]
-    this.setState({ email: '', list })
+  assignTeam = () => {
+    let { roles } = this.state
+
+    if (roles.RS === 0) {
+      return 'RS'
+    } else if (roles.BS === 0) {
+      return 'BS'
+    } else {
+      return roles.RF > roles.BF ? 'BF' : 'RF'
+    }
   }
 
   copyLink = () => {
@@ -54,13 +78,13 @@ class WaitingRoom
   }
 
   render() {
-    const { list, matchId } = this.state
+    const { playerList, matchId } = this.state
     const { classes } = this.props;
-    const mappedEmails = list.length > 0
-      ? (this.state.list.map((email, idx) => (
+    const mappedPlayers = playerList.length > 0
+      ? (this.state.playerList.map((player, idx) => (
         <div key={`invite${idx}`}>
           <CheckIcon className={classes.mainFill} />
-          {email}
+          {player.name} - {player.position}
         </div>))) : null
 
     return <Fragment>
@@ -74,7 +98,7 @@ class WaitingRoom
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>
-            <div className={classes.leftText}>{mappedEmails}</div>
+            <div className={classes.leftText}>{mappedPlayers}</div>
           </Grid>
           <Grid item>
             <FormLabel className={classes.centerText}>Share match id:</FormLabel>

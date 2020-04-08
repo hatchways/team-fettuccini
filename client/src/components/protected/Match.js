@@ -54,6 +54,32 @@ const words = [
   "case"
 ]
 
+class ChatBox extends React.Component {
+	constructor(props) {
+		super(props);
+		this.messages = [
+      {
+        msg : "First"
+      },
+      {
+        msg : "Second"
+      }
+    ];
+	}
+	render() {
+    const text = this.messages.map((step,desc)=>{
+      return (<ListItem>{desc}</ListItem>);
+    });
+		return (
+			<Paper style={{maxHeight: 30, overflow: 'auto'}}>
+        <List>
+          {text}
+        </List>
+      </Paper>
+		);
+	}
+}
+
 class Match extends Component {
   constructor(props) {
     super(props)
@@ -74,16 +100,7 @@ class Match extends Component {
     return (<Fragment>
       <Grid container spacing={2} className={classes.gridContainer}>
         <Grid item xs={4}>
-          <Paper style={{maxHeight: 30, overflow: 'auto'}}>
-            <List>
-              <ListItem>
-                Hello
-              </ListItem>
-              <ListItem>
-                Bye
-              </ListItem>
-            </List>
-          </Paper>
+          <ChatBox>Hi</ChatBox>
         </Grid>
         <Grid item xs={8}>
           <Paper>

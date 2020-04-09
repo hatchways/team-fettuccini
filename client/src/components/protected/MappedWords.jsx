@@ -18,6 +18,7 @@ export default ({ words, classes, clickWord }) => {
         {(words.slice(low, high)).map((word, inx) => (
           <Grid item xs={2} key={word.val}>
             <Button
+              key={word.val}
               data-tag={Number(inx) + low}
               variant="contained"
               className={classes[`chosen_${word.chosen}`]}
@@ -29,4 +30,22 @@ export default ({ words, classes, clickWord }) => {
   }
 
   return mapped
+
+  // return words.length === 0 ? null : (
+  //   Array(5)
+  //     .fill([])
+  //     .map((_, index) => (
+  //       <Grid container item key={`row-${index}`} className={classes.flexRow}>
+  //         {(words.slice(5 * index, 5 * (index + 1))).map((word, inx) => (
+  //           <Grid item xs={2} key={word.val}>
+  //             <Button
+  //               key={word.val}
+  //               data-tag={Number(inx) + 5 * (inx + 1)}
+  //               variant="contained"
+  //               className={classes[`chosen_${word.chosen}`]}
+  //               onClick={clickWord}>{word.val}</Button>
+  //           </Grid>))}
+  //       </Grid>
+  //     ))
+  // )
 }

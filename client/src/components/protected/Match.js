@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from "react";
-import { Paper, Grid } from "@material-ui/core";
+import { Paper, Grid, Button, Typography } from "@material-ui/core";
 
 import MappedWords from './MappedWords'
+
+import auth from '../auth/auth'
 
 import { withStyles } from "@material-ui/styles";
 
@@ -53,7 +55,7 @@ class Match extends Component {
     this.state = {
       matchId: '',
       words: [],
-      turn: ''
+      position: 'RF'
     }
   }
   componentDidMount = () => {
@@ -68,18 +70,63 @@ class Match extends Component {
     this.setState({ ...this.state, matchId, words })
   }
 
-  clickWord = (e) => {
-    const { state } = this
-    const { words } = state
+  clickWord = async (e) => {
+    const { words, matchId } = this.state
 
     let index = e.currentTarget.dataset.tag;
     words[index].chosen = true;
-    this.setState({ ...state, words })
+    try {
+      const reqBody = JSON.stringify({
+        userID: auth.getUserInfo().id,
+        position: this.state.position,
+        move: e.target.firstChild
+      })
+
+      let res = await fetch(`/matches/${matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+      console.log(res)
+      this.setState({ ...this.state, words })
+    } catch (error) {
+      console.log('error @ API /matches/:matchId/nextmove')
+    }
+  }
+
+  endFieldTurn = async () => {
+    try {
+      const reqBody = JSON.stringify({
+        userID: auth.getUserInfo().id,
+        position: this.state.position,
+        move: "_END"
+      })
+
+      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+      console.log(res)
+
+      let position = this.nextPosition
+      this.setState({ ...this.state, position })
+    } catch (error) {
+      console.log('error @ API /matches/:matchId/nextmove to end turn')
+    }
+  }
+
+  nextPosition = () => {
+    let { position } = this.state
+    position = position === "RF" ? "BF" : "RF"
+    return position
   }
 
   render() {
     const { classes } = this.props;
-    const { words } = this.state;
+    const { words, position } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
@@ -87,10 +134,12 @@ class Match extends Component {
             Chat
         </Paper>
         </Grid>
-        <Paper className={classes.paper}>
+        <Paper className={`${classes.paper} ${classes.centerText}`}>
+          <Typography variant="h4">{position === "RF" ? "Red" : "Blue"} Field Agent turn</Typography>
           <Grid container item xs={12} className={classes.standardFlex}>
             <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
           </Grid>
+          <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
         </Paper>
       </Grid>
     </Fragment>)

@@ -35,8 +35,10 @@ export default function (props) {
   return (
     <Box className={classes.header}>
       {auth.isAuthenticated() ? <Button
-        className={`${classes.invisible} ${classes.navSides}`}>
-        Sign out
+        variant="contained"
+        color="primary"
+        onClick={() => { history.push("/welcome") }}>
+        New Game
       </Button> : null}
 
       <Typography variant="h2" className={classes.navMain}>

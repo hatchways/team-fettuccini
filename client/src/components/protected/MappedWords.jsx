@@ -15,16 +15,20 @@ export default ({ words, classes, clickWord }) => {
     mapped.push(
       <Grid container item key={`row-${i}`} className={classes.flexRow}>
 
-        {(words.slice(low, high)).map((word, inx) => (
-          <Grid item xs={2} key={word.val}>
-            <Button
-              disabled={word.chosen}
-              key={word.val}
-              data-tag={Number(inx) + low}
-              variant="contained"
-              className={classes[`chosen_${word.chosen}`]}
-              onClick={clickWord}>{word.val}</Button>
-          </Grid>))}
+        {(words.slice(low, high)).map((word, inx) => {
+          const chosen = word[0] === "_"
+
+          return (
+            <Grid item xs={2} key={word}>
+              <Button
+                disabled={chosen}
+                key={word}
+                data-tag={Number(inx) + low}
+                variant="contained"
+                className={chosen ? `chosen_${word.slice(1)}` : ""}
+                onClick={clickWord}>{chosen ? word.slice(1) : word}</Button>
+            </Grid>)
+        })}
 
       </Grid>
     )

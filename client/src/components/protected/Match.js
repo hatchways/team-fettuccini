@@ -56,6 +56,11 @@ const style = (theme) => ({
   }
 });
 
+// ASSASSIN: 'Assassin',
+// 	BLUE: 'Blue',
+// 	RED: 'Red',
+// 	CIVILIAN: 'Civilian'
+
 class Match extends Component {
   constructor(props) {
     super(props)
@@ -75,12 +80,10 @@ class Match extends Component {
     const { matchId, matchState } = this.props.location.state
     console.log('\n\nmatchState', matchState)
 
-    const words = matchState.info.map(word => ({ val: word, chosen: false }))
-
     this.setState({
       ...this.state,
       matchId,
-      words,
+      words: matchState.info,
       userId: auth.getUserInfo().id,
       positionState: matchState.state
     })
@@ -90,13 +93,13 @@ class Match extends Component {
   clickWord = async (e) => {
 
     try {
-      let { words, matchId, positionState, guessesLeft } = this.state
+      let { matchId, positionState, guessesLeft, words } = this.state
       let index = e.currentTarget.dataset.tag;
 
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
         position: matchDictionary[positionState],
-        move: e.target.firstChild
+        move: index
       })
 
       let res = await fetch(`/matches/${matchId}/nextmove`, {
@@ -108,17 +111,16 @@ class Match extends Component {
 
       if (res.status === 200) {
         res = await res.json()
-        words[index].chosen = true;
         console.log('\n API clickWord response', res)
+
+        words[index] = res.info.info[index]
         guessesLeft--
+
+        this.setState({ ...this.state, words, guessesLeft, positionState: res.info.state })
+
         if (guessesLeft === 0) {
           await this.endFieldTurn()
-        } else {
-          this.setState({ ...this.state, words, guessesLeft })
         }
-
-      } else {
-        return
       }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove')

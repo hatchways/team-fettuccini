@@ -7,13 +7,13 @@ export default class ChatBox extends React.Component {
     super(props);
     this.state = {
       num: '',
-      word: ''
+      word: '',
+      messages: [
+        "First",
+        "Second",
+        "Third"
+      ]
     }
-    this.messages = [
-      "First",
-      "Second",
-      "Third"
-    ];
     this.currentMsg = "hi";
     this.numWords = 1;
     this.matchID = this.props.matchID;
@@ -35,13 +35,17 @@ export default class ChatBox extends React.Component {
   }
 
   sendCurrentMsg() {
-    const { num, word } = this.state
+    const { num, word, messages } = this.state
     if (num === '' || word === '') {
       return
     }
-    // const move = num + " " + word
     this.props.submitHint({ num, word })
-    this.setState({ num: '', word: '' })
+    const newMessage = `${num} - ${word}`
+
+    this.setState({ num: '', word: '', messages: [messages, newMessage] })
+
+
+    // const move = num + " " + word
     // if (this.currentMsg == "") return;
     // const word = this.currentMsg;
     // const numWords = this.numWords;
@@ -70,9 +74,9 @@ export default class ChatBox extends React.Component {
   }
 
   render() {
-    const { num, word } = this.state
+    const { num, word, messages } = this.state
 
-    const text = this.messages.map((step, index) => {
+    const text = messages.map((step, index) => {
       return (<ListItem key={`msg-${index}`}>{step}</ListItem>);
     });
 
@@ -82,10 +86,9 @@ export default class ChatBox extends React.Component {
           {text}
         </List>
         #
-        <Input name="num" value={num} onChange={this.handleChange} style={{ width: 20 }}>
+        <Input name="num" value={num} onChange={this.handleChange} style={{ width: 20, appearance: "textfield" }}>
         </Input>
-        {/* <Input onChange={event => this.setNumWords(event.target.value)} style={{ width: 20 }}>
-        </Input> */}
+
         Hint
         <Input name="word" value={word} onChange={this.handleChange}>
         </Input>

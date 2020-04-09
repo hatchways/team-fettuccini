@@ -39,8 +39,8 @@ export default class ChatBox extends React.Component {
     if (num === '' || word === '') {
       return
     }
-    const move = num + " " + word
-    this.props.submitHint(move)
+    // const move = num + " " + word
+    this.props.submitHint({ num, word })
     this.setState({ num: '', word: '' })
     // if (this.currentMsg == "") return;
     // const word = this.currentMsg;

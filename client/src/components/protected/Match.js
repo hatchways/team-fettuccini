@@ -60,7 +60,8 @@ class Match extends Component {
       matchId: '',
       userId: '',
       words: [],
-      positionState: ""
+      positionState: "",
+      guessesLeft: 0
     }
     this.submitHint = this.submitHint.bind(this)
   }
@@ -84,7 +85,7 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
-    const { words, matchId, positionState } = this.state
+    let { words, matchId, positionState, guessesLeft } = this.state
 
     let index = e.currentTarget.dataset.tag;
     words[index].chosen = true;
@@ -102,7 +103,13 @@ class Match extends Component {
       })
       res = await res.json()
       console.log('\nclickword', res)
-      this.setState({ ...this.state, words })
+      guessesLeft--
+      //if 0 guesses
+      if (guessesLeft === 0) {
+        await this.endFieldTurn()
+      } else {
+        this.setState({ ...this.state, words, guessesLeft })
+      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove')
     }
@@ -115,6 +122,7 @@ class Match extends Component {
         position: matchDictionary[this.state.positionState],
         move: matchDictionary.end
       })
+      console.log('reqbody end turn', reqBody)
 
       let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
         method: "POST",
@@ -125,7 +133,7 @@ class Match extends Component {
       console.log('\n end field turn', res)
 
       let positionState = res.info.state
-      this.setState({ ...this.state, positionState })
+      this.setState({ ...this.state, positionState, guessesLeft: 0 })
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
     }
@@ -136,7 +144,7 @@ class Match extends Component {
     const reqBody = JSON.stringify({
       userID: auth.getUserInfo().id,
       position: matchDictionary[this.state.positionState],
-      move
+      move: `${move.num} ${move.word}`
     })
 
     try {
@@ -151,7 +159,7 @@ class Match extends Component {
       let positionState = `${res.state}`
 
       console.log('\n positionState', positionState)
-      this.setState({ ...this.state, positionState })
+      this.setState({ ...this.state, positionState, guessesLeft: Number(move.num) })
     } catch (error) {
       console.log('error @ submitHint API')
     }
@@ -160,7 +168,7 @@ class Match extends Component {
   render() {
     console.log('state', this.state)
     const { classes } = this.props;
-    const { words, positionState, matchId, userId } = this.state;
+    const { words, positionState, matchId, userId, guessesLeft } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
@@ -172,6 +180,7 @@ class Match extends Component {
         </Grid>
         <Paper className={`${classes.paper} ${classes.centerText}`}>
           <Typography variant="h4">{positionState}</Typography>
+          {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
           <Grid container item xs={12} className={classes.standardFlex}>
             <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
           </Grid>

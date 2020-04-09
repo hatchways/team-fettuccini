@@ -38,6 +38,12 @@ const style = (theme) => ({
     margin: "50px auto",
     padding: "20px",
     maxWidth: "700px",
+  },
+  chosen_false: {
+    backgroundColor: '#3FBF8A'
+  },
+  chosen_true: {
+    backgroundColor: '#B319EB'
   }
 });
 
@@ -56,7 +62,19 @@ class Match extends Component {
     }
     const { matchId, matchState } = this.props.location.state
     console.log(matchState)
-    this.setState({ ...this.state, matchId, words: matchState.info })
+
+    const words = matchState.info.map(word => ({ val: word, chosen: false }))
+
+    this.setState({ ...this.state, matchId, words })
+  }
+
+  clickWord = (e) => {
+    const { state } = this
+    const { words } = state
+
+    let index = e.currentTarget.dataset.tag;
+    words[index].chosen = true;
+    this.setState({ ...state, words })
   }
 
   render() {
@@ -71,7 +89,7 @@ class Match extends Component {
         </Grid>
         <Paper className={classes.paper}>
           <Grid container item xs={12} className={classes.standardFlex}>
-            <MappedWords classes={classes} words={words} />
+            <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
           </Grid>
         </Paper>
       </Grid>

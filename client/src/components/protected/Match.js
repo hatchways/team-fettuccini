@@ -64,6 +64,9 @@ class ChatBox extends React.Component {
     ];
     this.currentMsg = "hi";
     this.numWords = 1;
+    this.matchID = this.props.matchID;
+    this.userID = this.props.userID;
+    this.position = this.props.position;
   }
   
   setCurrentMsg(msg) {
@@ -81,13 +84,17 @@ class ChatBox extends React.Component {
     this.messages.push(this.currentMsg);
     this.currentMsg = "";
 
-    /*var spyHintReq = new XMLHttpRequest();
-    spyHintReq.addEventListener('load', () => {
-      // update the state of the component with the result here
-      console.log(xhr.responseText)
-    });
-    spyHintReq.open('POST', 'https://localhost:3001/matches/');
-    spyHintReq.send();*/
+    var spyHintReq = new XMLHttpRequest();
+    spyHintReq.open('POST', 'https://localhost:3001/matches/'+this.matchID+"/nextmove");
+    spyHintReq.setRequestHeader("Content-Type", "application/json");
+    spyHintReq.onreadystatechange = function () {
+        if (spyHintReq.readyState === 4 && spyHintReq.status === 200) {
+            var json = JSON.parse(spyHintReq.responseText);
+            alert(json);
+        }
+    };
+    var data = JSON.stringify({"userId": this.userID, "position": this.position, "move":(this.numWords + " "+this.currentMsg)});
+    spyHintReq.send(data);
     this.forceUpdate();
   }
 
@@ -127,6 +134,7 @@ class Match extends Component {
     }
     const { matchId } = this.props.location.state
     this.setState({ ...this.state, matchId })
+    this.forceUpdate();
   }
 
   render() {
@@ -134,7 +142,7 @@ class Match extends Component {
     return (<Fragment>
       <Grid container spacing={2} className={classes.gridContainer}>
         <Grid item xs={4}>
-          <ChatBox>Hi</ChatBox>
+          <ChatBox matchID={this.matchID} userID={this.userID} position={this.position}></ChatBox>
         </Grid>
         <Grid item xs={8}>
           <Paper>

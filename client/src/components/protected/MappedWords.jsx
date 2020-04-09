@@ -18,6 +18,7 @@ export default ({ words, classes, clickWord }) => {
         {(words.slice(low, high)).map((word, inx) => (
           <Grid item xs={2} key={word.val}>
             <Button
+              disabled={word.chosen}
               key={word.val}
               data-tag={Number(inx) + low}
               variant="contained"

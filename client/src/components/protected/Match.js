@@ -50,6 +50,9 @@ const style = (theme) => ({
   },
   chosen_true: {
     backgroundColor: '#B319EB'
+  },
+  ".Mui-disabled": {
+    backgroundColor: '#B319EB'
   }
 });
 
@@ -85,11 +88,11 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
-    let { words, matchId, positionState, guessesLeft } = this.state
 
-    let index = e.currentTarget.dataset.tag;
-    words[index].chosen = true;
     try {
+      let { words, matchId, positionState, guessesLeft } = this.state
+      let index = e.currentTarget.dataset.tag;
+
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
         position: matchDictionary[positionState],
@@ -101,14 +104,21 @@ class Match extends Component {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
         body: reqBody
       })
-      res = await res.json()
-      console.log('\nclickword', res)
-      guessesLeft--
-      //if 0 guesses
-      if (guessesLeft === 0) {
-        await this.endFieldTurn()
+      console.log('\n API clickWord first response', res)
+
+      if (res.status === 200) {
+        res = await res.json()
+        words[index].chosen = true;
+        console.log('\n API clickWord response', res)
+        guessesLeft--
+        if (guessesLeft === 0) {
+          await this.endFieldTurn()
+        } else {
+          this.setState({ ...this.state, words, guessesLeft })
+        }
+
       } else {
-        this.setState({ ...this.state, words, guessesLeft })
+        return
       }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove')
@@ -130,7 +140,7 @@ class Match extends Component {
         body: reqBody
       })
       res = await res.json()
-      console.log('\n end field turn', res)
+      console.log('\n API endFieldTurn response', res)
 
       let positionState = res.info.state
       this.setState({ ...this.state, positionState, guessesLeft: 0 })
@@ -154,7 +164,7 @@ class Match extends Component {
         body: reqBody
       })
       res = await res.json()
-      console.log('\n hint submmitted', res)
+      console.log('\n API submitHint response', res)
 
       let positionState = `${res.state}`
 
@@ -166,7 +176,7 @@ class Match extends Component {
   }
 
   render() {
-    console.log('state', this.state)
+    console.log('local state', this.state)
     const { classes } = this.props;
     const { words, positionState, matchId, userId, guessesLeft } = this.state;
     return (<Fragment>

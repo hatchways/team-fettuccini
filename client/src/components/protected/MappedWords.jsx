@@ -1,12 +1,10 @@
-import React, { Component, Fragment } from "react";
+import React from "react";
 import { Button, Grid } from "@material-ui/core";
 
-const mapRow = (words) => words.map(word => (
-  <Grid item xs={4} key={word} className="standardFlexChild">
-    <Button variant="contained">{word}</Button>
-  </Grid>))
-
-export default ({ words }) => {
+export default ({ words, classes, clickWord }) => {
+  if (words.length === 0) {
+    return null
+  }
 
   let mapped = []
   let low, high
@@ -15,11 +13,39 @@ export default ({ words }) => {
     high = 5 * i + 5
 
     mapped.push(
-      <Grid container item spacing={1} key={`row-${i}`}>
-        {mapRow(words.slice(low, high))}
+      <Grid container item key={`row-${i}`} className={classes.flexRow}>
+
+        {(words.slice(low, high)).map((word, inx) => (
+          <Grid item xs={2} key={word.val}>
+            <Button
+              key={word.val}
+              data-tag={Number(inx) + low}
+              variant="contained"
+              className={classes[`chosen_${word.chosen}`]}
+              onClick={clickWord}>{word.val}</Button>
+          </Grid>))}
+
       </Grid>
     )
   }
 
   return mapped
+
+  // return words.length === 0 ? null : (
+  //   Array(5)
+  //     .fill([])
+  //     .map((_, index) => (
+  //       <Grid container item key={`row-${index}`} className={classes.flexRow}>
+  //         {(words.slice(5 * index, 5 * (index + 1))).map((word, inx) => (
+  //           <Grid item xs={2} key={word.val}>
+  //             <Button
+  //               key={word.val}
+  //               data-tag={Number(inx) + 5 * (inx + 1)}
+  //               variant="contained"
+  //               className={classes[`chosen_${word.chosen}`]}
+  //               onClick={clickWord}>{word.val}</Button>
+  //           </Grid>))}
+  //       </Grid>
+  //     ))
+  // )
 }

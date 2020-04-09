@@ -30,10 +30,14 @@ export default class Login extends Component {
     fetch('/users/login', requestOptions)
       .then(res => {
         if (res.status === 200) {
-          this.props.login();
+          return res.json()
         } else {
-          console.log(res.message);
+          console.error('API error /users/login ', res);
         }
+      }).then(data => {
+        // console.error('data.user ', data.user);
+        // console.error('data.user.username ', data.user.username);
+        this.props.login(data.user);
       })
       .catch(error => {
         console.log(error.message)

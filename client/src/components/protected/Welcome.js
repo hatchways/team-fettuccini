@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from "react";
 import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
 
+import auth from '../auth/auth'
+
 import { withStyles } from "@material-ui/styles";
 
 import style from "./styleWaitingNewGame"
@@ -19,31 +21,47 @@ class Welcome extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault()
-    if (this.state.matchId !== "") {
-
+    let { matchId } = this.state
+    if (matchId !== "") {
+      this.props.history.push({
+        pathname: `/waitingroom/${matchId}`
+      })
     }
   }
 
   newGame = async () => {
-    const matchId = Math.floor(Math.random() * 100).toString()
+    // const matchId = Math.floor(Math.random() * 100).toString()
+
+    let matchId
+    let res
+    let hostID = auth.getUserInfo().id
+    let reqBody = JSON.stringify({ hostID })
+    console.log('userid ', hostID)
+
     try {
       // API call to create new game
-
+      res = await fetch('/matches/creatematch', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+      matchId = res.matchID
+      console.log('res ', res)
+      this.props.history.push({
+        pathname: `/waitingroom/${matchId}`
+      })
     } catch (error) {
       console.log('failed to create new game', error)
     }
 
-    this.props.history.push({
-      pathname: `/waitingroom/${matchId}`,
-      state: { matchId }
-    })
   }
 
   render() {
     const { classes } = this.props
     return (<Fragment>
-      <Paper>
-        <Typography variant="h4">Welcome Spy</Typography>
+      <Paper className="MuiPaper-customPrimary">
+        <Typography variant="h4">Welcome {auth.getUserInfo().username}</Typography>
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <form onSubmit={this.handleSubmit}>

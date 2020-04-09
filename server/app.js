@@ -27,7 +27,7 @@ app.use(express.static(join(__dirname, "public")));
 app.use(cors());
 
 
-app.use("/", indexRouter);
+app.use("/users", usersRouter);
 app.use("/ping", pingRouter);
 app.use("/matches", require('./routes/matches'));
 app.use(usersRouter);

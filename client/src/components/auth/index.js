@@ -23,17 +23,17 @@ function Auth(props) {
   let location = useLocation();
 
   let { from } = location.state || { from: { pathname: "/" } };
-  let login = () => {
-    auth.authenticate(() => {
+  let login = (user) => {
+    auth.authenticate(user, (() => {
       history.replace(from);
-    });
+    }));
   };
 
 
   return (
     (auth.isAuthenticated()) ? <Redirect to="/welcome" />
       : (
-        <Paper>
+        <Paper className="MuiPaper-customPrimary">
           <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>
           {signIn ?
             <Login login={login} /> :

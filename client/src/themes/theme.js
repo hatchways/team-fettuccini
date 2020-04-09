@@ -24,7 +24,7 @@ export const theme = createMuiTheme({
   },
   overrides: {
     MuiPaper: {
-      root: {
+      customPrimary: {
         textAlign: "center",
         margin: "50px auto",
         padding: "20px",

@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
 
@@ -7,36 +7,73 @@ import { withStyles } from "@material-ui/core/styles";
 
 import style from "./styleWaitingNewGame"
 
+import auth from '../auth/auth'
+
 class WaitingRoom
   extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       matchId: '',
-      email: '',
-      list: ['You']
+      playerList: [],
+      roles: {
+        RS: { n: 0, name: "Red Spy Master" },
+        RF: { n: 1, name: "Red Field Agent" },
+        BS: { n: 1, name: "Blue Spy Master" },
+        BF: { n: 1, name: "Blue Field Agent" },
+        matchState: []
+      }
     }
   }
 
-  componentDidMount = () => {
-    if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
-      this.props.history.push('/welcome')
-    }
-    const { matchId } = this.props.location.state
-    this.setState({ ...this.state, matchId })
-  }
+  componentDidMount = async () => {
 
-  handleChange = (event) => {
-    this.setState({
-      ...this.state,
-      [event.target.name]: event.target.value
+    let { roles } = this.state
+    let position = this.assignTeam()
+    roles[position].n += 1
+
+    let res
+    const { matchId } = this.props.match.params
+    let reqBody = JSON.stringify({
+      userID: auth.getUserInfo().id,
+      position
     })
+
+    try {
+      res = await fetch(`/matches/${matchId}/joinmatch`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+
+      this.setState({
+        ...this.state,
+        matchId,
+        playerList:
+          [...this.state.playerList, {
+            name: auth.getUserInfo().username,
+            position: roles[position].name
+          }],
+        roles,
+        matchState: res.info
+      })
+    } catch (error) {
+      console.log("API error /:matchid/joinmatch")
+    }
+
   }
 
-  handleSubmit = (event) => {
-    event.preventDefault()
-    let list = [...this.state.list, this.state.email]
-    this.setState({ email: '', list })
+  assignTeam = () => {
+    let { roles } = this.state
+
+    if (roles.RS.n === 0) {
+      return 'RS'
+    } else if (roles.BS.n === 0) {
+      return 'BS'
+    } else {
+      return roles.RF.n > roles.BF.n ? 'BF' : 'RF'
+    }
   }
 
   copyLink = () => {
@@ -46,30 +83,35 @@ class WaitingRoom
   }
 
   startMatch = () => {
-    const { matchId } = this.state
+    const { matchId, matchState } = this.state
     this.props.history.push({
       pathname: `/match/${matchId}`,
-      state: { matchId }
+      state: { matchId, matchState }
     })
   }
 
   render() {
-    const { list, matchId } = this.state
+    const { playerList, matchId } = this.state
     const { classes } = this.props;
-    const mappedEmails = list.length > 0
-      ? (this.state.list.map((email, idx) => (
+    const mappedPlayers = playerList.length > 0
+      ? (this.state.playerList.map((player, idx) => (
         <div key={`invite${idx}`}>
           <CheckIcon className={classes.mainFill} />
-          {email}
+          {player.name} - {player.position}
         </div>))) : null
 
     return <Fragment>
-      <Paper>
+      <Paper className="MuiPaper-customPrimary">
         <Typography variant="h4">Match Id: {matchId}</Typography>
+        {document.queryCommandSupported('copy') && <textarea
+          readOnly
+          ref={(textarea) => this.textArea = textarea}
+          style={{ opacity: '0', position: 'absolute' }}
+          value={this.state.matchId} />}
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>
-            <div className={classes.leftText}>{mappedEmails}</div>
+            <div className={classes.leftText}>{mappedPlayers}</div>
           </Grid>
           <Grid item>
             <FormLabel className={classes.centerText}>Share match id:</FormLabel>

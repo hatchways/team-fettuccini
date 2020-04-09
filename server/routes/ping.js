@@ -1,19 +1,33 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
+//const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const config = require('config');
+const { check, validationResult } = require('express-validator/check');
 
-router.post("/", function(req, res, next) {
-  const teamName = req.body.teamName;
+const MatchManager = require('../admin/MatchManagement.js');
 
-  if (
-    teamName &&
-    process.env.TEAM_MEMBERS &&
-    process.env.TEAM_MEMBERS.indexOf(teamName) >= 0
-  )
-    res.status(200).send({ response: `${teamName} is part of the team!` });
-  else
-    res.status(400).send({
-      response: `${teamName} is not part of the team. Modify your .env`
-    });
+router.get("/", 
+[
+	check('matchID', "No match id provided").not().isEmpty()
+], 
+function(req, res, next) {
+	console.log("hello");
+	const errors = validationResult(req);
+	if(!errors.isEmpty()) {
+		return res.status(400).json({errors: errors.array()});
+	}
+
+	const {matchID} = req.body;
+
+	try {
+		const payload = MatchManager.matchInfo(matchID);
+
+		res.json(payload);
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send('Server error');
+	}
 });
 
 module.exports = router;

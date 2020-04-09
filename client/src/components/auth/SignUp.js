@@ -23,7 +23,7 @@ export default class SignUp extends Component {
     })
   }
 
-  async handleSubmit(event) {
+  handleSubmit(event) {
     event.preventDefault()
 
     let error = ''
@@ -39,11 +39,28 @@ export default class SignUp extends Component {
       return
     }
 
-    try {
-      await this.props.login()
-    } catch (error) {
-      console.log(error.message)
-    }
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+      body: JSON.stringify({ username: this.state.name, email: this.state.email, password: this.state.password })
+    };
+
+    fetch('/users', requestOptions)
+      .then(res => {
+        if (res.status === 201) {
+          return res.json()
+        } else {
+          console.log(res.message);
+        }
+      }).then(data => {
+        console.log('data', data)
+        this.props.login(data.user);
+      })
+      .catch(error => {
+        console.log(error.message)
+      })
+
+
   }
 
   handleConfirmPassword(event) {

@@ -60,8 +60,9 @@ class Match extends Component {
       matchId: '',
       userId: '',
       words: [],
-      position: ""
+      positionState: ""
     }
+    this.submitHint = this.submitHint.bind(this)
   }
   componentDidMount = () => {
     if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
@@ -77,20 +78,20 @@ class Match extends Component {
       matchId,
       words,
       userId: auth.getUserInfo().id,
-      position: matchState.state
+      positionState: matchState.state
     })
     this.forceUpdate();
   }
 
   clickWord = async (e) => {
-    const { words, matchId } = this.state
+    const { words, matchId, positionState } = this.state
 
     let index = e.currentTarget.dataset.tag;
     words[index].chosen = true;
     try {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
-        position: this.state.position,
+        position: matchDictionary[positionState],
         move: e.target.firstChild
       })
 
@@ -111,7 +112,7 @@ class Match extends Component {
     try {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
-        position: this.state.position,
+        position: matchDictionary[this.state.positionState],
         move: matchDictionary.end
       })
 
@@ -123,30 +124,54 @@ class Match extends Component {
       res = await res.json()
       console.log('\n end field turn', res)
 
-      let position = res.info.state
-      this.setState({ ...this.state, position })
+      let positionState = res.info.state
+      this.setState({ ...this.state, positionState })
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
     }
   }
 
-  // nextPosition = () => {
-  //   let { position } = this.state
-  //   if (position === "")
-  //     position = position === "RF" ? "BF" : "RF"
-  //   return position
-  // }
+  async submitHint(move) {
+    console.log(move)
+    const reqBody = JSON.stringify({
+      userID: auth.getUserInfo().id,
+      position: matchDictionary[this.state.positionState],
+      move
+    })
+
+    try {
+      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+      console.log('\n hint submmitted', res)
+
+      let positionState = `${res.state}`
+
+      console.log('\n positionState', positionState)
+      this.setState({ ...this.state, positionState })
+    } catch (error) {
+      console.log('error @ submitHint API')
+    }
+  }
 
   render() {
+    console.log('state', this.state)
     const { classes } = this.props;
-    const { words, position, matchId, userId } = this.state;
+    const { words, positionState, matchId, userId } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
-          <ChatBox matchID={matchId} userID={userId} position={matchDictionary[position]}></ChatBox>
+          <ChatBox
+            submitHint={this.submitHint}
+            matchID={matchId}
+            userID={userId}
+            position={matchDictionary[positionState]} />
         </Grid>
         <Paper className={`${classes.paper} ${classes.centerText}`}>
-          <Typography variant="h4">{position}</Typography>
+          <Typography variant="h4">{positionState}</Typography>
           <Grid container item xs={12} className={classes.standardFlex}>
             <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
           </Grid>

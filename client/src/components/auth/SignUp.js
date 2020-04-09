@@ -53,7 +53,6 @@ export default class SignUp extends Component {
           console.log(res.message);
         }
       }).then(data => {
-        console.log('data', data)
         this.props.login(data.user);
       })
       .catch(error => {

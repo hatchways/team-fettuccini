@@ -8,7 +8,6 @@ import ChatBox from './ChatBox'
 import auth from '../auth/auth'
 import matchDictionary from './matchDictionary'
 
-
 import { withStyles } from "@material-ui/styles";
 
 const style = (theme) => ({
@@ -31,10 +30,23 @@ const style = (theme) => ({
   flexRow: {
     margin: "10px",
     justifyContent: 'space-evenly',
+
     '&>.MuiGrid-item': {
       '&>button': {
         width: '100%'
-      }
+      },
+      "&>.chosenB": {
+        backgroundColor: '#00008b',
+        color: '#ffffff'
+      },
+      "&>.chosenR": {
+        backgroundColor: '#8b0000',
+        color: '#ffffff'
+      },
+      "&>.chosenA": {
+        backgroundColor: '#000000',
+        color: '#ffffff'
+      },
     }
   },
   standardFlexChild: {
@@ -45,21 +57,10 @@ const style = (theme) => ({
     padding: "20px",
     maxWidth: "700px",
   },
-  chosen_false: {
-    backgroundColor: '#3FBF8A'
-  },
-  chosen_true: {
-    backgroundColor: '#B319EB'
-  },
   ".Mui-disabled": {
     backgroundColor: '#B319EB'
   }
 });
-
-// ASSASSIN: 'Assassin',
-// 	BLUE: 'Blue',
-// 	RED: 'Red',
-// 	CIVILIAN: 'Civilian'
 
 class Match extends Component {
   constructor(props) {
@@ -87,7 +88,6 @@ class Match extends Component {
       userId: auth.getUserInfo().id,
       positionState: matchState.state
     })
-    this.forceUpdate();
   }
 
   clickWord = async (e) => {
@@ -113,14 +113,12 @@ class Match extends Component {
         res = await res.json()
         console.log('\n API clickWord response', res)
 
-        words[index] = res.info.info[index]
+        words[index] = res.info.info[index].slice(0, 2) + words[index]
         guessesLeft--
 
+        console.log('res state', res.info.state)
         this.setState({ ...this.state, words, guessesLeft, positionState: res.info.state })
 
-        if (guessesLeft === 0) {
-          await this.endFieldTurn()
-        }
       }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove')

@@ -19,14 +19,14 @@ export default ({ words, classes, clickWord }) => {
           const chosen = word[0] === "_"
 
           return (
-            <Grid item xs={2} key={word}>
+            <Grid item xs={2} key={`word-${inx}`}>
               <Button
                 disabled={chosen}
                 key={word}
                 data-tag={Number(inx) + low}
                 variant="contained"
-                className={chosen ? `chosen_${word.slice(1)}` : ""}
-                onClick={clickWord}>{chosen ? word.slice(1) : word}</Button>
+                className={chosen ? `chosen${word.slice(1, 2)}` : ""}
+                onClick={clickWord}>{chosen ? word.slice(2) : word}</Button>
             </Grid>)
         })}
 

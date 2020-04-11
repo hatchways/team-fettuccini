@@ -2,65 +2,15 @@ import React, { Component, Fragment } from "react";
 
 import { Typography, Paper, Button, Grid } from "@material-ui/core";
 
-import MappedWords from './MappedWords'
 import ChatBox from './ChatBox'
+import MappedWords from './MappedWords'
+import ServerPing from './ServerPing'
 
 import auth from '../auth/auth'
 import matchDictionary from './matchDictionary'
 
 import { withStyles } from "@material-ui/styles";
-
-const style = (theme) => ({
-  centerText: {
-    textAlign: 'center',
-    marginBottom: "0.5em"
-  },
-  leftText: {
-    textAlign: 'left'
-  },
-  gridContainer: {
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    margin: "10px auto"
-  },
-  standardFlex: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  flexRow: {
-    margin: "10px",
-    justifyContent: 'space-evenly',
-
-    '&>.MuiGrid-item': {
-      '&>button': {
-        width: '100%'
-      },
-      "&>.chosenB": {
-        backgroundColor: '#00008b',
-        color: '#ffffff'
-      },
-      "&>.chosenR": {
-        backgroundColor: '#8b0000',
-        color: '#ffffff'
-      },
-      "&>.chosenA": {
-        backgroundColor: '#000000',
-        color: '#ffffff'
-      },
-    }
-  },
-  standardFlexChild: {
-    flexGrow: '1',
-  },
-  paper: {
-    margin: "50px auto",
-    padding: "20px",
-    maxWidth: "700px",
-  },
-  ".Mui-disabled": {
-    backgroundColor: '#B319EB'
-  }
-});
+import styleMatch from "./styleMatch";
 
 class Match extends Component {
   constructor(props) {
@@ -73,7 +23,9 @@ class Match extends Component {
       guessesLeft: 0
     }
     this.submitHint = this.submitHint.bind(this)
+    this.ping = this.ping.bind(this)
   }
+
   componentDidMount = () => {
     if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
       this.props.history.push('/welcome')
@@ -88,6 +40,60 @@ class Match extends Component {
       userId: auth.getUserInfo().id,
       positionState: matchState.state
     })
+  }
+
+  async ping() {
+    if (this.state.words.length === 0) {
+      return
+    }
+
+    let { matchId, userId, positionState, words } = this.state
+    let res
+    try {
+      const reqBody = JSON.stringify({
+        userID: userId,
+        position: matchDictionary[positionState],
+        move: "_PING"
+      })
+
+      res = await fetch(`/matches/${matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      console.log('\n API PING raw', res)
+
+      if (res.status !== 200) {
+        let temp = await res.text()
+        console.error('failed request :: ', temp)
+      }
+    } catch (error) {
+      console.log('error @ PING raw', error)
+    }
+
+    try {
+      res = await res.json()
+      console.log('\n API PING.json', res)
+
+      let updateState = false
+      let i = 0
+
+      for (let i = 0; i < words.length; i++) {
+        if (words[i] !== res.info[i]) {
+          updateState = true
+          words[i] = res.info[i].slice(0, 2) + words[i]
+        }
+      }
+
+      if (updateState || (res.state !== positionState)) {
+        this.setState({
+          positionState: res.state,
+          words
+        })
+      }
+    } catch (error) {
+      console.log('error @ PING .json() \n', error)
+    }
   }
 
   clickWord = async (e) => {
@@ -190,6 +196,7 @@ class Match extends Component {
         </Grid>
         <Paper className={`${classes.paper} ${classes.centerText}`}>
           <Typography variant="h4">{positionState}</Typography>
+          <ServerPing ping={this.ping} />
           {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
           <Grid container item xs={12} className={classes.standardFlex}>
             <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
@@ -201,4 +208,4 @@ class Match extends Component {
   }
 }
 
-export default withStyles(style)(Match)
+export default withStyles(styleMatch)(Match)

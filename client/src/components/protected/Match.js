@@ -52,10 +52,11 @@ class Match extends Component {
     try {
       const reqBody = JSON.stringify({
         userID: userId,
-        position: matchDictionary[positionState],
+        position: "_PING",
         move: "_PING"
       })
-
+      console.log('sending body', reqBody)
+      console.log('matchId', matchId)
       res = await fetch(`/matches/${matchId}/nextmove`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
@@ -79,7 +80,7 @@ class Match extends Component {
       let i = 0
 
       for (let i = 0; i < words.length; i++) {
-        if (words[i] !== res.info[i]) {
+        if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
           updateState = true
           words[i] = res.info[i].slice(0, 2) + words[i]
         }

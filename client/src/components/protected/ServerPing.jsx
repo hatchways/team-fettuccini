@@ -6,9 +6,10 @@ export default ({ ping }) => {
   useEffect(() => {
     const interval = setInterval(async () => {
       ping()
-    }, 5000);
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  return <Button variant="outlined" onClick={ping}>ping</Button>;
+  return null;
+  // return <Button variant="outlined" onClick={ping}>ping</Button>;
 };

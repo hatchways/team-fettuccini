@@ -24,6 +24,7 @@ class Match extends Component {
     }
     this.submitHint = this.submitHint.bind(this)
     this.ping = this.ping.bind(this)
+    this.isSpyTurn = this.isSpyTurn.bind(this)
   }
 
   componentDidMount = () => {
@@ -42,6 +43,9 @@ class Match extends Component {
     })
   }
 
+  isSpyTurn() {
+    return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
+  }
   async ping() {
     if (this.state.words.length === 0) {
       return
@@ -95,7 +99,8 @@ class Match extends Component {
         this.setState({
           words,
           positionState: res.state,
-          guessesLeft: Number(res.numGuess)
+          guessesLeft: Number(res.numGuess),
+          message: ""
         })
       }
     } catch (error) {
@@ -105,7 +110,7 @@ class Match extends Component {
 
   clickWord = async (e) => {
     let { matchId, positionState, guessesLeft, words } = this.state
-    if (!["RF", "BF"].includes(matchDictionary[positionState])) {
+    if (this.isSpyTurn()) {
       return
     }
 
@@ -130,10 +135,10 @@ class Match extends Component {
         console.log('\n API clickWord response', res)
 
         words[index] = res.info.info[index].slice(0, 2) + words[index]
-        guessesLeft--
+        // guessesLeft--
 
         console.log('res state', res.info.state)
-        this.setState({ ...this.state, words, guessesLeft, positionState: res.info.state })
+        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
 
       }
     } catch (error) {
@@ -142,6 +147,9 @@ class Match extends Component {
   }
 
   endFieldTurn = async () => {
+    if (this.isSpyTurn()) {
+      return
+    }
     try {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
@@ -157,9 +165,13 @@ class Match extends Component {
       })
       res = await res.json()
       console.log('\n API endFieldTurn response', res)
+      if (Number(res.info.numGuess) === this.state.guessesLeft) {
+        this.setState({ ...this.state, message: res.message })
+      } else {
+        let positionState = res.info.state
+        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
 
-      let positionState = res.info.state
-      this.setState({ ...this.state, positionState, guessesLeft: 0 })
+      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
     }
@@ -185,16 +197,16 @@ class Match extends Component {
       let positionState = `${res.state}`
 
       console.log('\n positionState', positionState)
-      this.setState({ ...this.state, positionState, guessesLeft: Number(move.num) })
+      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
     } catch (error) {
       console.log('error @ submitHint API')
     }
   }
 
   render() {
-    console.log('local state', this.state)
+    // console.log('local state', this.state)
     const { classes } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft } = this.state;
+    const { words, positionState, matchId, userId, guessesLeft, message } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
@@ -208,7 +220,8 @@ class Match extends Component {
           <Paper className={`${classes.paper} ${classes.centerText}`}>
             <Typography variant="h4">{positionState}</Typography>
             <ServerPing ping={this.ping} />
-            {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
+            {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+            {message !== "" ? <p>{message}</p> : null}
             <Grid container item xs={12} className={classes.standardFlex}>
               <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
             </Grid>

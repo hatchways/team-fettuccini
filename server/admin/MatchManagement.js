@@ -33,7 +33,8 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let info = game.getBoardInfo();
 		let state = game.getState();
-		return { info: info, state: state };
+		let numGuess = game.getNumGuess()
+		return { info: info, state: state, numGuess };
 	}
 
 	//Join the user to the match and give the user the given position.

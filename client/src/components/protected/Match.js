@@ -47,7 +47,7 @@ class Match extends Component {
       return
     }
 
-    let { matchId, userId, positionState, words } = this.state
+    let { matchId, userId, positionState, words, guessesLeft } = this.state
     let res
     try {
       const reqBody = JSON.stringify({
@@ -74,6 +74,9 @@ class Match extends Component {
 
     try {
       res = await res.json()
+      if (res.info === "") {
+        this.props.history.push("/welcome")
+      }
       console.log('\n API PING.json', res)
 
       let updateState = false
@@ -86,10 +89,13 @@ class Match extends Component {
         }
       }
 
-      if (updateState || (res.state !== positionState)) {
+      if (updateState || (res.state !== positionState) || (res.numBuess !== guessesLeft)) {
+        console.log('guesses ', res.numGuess)
+        console.log('guesses ', Number(res.numGuess))
         this.setState({
+          words,
           positionState: res.state,
-          words
+          guessesLeft: Number(res.numGuess)
         })
       }
     } catch (error) {
@@ -98,9 +104,12 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
+    let { matchId, positionState, guessesLeft, words } = this.state
+    if (!["RF", "BF"].includes(matchDictionary[positionState])) {
+      return
+    }
 
     try {
-      let { matchId, positionState, guessesLeft, words } = this.state
       let index = e.currentTarget.dataset.tag;
 
       const reqBody = JSON.stringify({
@@ -195,15 +204,17 @@ class Match extends Component {
             userID={userId}
             position={matchDictionary[positionState]} />
         </Grid>
-        <Paper className={`${classes.paper} ${classes.centerText}`}>
-          <Typography variant="h4">{positionState}</Typography>
-          <ServerPing ping={this.ping} />
-          {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
-          <Grid container item xs={12} className={classes.standardFlex}>
-            <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
-          </Grid>
-          <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
-        </Paper>
+        <Grid item Container>
+          <Paper className={`${classes.paper} ${classes.centerText}`}>
+            <Typography variant="h4">{positionState}</Typography>
+            <ServerPing ping={this.ping} />
+            {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
+            <Grid container item xs={12} className={classes.standardFlex}>
+              <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+            </Grid>
+            <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
+          </Paper>
+        </Grid>
       </Grid>
     </Fragment>)
   }

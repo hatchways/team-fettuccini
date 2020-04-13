@@ -7,6 +7,7 @@ import { withRouter } from "react-router-dom";
 class GameOutcome extends Component {
   render() {
     const { isOver, winner, blueScore, redScore } = this.props;
+    const winningTeamName = winner.charAt(0).toUpperCase() + winner.slice(1);
 
     const styles = {
       blue: {
@@ -21,7 +22,11 @@ class GameOutcome extends Component {
         fontWeight: "600",
         fontFamily: "Roboto",
       },
+      sides: {
+        flexGrow: "1",
+      },
       title: { fontSize: "30px", margin: "0px", fontFamily: "Roboto" },
+      newGame: { padding: "0 30px" },
     };
 
     const getTeamColor = () => {
@@ -41,7 +46,7 @@ class GameOutcome extends Component {
           <p style={styles.title}>Game over!</p>
         </DialogTitle>
         <div>
-          <p style={getTeamColor()}>{winner} wins</p>
+          <p style={getTeamColor()}>{winningTeamName} wins</p>
           <p>
             <span style={styles.blue}>{blueScore} </span> :{" "}
             <span style={styles.red}> {redScore}</span>
@@ -49,8 +54,12 @@ class GameOutcome extends Component {
         </div>
 
         <Button
+          className={styles.sides}
+          variant="contained"
+          color="primary"
           onClick={() => {
             this.props.history.push("/welcome");
+            this.props.setIsMatchInProgres(false);
           }}
         >
           New Game

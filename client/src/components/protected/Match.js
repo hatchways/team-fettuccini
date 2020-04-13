@@ -38,6 +38,11 @@ const style = (theme) => ({
 class Match extends Component {
   constructor(props) {
     super(props);
+
+    this.props.setIsMatchInProgres(true);
+    this.props.setBlueScore(0);
+    this.props.setRedScore(0);
+
     this.state = {
       matchId: '',
       userId: '',
@@ -46,8 +51,6 @@ class Match extends Component {
       guessesLeft: 0,
       isOver: false,
       winner: "blue",
-      blueScore: 5,
-      redScore: 3,
     }
     this.submitHint = this.submitHint.bind(this)
     this.ping = this.ping.bind(this)
@@ -72,12 +75,6 @@ class Match extends Component {
       positionState: matchState.state
     })
   }
-
-  testEndMatch = () => {
-    let { isOver } = this.state;
-    isOver = true;
-    this.setState({ ...this.state, isOver });
-  };
 
   isSpyTurn() {
     return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
@@ -238,8 +235,15 @@ class Match extends Component {
 
   render() {
     // console.log('local state', this.state)
-    const { classes } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, blueScore, redScore } = this.state;
+    const {
+      classes,
+      setIsMatchInProgres,
+      blueScore,
+      setBlueScore,
+      redScore,
+      setRedScore
+    } = this.props;
+    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
@@ -248,6 +252,18 @@ class Match extends Component {
             matchID={matchId}
             userID={userId}
             position={matchDictionary[positionState]} />
+            {/* These 3 buttons are for testing - remove when scores work properly */}
+            <button
+              onClick={() => {
+                let { isOver } = this.state;
+                isOver = true;
+                this.setState({ ...this.state, isOver });
+              }}
+            >
+              End match
+            </button>
+            <button onClick={() => setBlueScore(blueScore + 1)}>blue++</button>
+            <button onClick={() => setRedScore(redScore + 1)}>red++</button>
         </Grid>
         <Grid item Container>
           <Paper className={`${classes.paper} ${classes.centerText}`}>
@@ -262,13 +278,15 @@ class Match extends Component {
           </Paper>
         </Grid>
       </Grid>
-        <GameOutcome
-          isOver={isOver}
-          winner={winner}
-          blueScore={blueScore}
-          redScore={redScore}
-        />
-        <button onClick={this.testEndMatch}>End match (for testing)</button>
+        {isOver ? (
+          <GameOutcome
+            isOver={isOver}
+            setIsMatchInProgres={setIsMatchInProgres}
+            winner={winner}
+            blueScore={blueScore}
+            redScore={redScore}
+          />
+        ) : null}
     </Fragment>)
   }
 }

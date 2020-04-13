@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { MuiThemeProvider } from "@material-ui/core";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
@@ -14,16 +14,39 @@ import { theme } from "./themes/theme";
 import "./index.css";
 
 function App() {
+  const [isMatchInProgres, setIsMatchInProgres] = useState(false);
+  const [blueScore, setBlueScore] = useState(0);
+  const [redScore, setRedScore] = useState(0);
+
   return (
     <MuiThemeProvider theme={theme}>
       <BrowserRouter>
-        <NavBar />
+        <NavBar
+          isMatchInProgres={isMatchInProgres}
+          setIsMatchInProgres={setIsMatchInProgres}
+          blueScore={blueScore}
+          redScore={redScore}
+        />
         <Switch>
           <Route exact path="/signin" render={(props) => <Auth {...props} signIn={true} />} />
           <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
           <ProtectedRoute exact path="/welcome" component={Welcome} />
           <ProtectedRoute exact path="/waitingroom/:matchId" component={WaitingRoom} />
-          <ProtectedRoute exact path="/match/:matchId" component={Match} />
+          <ProtectedRoute
+            exact
+            path="/match/:matchId"
+            render={(props) => (
+              <Match
+                {...props}
+                isMatchInProgres={isMatchInProgres}
+                setIsMatchInProgres={setIsMatchInProgres}
+                blueScore={blueScore}
+                setBlueScore={setBlueScore}
+                redScore={redScore}
+                setRedScore={setRedScore}
+              />
+            )}
+          />
           <Route path="/" component={Auth} />
         </Switch>
 

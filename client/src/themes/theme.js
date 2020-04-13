@@ -8,9 +8,9 @@ export const theme = createMuiTheme({
       'Roboto',
     fontSize: 12,
     h4: {
-      textAlign: 'center',
+      textAlign: "center",
       "&:after": {
-        content: 'close-quote',
+        content: "close-quote",
         borderBottom: `2px solid ${primary}`,
         maxWidth: "80px",
         display: "block",
@@ -32,7 +32,7 @@ export const theme = createMuiTheme({
     },
     primary: {
       main: primary,
-      contrastText: "#fff"
+      contrastText: "#fff",
     },
     secondary: { main: "#DF1B1B" }
   },

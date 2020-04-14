@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import { FormLabel, TextField, Button } from "@material-ui/core";
+import { FormLabel, TextField, Button, FormControl } from "@material-ui/core";
 
-export default class SignUp extends Component {
+import { withStyles } from "@material-ui/core/styles";
+import style from './styleAuth'
+
+export default withStyles(style)(class SignUp extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -79,53 +82,63 @@ export default class SignUp extends Component {
 
     return (
       <>
-        <form onSubmit={this.handleSubmit}>
-          <FormLabel htmlFor="name">Name:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="name"
-            name="name"
-            type="text"
-            value={this.state.name}
-            onChange={this.handleChange}
-            placeholder="Enter your Name"
-            required />
-          <FormLabel htmlFor="email">Email:</FormLabel>
-          <TextField
-            variant="outlined"
-            name="email"
-            id="email"
-            type="email"
-            value={this.state.email}
-            onChange={this.handleChange}
-            placeholder="Enter your Email"
-            required />
-          <FormLabel htmlFor="password">Password:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="password"
-            name="password"
-            type="password"
-            minLength='6'
-            value={this.state.password}
-            onChange={this.handleChange}
-            placeholder="Enter Password"
-            required />
-          <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="passwordConfirm"
-            name="passwordConfirm"
-            type="password"
-            minLength='6'
-            value={this.state.passwordConfirm}
-            onChange={this.handleConfirmPassword}
-            placeholder="Enter Password Again"
-            required />
+        <form className={this.props.classes.form} onSubmit={this.handleSubmit}>
+          <FormControl>
+            <FormLabel htmlFor="name">Name:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="name"
+              name="name"
+              type="text"
+              value={this.state.name}
+              onChange={this.handleChange}
+              placeholder="Enter your Name"
+              required />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="email">Email:</FormLabel>
+            <TextField
+              variant="outlined"
+              name="email"
+              id="email"
+              type="email"
+              value={this.state.email}
+              onChange={this.handleChange}
+              placeholder="Enter your Email"
+              required />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="password">Password:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="password"
+              name="password"
+              type="password"
+              minLength='6'
+              value={this.state.password}
+              onChange={this.handleChange}
+              placeholder="Enter Password"
+              required />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="passwordConfirm"
+              name="passwordConfirm"
+              type="password"
+              minLength='6'
+              value={this.state.passwordConfirm}
+              onChange={this.handleConfirmPassword}
+              placeholder="Enter Password Again"
+              required />
+          </FormControl>
           {errorMessage}
-          <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
+          <div>
+            <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
+          </div>
         </form>
       </>
     );
   }
-}
+})

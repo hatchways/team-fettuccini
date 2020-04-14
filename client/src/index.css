@@ -16,39 +16,15 @@ code {
 
 /* auth form */
 
-.container > form {
-  margin: 0 auto;
-  max-width: 300px;
-}
-
-.container > form > label {
-  float: left;
-  font-weight: bold;
-}
-
 .Form-warning {
   color: red;
-  transition-duration: 0.5s;
-}
-
-.Form-submit {
-  background-color: rgb(53, 229, 53);
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.Form-submit:hover {
-  background-color: rgba(53, 229, 53, 0.7);
+  transition-duration: 0.5s color;
 }
 
 
 .Form-switch {
-  cursor: pointer;
-  font-weight: bold;
+  /* cursor: pointer;
+  font-weight: bold; */
 }
 
 .Form-tab-selected {

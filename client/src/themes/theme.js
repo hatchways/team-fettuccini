@@ -1,5 +1,9 @@
 import { createMuiTheme } from "@material-ui/core";
 
+import { teal } from '@material-ui/core/colors';
+
+const primary = teal[500]
+
 export const theme = createMuiTheme({
   typography: {
     fontFamily: '"Roboto"',
@@ -8,16 +12,23 @@ export const theme = createMuiTheme({
       textAlign: 'center',
       "&:after": {
         content: 'close-quote',
-        borderBottom: "2px solid rgb(53, 229, 53)",
+        borderBottom: `2px solid ${primary}`,
         maxWidth: "80px",
         display: "block",
-        margin: "1em auto"
+        margin: "0.5em auto"
       }
-    }
+    },
+    h6: {
+      display: 'inline',
+      cursor: "pointer"
+    },
+    body1: {
+      display: 'inline'
+    },
   },
   palette: {
     primary: {
-      main: "rgb(53, 229, 53)",
+      main: primary,
       contrastText: "#fff"
     },
     secondary: { main: "#DF1B1B" }
@@ -29,23 +40,30 @@ export const theme = createMuiTheme({
         margin: "50px auto",
         padding: "20px",
         width: "60%",
-        maxWidth: "500px"
+        maxWidth: "500px",
       }
     },
     MuiCheck: {
       custom: {
-        fill: "rgb(53, 229, 53)"
+        fill: 'primary'
       }
     },
     MuiButton: {
       contained: {
-        textAlign: "center"
+        textAlign: "center",
+        margin: "10px",
+        padding: "10px 40px",
+        textTransform: "capitalize"
       }
     },
     MuiFormLabel: {
       root: {
+        marginTop: "1em",
         display: 'block',
-        textAlign: "left"
+        textAlign: "left",
+        fontWeight: "bold",
+        color: "black",
+        fontSize: "1em"
       }
     },
     MuiTextField: {
@@ -56,9 +74,6 @@ export const theme = createMuiTheme({
         boxSizing: "border-box",
         fontSize: "20px"
       }
-    },
-    authInput: {
-      marginBottom: "1em"
     }
   }
 });

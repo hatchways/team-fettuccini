@@ -46,6 +46,7 @@ class Match extends Component {
   isSpyTurn() {
     return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
   }
+
   async ping() {
     if (this.state.words.length === 0) {
       return
@@ -84,7 +85,6 @@ class Match extends Component {
       console.log('\n API PING.json', res)
 
       let updateState = false
-      let i = 0
 
       for (let i = 0; i < words.length; i++) {
         if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
@@ -93,9 +93,7 @@ class Match extends Component {
         }
       }
 
-      if (updateState || (res.state !== positionState) || (res.numBuess !== guessesLeft)) {
-        console.log('guesses ', res.numGuess)
-        console.log('guesses ', Number(res.numGuess))
+      if (updateState || (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)) {
         this.setState({
           words,
           positionState: res.state,
@@ -109,7 +107,7 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
-    let { matchId, positionState, guessesLeft, words } = this.state
+    let { matchId, positionState, words } = this.state
     if (this.isSpyTurn()) {
       return
     }
@@ -135,7 +133,6 @@ class Match extends Component {
         console.log('\n API clickWord response', res)
 
         words[index] = res.info.info[index].slice(0, 2) + words[index]
-        // guessesLeft--
 
         console.log('res state', res.info.state)
         this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
@@ -165,7 +162,7 @@ class Match extends Component {
       })
       res = await res.json()
       console.log('\n API endFieldTurn response', res)
-      if (Number(res.info.numGuess) === this.state.guessesLeft) {
+      if (res.message === "Have to make at least one guess for a turn") {
         this.setState({ ...this.state, message: res.message })
       } else {
         let positionState = res.info.state

@@ -3,6 +3,7 @@ import React, { Component, Fragment } from "react";
 import { Typography, Paper, Button, Grid } from "@material-ui/core";
 
 import ChatBox from './ChatBox'
+import UserDisplay from './UserDisplay'
 import MappedWords from './MappedWords'
 import ServerPing from './ServerPing'
 
@@ -17,13 +18,14 @@ class Match extends Component {
     super(props)
     this.state = {
       matchId: '',
-      userId: '',
+      userId: auth.getUserInfo().id,
       words: [],
       positionState: "",
       guessesLeft: 0
     }
     this.submitHint = this.submitHint.bind(this)
     this.ping = this.ping.bind(this)
+    this.userDisplay = React.createRef();
   }
 
   componentDidMount = () => {
@@ -35,9 +37,8 @@ class Match extends Component {
 
     this.setState({
       ...this.state,
-      matchId,
+      matchId: matchId,
       words: matchState.info,
-      userId: auth.getUserInfo().id,
       positionState: matchState.state
     })
   }
@@ -188,6 +189,9 @@ class Match extends Component {
     const { words, positionState, matchId, userId, guessesLeft } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
+        <Grid item xs={4}>
+          <UserDisplay thisUser={this.state.userId} ref={this.userDisplay}/>
+        </Grid>
         <Grid item xs={4}>
           <ChatBox
             submitHint={this.submitHint}

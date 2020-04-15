@@ -1,8 +1,6 @@
 import { createMuiTheme } from "@material-ui/core";
 
-import { teal } from '@material-ui/core/colors';
-
-const primary = teal[500]
+const primary = "#32be72"
 
 export const theme = createMuiTheme({
   typography: {
@@ -27,11 +25,18 @@ export const theme = createMuiTheme({
     },
   },
   palette: {
+    common: {
+      gray: "#efeeee",
+      darkGray: "#5d5d5d"
+    },
     primary: {
       main: primary,
       contrastText: "#fff"
     },
     secondary: { main: "#DF1B1B" }
+  },
+  shape: {
+    borderRadius: "7px"
   },
   overrides: {
     MuiPaper: {
@@ -58,7 +63,7 @@ export const theme = createMuiTheme({
     },
     MuiFormLabel: {
       root: {
-        marginTop: "1em",
+        margin: "1em 0 0.5em 0",
         display: 'block',
         textAlign: "left",
         fontWeight: "bold",

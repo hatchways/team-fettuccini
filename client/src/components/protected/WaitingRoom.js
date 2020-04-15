@@ -102,7 +102,7 @@ class WaitingRoom
 
     return <Fragment>
       <Paper className="MuiPaper-customPrimary">
-        <Typography variant="h4">Match Id: {matchId}</Typography>
+        <Typography variant="h4">New Game</Typography>
         {document.queryCommandSupported('copy') && <textarea
           readOnly
           ref={(textarea) => this.textArea = textarea}

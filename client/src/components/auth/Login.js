@@ -46,11 +46,12 @@ export default withStyles(style)(class Login extends Component {
   }
 
   render() {
-    const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
-    const error = this.state.error.length !== 0
+    const { classes } = this.props
+
+    const errorMessage = this.state.error.length !== 0 ? <p className={classes.formWarning}>{this.state.error}</p> : null;
     return (
       <>
-        <form className={this.props.classes.form} onSubmit={this.handleSubmit}>
+        <form className={classes.form} onSubmit={this.handleSubmit}>
           <FormControl className="inputBlock">
             <FormLabel htmlFor="email">Email:</FormLabel>
             <TextField

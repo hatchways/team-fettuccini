@@ -11,7 +11,7 @@ import Welcome from "./components/protected/Welcome";
 import Match from "./components/protected/Match";
 
 import { theme } from "./themes/theme";
-import "./App.css";
+import "./index.css";
 
 function App() {
   return (

@@ -4,5 +4,8 @@ export default (theme) => ({
     flexDirection: 'column',
     maxWidth: '300px',
     margin: '0 auto'
+  },
+  formWarning: {
+    color: "#ff0000"
   }
 });

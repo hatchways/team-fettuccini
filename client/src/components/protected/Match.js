@@ -267,6 +267,8 @@ class Match extends Component {
         </Grid>
         <Paper className={`${classes.paper} ${classes.centerText}`}>
           <Typography variant="h4">{positionState}</Typography>
+          <ServerPing ping={this.ping} />
+          {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
           <Grid container item xs={12} className={classes.standardFlex}>
             <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
           </Grid>

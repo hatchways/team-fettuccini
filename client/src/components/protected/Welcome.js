@@ -30,13 +30,11 @@ class Welcome extends Component {
   }
 
   newGame = async () => {
-    // const matchId = Math.floor(Math.random() * 100).toString()
 
     let matchId
     let res
     let hostID = auth.getUserInfo().id
     let reqBody = JSON.stringify({ hostID })
-    console.log('userid ', hostID)
 
     try {
       // API call to create new game
@@ -47,7 +45,6 @@ class Welcome extends Component {
       })
       res = await res.json()
       matchId = res.matchID
-      console.log('res ', res)
       this.props.history.push({
         pathname: `/waitingroom/${matchId}`
       })

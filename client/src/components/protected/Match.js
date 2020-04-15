@@ -1,182 +1,124 @@
 import React, { Component, Fragment } from "react";
 
-import { Typography, Paper, Button, FormLabel, TextField, Grid, List, ListItem, Input, Select } from "@material-ui/core";
+import { Typography, Paper, Button, Grid } from "@material-ui/core";
 
+import ChatBox from './ChatBox'
 import MappedWords from './MappedWords'
+import ServerPing from './ServerPing'
 
 import auth from '../auth/auth'
+import matchDictionary from './matchDictionary'
 
 import { withStyles } from "@material-ui/styles";
-
-const style = (theme) => ({
-  centerText: {
-    textAlign: 'center',
-    marginBottom: "0.5em"
-  },
-  leftText: {
-    textAlign: 'left'
-  },
-  gridContainer: {
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    margin: "10px auto"
-  },
-  standardFlex: {
-    display: 'flex',
-    flexWrap: 'wrap',
-  },
-  flexRow: {
-    margin: "10px",
-    justifyContent: 'space-evenly',
-    '&>.MuiGrid-item': {
-      '&>button': {
-        width: '100%'
-      }
-    }
-  },
-  standardFlexChild: {
-    flexGrow: '1',
-  },
-  paper: {
-    margin: "50px auto",
-    padding: "20px",
-    maxWidth: "700px",
-  },
-  chosen_false: {
-    backgroundColor: '#3FBF8A'
-  },
-  chosen_true: {
-    backgroundColor: '#B319EB'
-  }
-});
-
-const words = [
-  "pair",
-  "straw",
-  "scientist",
-  "over",
-  "tell",
-  "creature",
-  "story",
-  "entirely",
-  "building",
-  "sweet",
-  "went",
-  "continent",
-  "pile",
-  "movement",
-  "camp",
-  "add",
-  "substance",
-  "again",
-  "take",
-  "clock",
-  "border",
-  "gone",
-  "wrote",
-  "equator",
-  "case"
-]
-
-class ChatBox extends React.Component {
-  constructor(props) {
-    super(props);
-    this.messages = [
-      "First",
-      "Second",
-      "Third"
-    ];
-    this.currentMsg = "hi";
-    this.numWords = 1;
-    this.matchID = this.props.matchID;
-    this.userID = this.props.userID;
-    this.position = this.props.position;
-  }
-
-  setCurrentMsg(msg) {
-    this.currentMsg = msg;
-  }
-
-  setNumWords(num) {
-    this.numWords = num;
-  }
-
-  sendCurrentMsg() {
-    if (this.currentMsg == "") return;
-    const word = this.currentMsg;
-    const numWords = this.numWords;
-    this.messages.push(this.currentMsg);
-    this.currentMsg = "";
-
-    var spyHintReq = new XMLHttpRequest();
-    spyHintReq.open('POST', 'https://localhost:3001/matches/' + this.matchID + "/nextmove");
-    spyHintReq.setRequestHeader("Content-Type", "application/json");
-    spyHintReq.onreadystatechange = function () {
-      if (spyHintReq.readyState === 4 && spyHintReq.status === 200) {
-        var json = JSON.parse(spyHintReq.responseText);
-        alert(json);
-      }
-    };
-    var data = JSON.stringify({ "userId": this.userID, "position": this.position, "move": (this.numWords + " " + this.currentMsg) });
-    spyHintReq.send(data);
-    this.forceUpdate();
-  }
-
-  render() {
-    const text = this.messages.map((step, index) => {
-      return (<ListItem>{step}</ListItem>);
-    });
-    return (
-      <Paper style={{ maxHeight: 300, overflow: 'auto' }}>
-        <List>
-          {text}
-        </List>
-        #
-        <Input onChange={event => this.setNumWords(event.target.value)} style={{ width: 20 }}>
-        </Input>
-        Hint
-        <Input onChange={event => this.setCurrentMsg(event.target.value)}>
-        </Input>
-        <Button onClick={() => this.sendCurrentMsg()} style={{ height: 30 }} color='primary' variant='contained'>
-          Submit Hint
-        </Button>
-      </Paper>
-    );
-  }
-}
+import styleMatch from "./styleMatch";
 
 class Match extends Component {
   constructor(props) {
     super(props)
     this.state = {
       matchId: '',
+      userId: '',
       words: [],
-      position: 'RF'
+      positionState: "",
+      guessesLeft: 0
     }
+    this.submitHint = this.submitHint.bind(this)
+    this.ping = this.ping.bind(this)
+    this.isSpyTurn = this.isSpyTurn.bind(this)
   }
+
   componentDidMount = () => {
     if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
       this.props.history.push('/welcome')
     }
     const { matchId, matchState } = this.props.location.state
-    console.log(matchState)
+    console.log('\n\nmatchState', matchState)
 
-    const words = matchState.info.map(word => ({ val: word, chosen: false }))
+    this.setState({
+      ...this.state,
+      matchId,
+      words: matchState.info,
+      userId: auth.getUserInfo().id,
+      positionState: matchState.state
+    })
+  }
 
-    this.setState({ ...this.state, matchId, words })
-    this.forceUpdate();
+  isSpyTurn() {
+    return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
+  }
+
+  async ping() {
+    if (this.state.words.length === 0) {
+      return
+    }
+
+    let { matchId, userId, positionState, words, guessesLeft } = this.state
+    let res
+    try {
+      const reqBody = JSON.stringify({
+        userID: userId,
+        position: "_PING",
+        move: "_PING"
+      })
+      console.log('sending body', reqBody)
+      console.log('matchId', matchId)
+      res = await fetch(`/matches/${matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      console.log('\n API PING raw', res)
+
+      if (res.status !== 200) {
+        let temp = await res.text()
+        console.error('failed request :: ', temp)
+      }
+    } catch (error) {
+      console.log('error @ PING raw', error)
+    }
+
+    try {
+      res = await res.json()
+      if (res.info === "") {
+        this.props.history.push("/welcome")
+      }
+      console.log('\n API PING.json', res)
+
+      let updateState = false
+
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
+          updateState = true
+          words[i] = res.info[i].slice(0, 2) + words[i]
+        }
+      }
+
+      if (updateState || (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)) {
+        this.setState({
+          words,
+          positionState: res.state,
+          guessesLeft: Number(res.numGuess),
+          message: ""
+        })
+      }
+    } catch (error) {
+      console.log('error @ PING .json() \n', error)
+    }
   }
 
   clickWord = async (e) => {
-    const { words, matchId } = this.state
+    let { matchId, positionState, words } = this.state
+    if (this.isSpyTurn()) {
+      return
+    }
 
-    let index = e.currentTarget.dataset.tag;
-    words[index].chosen = true;
     try {
+      let index = e.currentTarget.dataset.tag;
+
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
-        position: this.state.position,
-        move: e.target.firstChild
+        position: matchDictionary[positionState],
+        move: index
       })
 
       let res = await fetch(`/matches/${matchId}/nextmove`, {
@@ -184,21 +126,34 @@ class Match extends Component {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
         body: reqBody
       })
-      res = await res.json()
-      console.log(res)
-      this.setState({ ...this.state, words })
+      console.log('\n API clickWord first response', res)
+
+      if (res.status === 200) {
+        res = await res.json()
+        console.log('\n API clickWord response', res)
+
+        words[index] = res.info.info[index].slice(0, 2) + words[index]
+
+        console.log('res state', res.info.state)
+        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
+
+      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove')
     }
   }
 
   endFieldTurn = async () => {
+    if (this.isSpyTurn()) {
+      return
+    }
     try {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
-        position: this.state.position,
-        move: "_END"
+        position: matchDictionary[this.state.positionState],
+        move: matchDictionary.end
       })
+      console.log('reqbody end turn', reqBody)
 
       let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
         method: "POST",
@@ -206,39 +161,73 @@ class Match extends Component {
         body: reqBody
       })
       res = await res.json()
-      console.log(res)
+      console.log('\n API endFieldTurn response', res)
+      if (res.message === "Have to make at least one guess for a turn") {
+        this.setState({ ...this.state, message: res.message })
+      } else {
+        let positionState = res.info.state
+        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
 
-      let position = this.nextPosition
-      this.setState({ ...this.state, position })
+      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
     }
   }
 
-  nextPosition = () => {
-    let { position } = this.state
-    position = position === "RF" ? "BF" : "RF"
-    return position
+  async submitHint(move) {
+    console.log(move)
+    const reqBody = JSON.stringify({
+      userID: auth.getUserInfo().id,
+      position: matchDictionary[this.state.positionState],
+      move: `${move.num} ${move.word}`
+    })
+
+    try {
+      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      res = await res.json()
+      console.log('\n API submitHint response', res)
+
+      let positionState = `${res.state}`
+
+      console.log('\n positionState', positionState)
+      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
+    } catch (error) {
+      console.log('error @ submitHint API')
+    }
   }
 
   render() {
+    // console.log('local state', this.state)
     const { classes } = this.props;
-    const { words, position } = this.state;
+    const { words, positionState, matchId, userId, guessesLeft, message } = this.state;
     return (<Fragment>
       <Grid container spacing={0} className={classes.gridContainer}>
         <Grid item xs={4}>
-          <ChatBox matchID={this.matchID} userID={this.userID} position={this.position}></ChatBox>
+          <ChatBox
+            submitHint={this.submitHint}
+            matchID={matchId}
+            userID={userId}
+            position={matchDictionary[positionState]} />
         </Grid>
-        <Paper className={`${classes.paper} ${classes.centerText}`}>
-          <Typography variant="h4">{position === "RF" ? "Red" : "Blue"} Field Agent turn</Typography>
-          <Grid container item xs={12} className={classes.standardFlex}>
-            <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
-          </Grid>
-          <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
-        </Paper>
+        <Grid item Container>
+          <Paper className={`${classes.paper} ${classes.centerText}`}>
+            <Typography variant="h4">{positionState}</Typography>
+            <ServerPing ping={this.ping} />
+            {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+            {message !== "" ? <p>{message}</p> : null}
+            <Grid container item xs={12} className={classes.standardFlex}>
+              <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+            </Grid>
+            <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
+          </Paper>
+        </Grid>
       </Grid>
     </Fragment>)
   }
 }
 
-export default withStyles(style)(Match)
+export default withStyles(styleMatch)(Match)

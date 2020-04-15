@@ -1,4 +1,4 @@
-const Board =  require("./Board.js");
+const Board = require("./Board.js");
 const GameWord = require("./GameWord.js");
 const WordStates = require("./WordStates.js");
 
@@ -84,8 +84,7 @@ class Game {
 	getBoardInfo() {
 		const words = this.board.getWords();
 		let boardValues = new Array(25);
-		for (var i = 0;i<25;i++)
-		{
+		for (var i = 0; i < 25; i++) {
 			var gWord = words[i];
 			if (gWord.getChosen()) {
 				var person = gWord.getPerson();
@@ -105,6 +104,9 @@ class Game {
 		return boardValues;
 	}
 
+	getNumGuess() {
+		return this.numGuessesLeft
+	}
 	getState() {
 		return this.state;
 	}
@@ -130,7 +132,7 @@ class Game {
 		this.checkIfWon();
 		this.madeGuess = false;
 		if (this.isGameOver()) return;
-		switch(this.state) {
+		switch (this.state) {
 			case gameState.RED_SPY:
 				console.log("Red Field Agent next")
 				this.state = gameState.RED_FIELD;
@@ -184,7 +186,7 @@ class Game {
 		//Check if the word has already been chosen.
 		const person = this.board.chooseWord(word);
 		if (!person) {
-			console.log("The word "+word+" has already been chosen");
+			console.log("The word " + word + " has already been chosen");
 			return;
 		}
 		//At least one guess has been made.
@@ -209,10 +211,10 @@ class Game {
 				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
-				console.log(this.blueLeft+" blue left");
+				console.log(this.blueLeft + " blue left");
 				this.checkIfWon();
 				//Go to next turn if there are no guesses left.
-				if (this.numGuessesLeft==0) return this.nextTurn();
+				if (this.numGuessesLeft == 0) return this.nextTurn();
 			}
 		} else if (person == WordStates.RED) {
 			this.redLeft--;
@@ -224,10 +226,10 @@ class Game {
 				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
-				console.log(this.blueLeft+" red left");
+				console.log(this.blueLeft + " red left");
 				this.checkIfWon();
 				//Go to next turn if there are no guesses left.
-				if (this.numGuessesLeft==0) return this.nextTurn();
+				if (this.numGuessesLeft == 0) return this.nextTurn();
 			}
 		} else {
 			//Go to the next turn if a civilian is hit.
@@ -243,7 +245,7 @@ class Game {
 			console.log("It is the spy masters turn.");
 			return;
 		}
-		console.log("New Spy Hint is "+word+ " for "+guesses);
+		console.log("New Spy Hint is " + word + " for " + guesses);
 		this.spyHint = word;
 		this.numGuessesLeft = guesses;
 		let n = this.nextTurn();
@@ -253,13 +255,11 @@ class Game {
 
 	//Check if a team has won and change the state accordingly.
 	checkIfWon() {
-		if (this.redLeft == 0)
-		{
+		if (this.redLeft == 0) {
 			console.log("Red Won");
 			this.state = gameState.RED_WON;
-		} 
-		else if (this.blueLeft == 0) 
-		{
+		}
+		else if (this.blueLeft == 0) {
 			console.log("Blue Won");
 			this.state = gameState.BLUE_WON;
 		}
@@ -275,4 +275,4 @@ class Game {
 	}
 }
 
-module.exports = {Game, gameState};
+module.exports = { Game, gameState };

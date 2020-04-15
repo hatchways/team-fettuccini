@@ -30,6 +30,31 @@ router.post("/creatematch",
 		}
 	});
 
+router.post("/:matchid/leavematch",
+	[
+		check('userID', 'User ID is required').not().isEmpty(),
+		check('position', "Position required").not().isEmpty(),
+		check('position', "Invalid position").isIn(["RS", "RF", "BS", "BF"])
+	],
+	function (req, res, next) {
+		console.log(req.body.userID);
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+
+		const matchID = req.params.matchid;
+		const userID = req.body.userID;
+		const position = req.body.position;
+		//Put the player in the match at the given position.
+		try {
+			const payload = MatchManager.leaveMatch(matchID, userID, position);
+			res.json(payload);
+		} catch (err) {
+			console.error(err.message);
+			res.status(500).send('Server error');
+		}
+	});
 
 router.post("/:matchid/joinmatch",
 	[
@@ -38,18 +63,17 @@ router.post("/:matchid/joinmatch",
 		check('position', "Invalid position").isIn(["RS", "RF", "BS", "BF"])
 	],
 	function (req, res, next) {
-		console.log("hello");
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
 		}
-
+		console.log("In join match");
 		const { userID, position } = req.body;
 		const matchID = req.params.matchid;
 		//Put the player in the match at the given position.
 		try {
 			const payload = MatchManager.joinMatch(matchID, userID, position);
-			console.log("here");
+			console.log("End join match");
 			res.json(payload);
 		} catch (err) {
 			console.error(err.message);

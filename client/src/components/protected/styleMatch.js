@@ -15,6 +15,12 @@ export default (theme) => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
+  matchStyle: {
+    display: "flex",
+    flexDirection: "row",
+    minHeight: "100vh",
+    maxHeight: "100vh"
+  },
   flexRow: {
     margin: "10px",
     justifyContent: 'space-evenly',

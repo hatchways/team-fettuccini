@@ -3,6 +3,7 @@ import React, { Component, Fragment } from "react";
 import { Typography, Paper, Button, Grid } from "@material-ui/core";
 
 import ChatBox from './ChatBox'
+import UserDisplay from './UserDisplay'
 import MappedWords from './MappedWords'
 import ServerPing from './ServerPing'
 
@@ -45,16 +46,22 @@ class Match extends Component {
 
     this.state = {
       matchId: '',
-      userId: '',
+      userId: auth.getUserInfo().id,
       words: [],
       positionState: "",
       guessesLeft: 0,
       isOver: false,
       winner: "blue",
+      RS: auth.getUserInfo().id,
+      RF: "",
+      BS: "",
+      BF: "",
+      Host: ""
     }
-    this.submitHint = this.submitHint.bind(this)
-    this.ping = this.ping.bind(this)
-    this.isSpyTurn = this.isSpyTurn.bind(this)
+    this.submitHint = this.submitHint.bind(this);
+    this.ping = this.ping.bind(this);
+    this.isSpyTurn = this.isSpyTurn.bind(this);
+    this.userDisplay = React.createRef();
   }
 
   componentDidMount = () => {
@@ -69,9 +76,9 @@ class Match extends Component {
 
     this.setState({
       ...this.state,
-      matchId,
-      words: matchState.info,
       userId: auth.getUserInfo().id,
+      matchId: matchId,
+      words: matchState.info,
       positionState: matchState.state
     })
   }
@@ -131,7 +138,13 @@ class Match extends Component {
           words,
           positionState: res.state,
           guessesLeft: Number(res.numGuess),
-          message: ""
+          message: "",
+          words,
+          RS: res.RS,
+          RF: res.RF,
+          BS: res.BS,
+          BF: res.BF,
+          Host: res.Host
         })
       }
     } catch (error) {
@@ -233,8 +246,63 @@ class Match extends Component {
     }
   }
 
+  setUser = async (player, pos) => {
+
+   /* if (pos=="RS") {
+      if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
+      else this.setState({RS: player});
+    } else if (pos=="RF") {
+      if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
+      else this.setState({RF: player});
+    } else if (pos=="BS") {
+      if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
+      else this.setState({BS: player});
+    } else if (pos=="BF") {
+      if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
+      else this.setState({BF: player});
+    }*/
+
+    let newUser = auth.getUserInfo().id;
+    let currPos = "";
+    if (pos=="RS" && this.state.RS==this.state.userId) currPos = this.state.RS;
+    else if (pos=="RF" && this.state.RF==this.state.userId) currPos = this.state.RF;
+    else if (pos=="BS" && this.state.BS==this.state.userId) currPos = this.state.BS;
+    else if (pos=="BF" && this.state.BF==this.state.userId) currPos = this.state.BF;
+
+    const reqBody = JSON.stringify({
+      userID: newUser,
+      position: pos
+    });
+    try {
+      if (currPos=="") {
+        let res = await fetch(`/matches/${this.state.matchId}/joinmatch`, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+          body: reqBody
+        })
+        res = await res.json();
+        console.log("API setUser response",res);
+        const info = res.info;
+        this.setState({RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host});
+      } else if (currPos==this.state.userId){
+        let res = await fetch(`/matches/${this.state.matchId}/leavematch`, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+          body: reqBody
+        })
+        res = await res.json();
+        console.log("API setUser response",res);
+        const info = res.info;
+        this.setState({RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host});
+      }
+      
+    } catch (error) {
+      console.log('error @joingame API');
+    }
+  }
+
   render() {
-    // console.log('local state', this.state)
+    console.log('local state', this.state)
     const {
       classes,
       setIsMatchInProgres,
@@ -243,28 +311,15 @@ class Match extends Component {
       redScore,
       setRedScore
     } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
-    return (<Fragment>
-      <Grid container spacing={0} className={classes.gridContainer}>
-        <Grid item xs={4}>
-          <ChatBox
-            submitHint={this.submitHint}
-            matchID={matchId}
-            userID={userId}
-            position={matchDictionary[positionState]} />
-            {/* These 3 buttons are for testing - remove when scores work properly */}
-            <button
-              onClick={() => {
-                let { isOver } = this.state;
-                isOver = true;
-                this.setState({ ...this.state, isOver });
-              }}
-            >
-              End match
-            </button>
-            <button onClick={() => setBlueScore(blueScore + 1)}>blue++</button>
-            <button onClick={() => setRedScore(redScore + 1)}>red++</button>
-        </Grid>
+    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, RS, RF, BS, BF, Host } = this.state;
+    document.body.style.overflow = "noscroll";
+    return (<div className={ classes.matchStyle }>
+      <ChatBox
+          submitHint={this.submitHint}
+          matchID={matchId}
+          userID={userId}
+          position={matchDictionary[positionState]} />
+
         <Grid item Container>
           <Paper className={`${classes.paper} ${classes.centerText}`}>
             <Typography variant="h4">{positionState}</Typography>
@@ -277,7 +332,6 @@ class Match extends Component {
             <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
           </Paper>
         </Grid>
-      </Grid>
         {isOver ? (
           <GameOutcome
             isOver={isOver}
@@ -287,7 +341,7 @@ class Match extends Component {
             redScore={redScore}
           />
         ) : null}
-    </Fragment>)
+    </div>)
   }
 }
 

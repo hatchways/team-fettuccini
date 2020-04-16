@@ -24,17 +24,23 @@ class MatchManager {
 		this.matchesByID.set(matchID, game);
 		console.log("Created game " + matchID);
 		console.log("Create game " + this.matchesByID.get(matchID));
+		console.log(this.getMatchInfo(matchID));
 		return { matchID: matchID };
 	}
 
 	//Match info
 	getMatchInfo(matchID) {
-		let game = this.getGame(matchID);
+		const game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
-		let info = game.getBoardInfo();
-		let state = game.getState();
-		let numGuess = game.getNumGuess()
-		return { info: info, state: state, numGuess };
+		const info = game.getBoardInfo();
+    let numGuess = game.getNumGuess()
+		const state = game.getState();
+		const RS = game.getRedSpy();
+		const RF = game.getRedField();
+		const BS = game.getBlueSpy();
+		const BF = game.getBlueField();
+		const host = game.getHost();
+		return { info: info, RS: RS, RF: RF, BS: BS, BF: BF, Host: host, state: state };
 	}
 
 	//Join the user to the match and give the user the given position.
@@ -42,6 +48,7 @@ class MatchManager {
 		let mess = "Space is occupied";
 		console.log("Looking for " + matchID);
 		console.log(this.matchesByID.get(matchID));
+		console.log("Setting user "+userID);
 		if (this.matchesByID.has(matchID)) {
 			let game = this.getGame(matchID);
 			console.log(game);
@@ -83,20 +90,21 @@ class MatchManager {
 	}
 
 	//Remove the player from the match.
-	leaveMatch(matchID, userID) {
+	leaveMatch(matchID, userID, position) {
 		let game = this.getGame(matchID);
+		console.log(game.getRedSpy()+" "+userID);
 		if (game == undefined || game == null) return matchNotFound;
-		if (game.getBlueField() == userID) {
+		if (game.getBlueField() == userID && position=="BF") {
 			game.setBlueField("");
-		} else if (game.getBlueSpy() == userID) {
+		} else if (game.getBlueSpy() == userID && position=="BS") {
 			game.setBlueSpy("");
-		} else if (game.getRedField() == userID) {
+		} else if (game.getRedField() == userID && position=="RF") {
 			game.setRedField("");
-		} else if (game.getRedSpy() == userID) {
+		} else if (game.getRedSpy() == userID && position=="RS") {
 			game.setRedSpy("");
 		}
-		console.log(mess);
-		return { message: "Left Match" };
+		console.log(this.getMatchInfo(matchID));
+		return {info: this.getMatchInfo(matchID), message: "Left Match" };
 	}
 
 	//Reset the match.

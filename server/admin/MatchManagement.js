@@ -217,7 +217,7 @@ class MatchManager {
 		const redBasePoints = 9;
 		const blueBasePoints = 8;
 		const matchInfo = this.getGame(matchID);
-		const winner = matchInfo.state === "Blue won" ? "Blue" : "Red";
+		const winner = matchInfo.getWinner();
 		const participants = [
 			{ user: matchInfo.redSpy && matchInfo.redSpy != "" ? mongoose.Types.ObjectId(matchInfo.redSpy) : mongoose.Types.ObjectId(), role: "Red spy" },
 			{ user: matchInfo.redField && matchInfo.redField != "" ? mongoose.Types.ObjectId(matchInfo.redField) : mongoose.Types.ObjectId(), role: "Red field" },

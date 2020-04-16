@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import { TextField, FormLabel, Button } from "@material-ui/core";
+import { TextField, FormLabel, Button, FormControl } from "@material-ui/core";
 
-export default class Login extends Component {
+import { withStyles } from "@material-ui/core/styles";
+import style from './styleAuth'
+
+export default withStyles(style)(class Login extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -35,8 +38,6 @@ export default class Login extends Component {
           console.error('API error /users/login ', res);
         }
       }).then(data => {
-        // console.error('data.user ', data.user);
-        // console.error('data.user.username ', data.user.username);
         this.props.login(data.user);
       })
       .catch(error => {
@@ -44,38 +45,43 @@ export default class Login extends Component {
       })
   }
 
-
-
-
   render() {
-    const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
+    const { classes } = this.props
+
+    const errorMessage = this.state.error.length !== 0 ? <p className={classes.formWarning}>{this.state.error}</p> : null;
     return (
       <>
-        <form onSubmit={this.handleSubmit}>
-          <FormLabel htmlFor="email">Email:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="email"
-            name="email"
-            type="email"
-            value={this.state.email}
-            onChange={this.handleChange}
-            placeholder="johndoe@gmail.com"
-            required />
-          <FormLabel htmlFor="password">Password:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="password"
-            name="password"
-            type="password"
-            value={this.state.password}
-            onChange={this.handleChange}
-            placeholder="Password"
-            required />
+        <form className={classes.form} onSubmit={this.handleSubmit}>
+          <FormControl className="inputBlock">
+            <FormLabel htmlFor="email">Email:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="email"
+              name="email"
+              type="email"
+              value={this.state.email}
+              onChange={this.handleChange}
+              placeholder="johndoe@gmail.com"
+              required />
+          </FormControl>
+          <FormControl className="inputBlock">
+            <FormLabel htmlFor="password">Password:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="password"
+              name="password"
+              type="password"
+              value={this.state.password}
+              onChange={this.handleChange}
+              placeholder="Password"
+              required />
+          </FormControl>
           {errorMessage}
-          <Button variant="contained" color="primary" type='submit'>Sign In</Button>
+          <div>
+            <Button variant="contained" color="primary" type='submit'>Sign In</Button>
+          </div>
         </form>
       </>
     );
   }
-}
+})

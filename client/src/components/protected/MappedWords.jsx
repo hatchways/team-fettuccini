@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Grid } from "@material-ui/core";
+import { Typography, Grid, Card } from "@material-ui/core";
 
 export default ({ words, classes, clickWord }) => {
 
@@ -14,12 +14,16 @@ export default ({ words, classes, clickWord }) => {
 
             return (
               <Grid item xs={2} key={`word-${currIndex}`}>
-                <Button
+                <Card
                   disabled={chosen}
                   data-tag={i + 5 * index}
                   variant="contained"
                   className={chosen ? `chosen${word.slice(1, 2)}` : ""}
-                  onClick={clickWord}>{chosen ? word.slice(2) : word}</Button>
+                  onClick={clickWord}>
+                  <Typography variant="h5">
+                    {chosen ? word.slice(2) : word}
+                  </Typography>
+                </Card>
               </Grid>)
           })}
         </Grid>

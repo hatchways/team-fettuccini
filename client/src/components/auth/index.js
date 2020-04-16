@@ -39,9 +39,11 @@ function Auth(props) {
             <Login login={login} /> :
             <SignUp login={login} />}
 
-          {text} have an account? &nbsp;
-          <span className={`Form-switch ${signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign In</span>
-          <span className={`Form-switch ${!signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign Up</span>
+          <Typography variant="body1">{text} have an account? &nbsp;</Typography>
+
+          {signIn
+            ? <Typography variant="h6" onClick={() => switchLogin(!signIn)}>Sign Up</Typography>
+            : <Typography variant="h6" onClick={() => switchLogin(!signIn)}>Sign In</Typography>}
         </Paper>
 
       )

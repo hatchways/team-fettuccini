@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
+import { InputBase, Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
 
 import auth from '../auth/auth'
 
@@ -59,26 +59,26 @@ class Welcome extends Component {
     return (<Fragment>
       <Paper className="MuiPaper-customPrimary">
         <Typography variant="h4">Welcome {auth.getUserInfo().username}</Typography>
-        <Grid container spacing={2} className={classes.gridContainer}>
+        <Grid container className={classes.gridContainer}>
           <Grid item>
             <form onSubmit={this.handleSubmit}>
-              <FormLabel htmlFor="matchId">Join a Game:</FormLabel>
-              <div className={classes.standardFlex}>
-                <TextField
-                  variant="outlined"
-                  className={classes.standardFlexChild}
+              <FormLabel className={classes.centerMobile} htmlFor="matchId">Join a Game:</FormLabel>
+              <div className={classes.outlined}>
+                <InputBase
                   name="matchId"
                   id="matchId"
                   type="text"
                   value={this.state.matchId}
                   onChange={this.handleChange}
                   placeholder="Enter Game ID"
-                  required />
-                <Button variant="contained" type="submit" className={classes.standardFlexChild}>Join Game</Button>
+                  required
+                  inputProps={{ 'aria-label': 'naked' }}
+                />
+                <Button variant="contained" className={classes.darkGray} type="submit">Join Game</Button>
               </div>
             </form>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.borderLeft}>
             <FormLabel className={classes.centerText}>Create a Game:</FormLabel>
             <Button variant="outlined" onClick={this.newGame}>New Game</Button>
           </Grid>

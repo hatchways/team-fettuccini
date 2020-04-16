@@ -1,8 +1,10 @@
 const { Game, gameState } = require("../engine/Game.js");
 const matchNotFound = { info: "", RS: "", RF: "", BS: "", BF: "", message: "Match not found" };
+const Match = require("../models/match");
+const User = require("../models/user");
+const mongoose = require('mongoose');
 
 class MatchManager {
-
 	constructor() {
 		this.onGoingMatchesByID = new Map();
 		this.publicMatches = new Map();
@@ -20,8 +22,8 @@ class MatchManager {
 	createMatch(hostID, pub) {
 		let game = new Game();
 		game.setHost(hostID);
-		let d = new Date();
-		let matchID = d.getTime() + "-" + hostID;
+		let matchID = mongoose.Types.ObjectId().toString();
+
 		if (pub == "true") {
 			console.log("Creating public match");
 			this.publicMatches.set(matchID, game);
@@ -184,6 +186,10 @@ class MatchManager {
 				userID == game.getRedField() &&
 				game.getState() == gameState.RED_FIELD)) {
 			mess = game.nextWordGuess(guess);
+
+			if (game.isGameOver()) {
+				this.saveMatch(matchID);
+			}
 		}
 		console.log(mess);
 		return { info: this.getMatchInfo(matchID), message: mess };
@@ -206,7 +212,63 @@ class MatchManager {
 		console.log(mess);
 		return { info: this.getMatchInfo(matchID), message: mess };
 	}
-}
 
+	async saveMatch(matchID) {
+		const redBasePoints = 9;
+		const blueBasePoints = 8;
+		const matchInfo = this.getGame(matchID);
+		const winner = matchInfo.state === "Blue won" ? "Blue" : "Red";
+		const participants = [
+			{ user: matchInfo.redSpy && matchInfo.redSpy != "" ? mongoose.Types.ObjectId(matchInfo.redSpy) : mongoose.Types.ObjectId(), role: "Red spy" },
+			{ user: matchInfo.redField && matchInfo.redField != "" ? mongoose.Types.ObjectId(matchInfo.redField) : mongoose.Types.ObjectId(), role: "Red field" },
+			{ user: matchInfo.blueSpy && matchInfo.blueSpy != "" ? mongoose.Types.ObjectId(matchInfo.blueSpy) : mongoose.Types.ObjectId(), role: "Blue spy" },
+			{ user: matchInfo.blueField && matchInfo.blueField != "" ? mongoose.Types.ObjectId(matchInfo.blueField) : mongoose.Types.ObjectId(), role: "Blue field" }
+		];
+
+		// save the match info
+		const match = new Match({
+			_id: mongoose.Types.ObjectId(matchID),
+			matchId: matchID,
+			date: Date.now(),
+			blueScore: blueBasePoints - matchInfo.blueLeft,
+			redScore: redBasePoints - matchInfo.redLeft,
+			winner: winner,
+			participants: participants
+		});
+		match.save(function (error) {
+			if (error) {
+				console.log("saving data failed.", error);
+			}
+		});
+
+		// update the matchIds of each user
+		for (let i = 0; i < participants.length; i++) {
+			const userId = participants[i].user.toString();
+			if (userId && userId != "") {
+				const user = await User.findById(userId);
+
+				if (user != null) {
+					if (!user.matchIds) {
+						user.matchIds = [];
+					}
+					user.matchIds = user.matchIds.concat(mongoose.Types.ObjectId(matchID));
+
+					User.findByIdAndUpdate(
+						{ _id: userId },
+						{ matchIds: user.matchIds },
+						function (error) {
+							if (error) {
+								console.log("updating match id for the user failed.", userId, error);
+							}
+							else {
+								console.log("added match record to user", matchID, userId);
+							}
+						}
+					);
+				}
+			}
+		}
+	}
+}
 
 module.exports = new MatchManager();

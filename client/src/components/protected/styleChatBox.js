@@ -16,7 +16,7 @@ export default (theme) => ({
 	appearance: "textfield"
   },
   inputBox: {
-	width: "40%",
+	width: "50%",
 	justifyContent: "center",
 	flexWrap: "wrap",
   },

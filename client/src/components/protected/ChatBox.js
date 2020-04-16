@@ -10,9 +10,7 @@ class ChatBox extends React.Component {
     this.state = {
       num: '1',
       word: '',
-      messages: ["asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",
-    "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",
-  "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf"]
+      messages: []
     }
   }
 

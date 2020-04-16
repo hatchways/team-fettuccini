@@ -33,6 +33,7 @@ class MatchManager {
 		const game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		const info = game.getBoardInfo();
+    let numGuess = game.getNumGuess()
 		const state = game.getState();
 		const RS = game.getRedSpy();
 		const RF = game.getRedField();

@@ -4,18 +4,8 @@ const primary = "#32be72"
 
 export const theme = createMuiTheme({
   typography: {
-    fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
+    fontFamily:
       'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-    ].join(','),
     fontSize: 12,
     h4: {
       textAlign: 'center',
@@ -59,17 +49,29 @@ export const theme = createMuiTheme({
         maxWidth: "500px",
       }
     },
+    MuiCard: {
+      root: {
+        padding: "0.5em",
+
+        "&:hover": {
+          cursor: "pointer"
+        }
+
+      }
+    },
     MuiCheck: {
       custom: {
         fill: 'primary'
       }
     },
     MuiButton: {
+      root: {
+        textTransform: "capitalize"
+      },
       contained: {
         textAlign: "center",
         margin: "10px",
-        padding: "10px 40px",
-        textTransform: "capitalize"
+        padding: "10px 40px"
       }
     },
     MuiFormLabel: {

@@ -57,7 +57,7 @@ export default (theme) => ({
       }
     }
   },
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('xs')]: {
     centerMobile: {
       textAlign: 'center'
     }

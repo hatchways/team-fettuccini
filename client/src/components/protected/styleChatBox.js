@@ -7,16 +7,24 @@ export default (theme) => ({
 	  marginLeft: "1%"
   },
   chatList: {
-	  maxHeight:"80%",
-	  height:"80%",
-	  overflow: 'auto'
+	  minHeight: "80%",
+	  maxHeight: "80%",
+	  overflow: 'scroll'
   },
   numberLabel: {
 	width: 20,
 	appearance: "textfield"
   },
   inputBox: {
-	width: "60%",
-	height: "10%"
+	width: "40%",
+	justifyContent: "center",
+	flexWrap: "wrap",
+  },
+  chatBox: {
+	width: "20%",
+	maxHeight: "100%",
+    justifyContent: "center",
+    alignContent: "center",
+    flexWrap: "wrap"
   }
 });

@@ -10,9 +10,9 @@ class ChatBox extends React.Component {
     this.state = {
       num: '1',
       word: '',
-      messages: ["asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf",
-    "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",
-  "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",]
+      messages: ["asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",
+    "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",
+  "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf"]
     }
   }
 
@@ -50,7 +50,7 @@ class ChatBox extends React.Component {
     });
     const { classes } = this.props;
     return (
-        <Paper>
+        <Paper className={ classes.chatBox }>
           <List className={ classes.chatList }>
             {text}
           </List>

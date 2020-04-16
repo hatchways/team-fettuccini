@@ -253,9 +253,9 @@ class Match extends Component {
     console.log('local state', this.state)
     const { classes } = this.props;
     const { words, positionState, matchId, userId, guessesLeft, RS, RF, BS, BF, Host } = this.state;
+    document.body.style.overflow = "noscroll";
     return (<div className={ classes.matchStyle }>
       <ChatBox
-          className={ classes.chatBox }
           submitHint={this.submitHint}
           matchID={matchId}
           userID={userId}

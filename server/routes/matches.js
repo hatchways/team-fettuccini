@@ -118,6 +118,14 @@ router.post("/:matchid/nextmove",
 				gameState = MatchManager.getMatchInfo(matchID)
 			}
 			console.log("bye");
+
+			//add properties to gameState
+			let match = MatchManager.getGame(matchID);
+			gameState.blueScore = 8 - match.blueLeft;
+			gameState.redScore = 9 - match.redLeft;
+			gameState.isOver = match.isGameOver();
+			gameState.winner = match.getWinner();
+
 			console.log(gameState);
 			res.json(gameState);
 		} catch (err) {

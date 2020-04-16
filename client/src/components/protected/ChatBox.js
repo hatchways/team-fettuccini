@@ -1,14 +1,18 @@
 import React from "react";
 
-import { Paper, Button, List, ListItem, Input, } from "@material-ui/core";
+import { Paper, Button, List, ListItem, Input, InputLabel} from "@material-ui/core";
+import { withStyles } from "@material-ui/styles";
+import styleChatBox from "./styleChatBox.js";
 
-export default class ChatBox extends React.Component {
+class ChatBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      num: '',
+      num: '1',
       word: '',
-      messages: []
+      messages: ["asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf", "asdf",
+    "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",
+  "asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf","asdf",]
     }
   }
 
@@ -16,6 +20,16 @@ export default class ChatBox extends React.Component {
     this.setState({
       [e.target.name]: e.target.value
     })
+  }
+
+  increment = (e) => {
+    if (this.state.num>=9) return;
+    this.setState({ num: parseInt(this.state.num)+1 });
+  }
+
+  decrement = (e) => {
+    if (this.state.num==0) return;
+    this.setState({ num: parseInt(this.state.num)-1 });
   }
 
   sendCurrentMsg = () => {
@@ -26,30 +40,35 @@ export default class ChatBox extends React.Component {
     this.props.submitHint({ num, word })
     const newMessage = `${num} - ${word}`
 
-    this.setState({ num: '', word: '', messages: [...messages, newMessage] })
+    this.setState({ num: '1', word: '', messages: [...messages, newMessage] })
   }
 
   render() {
     const { num, word, messages } = this.state
-
     const text = messages.map((step, index) => {
       return (<ListItem key={`msg-${index}`}>{step}</ListItem>);
     });
-
+    const { classes } = this.props;
     return (
-      <Paper style={{ maxHeight: 300, overflow: 'auto' }}>
-        <List>
-          {text}
-        </List>
-        #
-        <Input name="num" value={num} onChange={this.handleChange} style={{ width: 20, appearance: "textfield" }} />
-
-        Hint
-        <Input name="word" value={word} onChange={this.handleChange} />
-        <Button onClick={() => this.sendCurrentMsg()} style={{ height: 30 }} color='primary' variant='contained'>
-          Submit Hint
-        </Button>
-      </Paper>
+        <Paper>
+          <List className={ classes.chatList }>
+            {text}
+          </List>
+          Hint
+          <div>
+            <Input className={ classes.inputBox } name="word" value={word} onChange={this.handleChange} />
+            <Button disabled={this.state.num<=1 ? true : false} className={ classes.buttonInput } onClick={this.decrement}>-</Button>
+            {num}
+            <Button disabled={this.state.num>=9 ? true : false} className={ classes.buttonInput } onClick={this.increment}>+</Button>
+          </div>
+          <Button onClick={() => this.sendCurrentMsg()} color='primary' variant='contained'>
+            Submit Hint
+          </Button>       
+        </Paper>
+        
+      
     );
   }
 }
+
+export default withStyles(styleChatBox)(ChatBox)

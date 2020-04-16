@@ -253,19 +253,18 @@ class Match extends Component {
     console.log('local state', this.state)
     const { classes } = this.props;
     const { words, positionState, matchId, userId, guessesLeft, RS, RF, BS, BF, Host } = this.state;
-    return (<Fragment>
+    return (<div className={ classes.matchStyle }>
+      <ChatBox
+          className={ classes.chatBox }
+          submitHint={this.submitHint}
+          matchID={matchId}
+          userID={userId}
+          position={matchDictionary[positionState]} />
       <Grid container spacing={0} className={classes.gridContainer}>
+        <Paper className={`${classes.paper} ${classes.centerText}`}>
         <Grid item xs={4}>
           <UserDisplay onJoin={this.setUser} RS={RS} RF={RF} BS={BS} BF={BF} Host={Host} thisUser={this.state.userId} ref={this.userDisplay}/>
         </Grid>
-        <Grid item xs={4}>
-          <ChatBox
-            submitHint={this.submitHint}
-            matchID={matchId}
-            userID={userId}
-            position={matchDictionary[positionState]} />
-        </Grid>
-        <Paper className={`${classes.paper} ${classes.centerText}`}>
           <Typography variant="h4">{positionState}</Typography>
           <ServerPing ping={this.ping} />
           {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
@@ -275,7 +274,7 @@ class Match extends Component {
           <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
         </Paper>
       </Grid>
-    </Fragment>)
+    </div>)
   }
 }
 

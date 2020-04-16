@@ -15,6 +15,18 @@ export default (theme) => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
+  chatBox: {
+    height: "20%",
+    width: "20%",
+    overflow: 'auto',
+    justifyContent: "center",
+    alignContent: "center",
+    flexWrap: "wrap"
+  },
+  matchStyle: {
+    display: "flex",
+    flexDirection: "row"
+  },
   flexRow: {
     margin: "10px",
     justifyContent: 'space-evenly',

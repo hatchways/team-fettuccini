@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { InputBase, Typography, Paper, Button, FormLabel, TextField, Grid } from "@material-ui/core";
+import { InputBase, Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
 
 import auth from '../auth/auth'
 
@@ -62,7 +62,7 @@ class Welcome extends Component {
         <Grid container className={classes.gridContainer}>
           <Grid item>
             <form onSubmit={this.handleSubmit}>
-              <FormLabel htmlFor="matchId">Join a Game:</FormLabel>
+              <FormLabel className={classes.centerMobile} htmlFor="matchId">Join a Game:</FormLabel>
               <div className={classes.outlined}>
                 <InputBase
                   name="matchId"

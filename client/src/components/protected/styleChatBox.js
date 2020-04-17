@@ -2,7 +2,7 @@ export default (theme) => ({
   buttonInput: {
 	  width: "5%", 
 	  height: "5%",
-	  boxShadow: "2px 2px 2px 2px black",
+	  boxShadow: "1px 1px 1px 1px black",
 	  marginRight: "1%",
 	  marginLeft: "1%"
   },
@@ -21,8 +21,8 @@ export default (theme) => ({
 	flexWrap: "wrap",
   },
   chatBox: {
-	width: "20%",
-	maxHeight: "100%",
+	width: "20vw",
+	maxHeight: "95vh",
     justifyContent: "center",
     alignContent: "center",
     flexWrap: "wrap"

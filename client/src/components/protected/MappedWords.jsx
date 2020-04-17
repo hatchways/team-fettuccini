@@ -13,15 +13,15 @@ export default ({ words, classes, clickWord }) => {
             const currIndex = i + 5 * index
 
             return (
-              <Grid item xs={2} key={`word-${currIndex}`}>
+              <Grid item xs={2} key={`word-${currIndex}`} className={classes.flexRow}>
                 <Card
                   disabled={chosen}
                   data-tag={i + 5 * index}
                   variant="contained"
-                  className={chosen ? `chosen${word.slice(1, 2)}` : ""}
+                  className={chosen ? `chosen${word.slice(1, 2)}` : "button"}
                   onClick={clickWord}>
                   <Typography variant="h5">
-                    {chosen ? word.slice(2) : word}
+                    <p>{chosen ? word.slice(2) : word}</p>
                   </Typography>
                 </Card>
               </Grid>)

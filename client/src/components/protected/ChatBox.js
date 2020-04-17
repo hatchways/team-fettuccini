@@ -52,7 +52,6 @@ class ChatBox extends React.Component {
           <List className={ classes.chatList }>
             {text}
           </List>
-          Hint
           <div>
             <Input className={ classes.inputBox } name="word" value={word} onChange={this.handleChange} />
             <Button disabled={this.state.num<=1 ? true : false} className={ classes.buttonInput } onClick={this.decrement}>-</Button>

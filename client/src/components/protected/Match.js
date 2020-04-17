@@ -314,34 +314,32 @@ class Match extends Component {
     const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, RS, RF, BS, BF, Host } = this.state;
     document.body.style.overflow = "noscroll";
     return (<div className={ classes.matchStyle }>
-      <ChatBox
-          submitHint={this.submitHint}
-          matchID={matchId}
-          userID={userId}
-          position={matchDictionary[positionState]} />
+              <ChatBox
+                  submitHint={this.submitHint}
+                  matchID={matchId}
+                  userID={userId}
+                  position={matchDictionary[positionState]} />
 
-        <Grid item Container>
-          <Paper className={`${classes.paper} ${classes.centerText}`}>
-            <Typography variant="h4">{positionState}</Typography>
-            <ServerPing ping={this.ping} />
-            {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
-            {message !== "" ? <p>{message}</p> : null}
-            <Grid container item xs={12} className={classes.standardFlex}>
-              <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
-            </Grid>
-            <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
-          </Paper>
-        </Grid>
-        {isOver ? (
-          <GameOutcome
-            isOver={isOver}
-            setIsMatchInProgres={setIsMatchInProgres}
-            winner={winner}
-            blueScore={blueScore}
-            redScore={redScore}
-          />
-        ) : null}
-    </div>)
+              <Paper className={`${classes.paper} ${classes.centerText}`}>
+                <Typography variant="h4">{positionState}</Typography>
+                <ServerPing ping={this.ping} />
+                {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+                {message !== "" ? <p>{message}</p> : null}
+                <Grid container item xs={12} className={classes.standardFlex}>
+                  <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+                </Grid>
+                <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
+              </Paper>
+              {isOver ? (
+                <GameOutcome
+                  isOver={isOver}
+                  setIsMatchInProgres={setIsMatchInProgres}
+                  winner={winner}
+                  blueScore={blueScore}
+                  redScore={redScore}
+                />
+              ) : null}
+            </div>)
   }
 }
 

@@ -26,5 +26,10 @@ export default (theme) => ({
     justifyContent: "center",
     alignContent: "center",
     flexWrap: "wrap"
+  },
+  inputStyle: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: 'left',
   }
 });

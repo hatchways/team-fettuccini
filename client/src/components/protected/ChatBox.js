@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Paper, Button, List, ListItem, Input, InputLabel} from "@material-ui/core";
+import { Paper, Button, List, ListItem, Input, InputLabel, Typography, Grid} from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
 import styleChatBox from "./styleChatBox.js";
 
@@ -52,12 +52,14 @@ class ChatBox extends React.Component {
           <List className={ classes.chatList }>
             {text}
           </List>
-          <div>
+          <Grid container item className={classes.inputStyle}>
             <Input className={ classes.inputBox } name="word" value={word} onChange={this.handleChange} />
-            <Button disabled={this.state.num<=1 ? true : false} className={ classes.buttonInput } onClick={this.decrement}>-</Button>
-            {num}
-            <Button disabled={this.state.num>=9 ? true : false} className={ classes.buttonInput } onClick={this.increment}>+</Button>
-          </div>
+            <Typography variant="h5">
+              <Button disabled={this.state.num<=1 ? true : false} className={ "MuiPaper-elevation1 " } onClick={this.decrement}>-</Button>
+              {num}
+              <Button disabled={this.state.num>=9 ? true : false} className={ "MuiPaper-elevation1" } onClick={this.increment}>+</Button>
+            </Typography>
+          </Grid>
           <Button onClick={() => this.sendCurrentMsg()} color='primary' variant='contained'>
             Submit Hint
           </Button>       

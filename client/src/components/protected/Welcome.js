@@ -44,6 +44,7 @@ class Welcome extends Component {
         body: reqBody
       })
       res = await res.json()
+      console.log('res form welcome ', res)
       matchId = res.matchID
       this.props.history.push({
         pathname: `/waitingroom/${matchId}`

@@ -2,77 +2,211 @@ import React, { Fragment } from "react";
 import { Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
-
 import { withStyles } from "@material-ui/core/styles";
 
-import style from "./styleWaitingNewGame"
+import UserDisplay from './UserDisplay'
+import ServerPing from './ServerPing'
 
+import style from "./styleWaitingNewGame"
 import auth from '../auth/auth'
+
+// TODO make this into a file
+const waitingRoomDictionary = {
+  RS: "Red Spy Master",
+  RF: "Red Field Agent",
+  BS: "Blue Spy Master",
+  BF: "Blue Field Agent"
+}
 
 class WaitingRoom
   extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      userId: '',
       matchId: '',
-      playerList: [],
-      roles: {
-        RS: { n: 0, name: "Red Spy Master" },
-        RF: { n: 1, name: "Red Field Agent" },
-        BS: { n: 1, name: "Blue Spy Master" },
-        BF: { n: 1, name: "Blue Field Agent" },
-        matchState: []
-      }
+      positions: {},
+      matchState: {},
     }
+    this.ping = this.ping.bind(this)
+    this.assignTeam = this.assignTeam.bind(this)
   }
 
-  componentDidMount = async () => {
+  async ping() {
+    /* todo
+      check if state of players changed
 
-    let { roles } = this.state
-    let position = this.assignTeam()
-    roles[position].n += 1
+      fetch
 
-    let res
+      compare states
+      if diff
+        setState
+    */
+    let { positions } = this.state
+
+    const userId = auth.getUserInfo().id
     const { matchId } = this.props.match.params
-    let reqBody = JSON.stringify({
-      userID: auth.getUserInfo().id,
-      position
-    })
+
+    let res, hasPosition, reqBody, position
+    let arr = ["RS", "RF", "BS", "BF"]
 
     try {
-      res = await fetch(`/matches/${matchId}/joinmatch`, {
+      reqBody = JSON.stringify({
+        userID: userId,
+        position: "_PING",
+        move: "_PING"
+      })
+
+      res = await fetch(`/matches/${matchId}/nextmove`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
         body: reqBody
       })
+      console.log('\n API PING raw', res)
+
+      if (res.status !== 200) {
+        res = await res.text()
+        console.error('failed request :: ', res)
+      }
+    } catch (error) {
+      console.log('error @ PING raw', error)
+    }
+
+    try {
       res = await res.json()
 
-      this.setState({
-        ...this.state,
-        matchId,
-        playerList:
-          [...this.state.playerList, {
-            name: auth.getUserInfo().username,
-            position: roles[position].name
-          }],
-        roles,
-        matchState: res.info
+      hasPosition = false
+
+      arr.forEach(pos => {
+        if (res[pos] !== "") {
+          positions[pos] = {
+            role: waitingRoomDictionary[pos],
+            userId: res[pos]
+          }
+          if (userId === res[pos]) {
+            hasPosition = true
+          }
+        }
       })
     } catch (error) {
-      console.log("API error /:matchid/joinmatch")
+      console.log('error @ PING .json() \n', error)
     }
 
   }
 
-  assignTeam = () => {
-    let { roles } = this.state
+  componentDidMount = async () => {
+    let { positions } = this.state
 
-    if (roles.RS.n === 0) {
+    const userId = auth.getUserInfo().id
+    const { matchId } = this.props.match.params
+
+    let res, hasPosition, reqBody, position
+    let arr = ["RS", "RF", "BS", "BF"]
+
+    try {
+      reqBody = JSON.stringify({
+        userID: userId,
+        position: "_PING",
+        move: "_PING"
+      })
+
+      res = await fetch(`/matches/${matchId}/nextmove`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+      // console.log('\n API PING raw', res)
+
+      if (res.status !== 200) {
+        res = await res.text()
+        console.error('failed request :: ', res)
+      }
+    } catch (error) {
+      console.log('error @ PING raw', error)
+    }
+
+    try {
+      res = await res.json()
+      // console.log('\n component did mount.json', res)
+
+      hasPosition = false
+
+      arr.forEach(pos => {
+        if (res[pos] !== "") {
+          positions[pos] = {
+            role: waitingRoomDictionary[pos],
+            userId: res[pos]
+          }
+          if (userId === res[pos]) {
+            hasPosition = true
+          }
+        }
+      })
+    } catch (error) {
+      console.log('error @ PING .json() \n', error)
+    }
+
+    if (!hasPosition) {
+      let { RS, RF, BS, BF } = res
+      position = this.assignTeam({ userId, RS, RF, BS, BF })
+      reqBody = JSON.stringify({
+        userID: userId,
+        position
+      })
+
+      try {
+        res = await fetch(`/matches/${matchId}/joinmatch`, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+          body: reqBody
+        })
+
+        if (res.status !== 200) {
+          res = await res.text()
+          console.error('failed request :: ', res)
+        }
+      } catch (error) {
+        console.log("API error /:matchid/joinmatch")
+      }
+
+      try {
+        res = await res.json()
+        res = res.info
+
+        arr.forEach(pos => {
+          if (res[pos] !== "") {
+            positions[pos] = {
+              role: waitingRoomDictionary[pos],
+              userId: res[pos]
+            }
+          }
+        })
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
+
+    console.log(res)
+    this.setState({
+      ...this.state,
+      matchState: res,
+      positions,
+      matchId,
+      userId,
+    })
+  }
+
+  assignTeam = ({ userId, RS, RF, BS, BF }) => {
+    if (RS === "") {
       return 'RS'
-    } else if (roles.BS.n === 0) {
+    } else if (BS === "") {
       return 'BS'
+    } else if (RF === "") {
+      return 'RF'
+    } else if (BF === "") {
+      return 'BF'
     } else {
-      return roles.RF.n > roles.BF.n ? 'BF' : 'RF'
+      console.log('edge case @ assingTeam, need to redirect to match')
     }
   }
 
@@ -90,15 +224,72 @@ class WaitingRoom
     })
   }
 
+  // setUser = async (player, pos) => {
+
+  /* if (pos=="RS") {
+     if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
+     else this.setState({RS: player});
+   } else if (pos=="RF") {
+     if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
+     else this.setState({RF: player});
+   } else if (pos=="BS") {
+     if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
+     else this.setState({BS: player});
+   } else if (pos=="BF") {
+     if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
+     else this.setState({BF: player});
+   }*/
+
+  //   let newUser = auth.getUserInfo().id;
+  //   let currPos = "";
+  //   if (pos === "RS" && this.state.RS === this.state.userId) currPos = this.state.RS;
+  //   else if (pos === "RF" && this.state.RF === this.state.userId) currPos = this.state.RF;
+  //   else if (pos === "BS" && this.state.BS === this.state.userId) currPos = this.state.BS;
+  //   else if (pos === "BF" && this.state.BF === this.state.userId) currPos = this.state.BF;
+
+  //   const reqBody = JSON.stringify({
+  //     userID: newUser,
+  //     position: pos
+  //   });
+  //   try {
+  //     if (currPos === "") {
+  //       let res = await fetch(`/matches/${this.state.matchId}/joinmatch`, {
+  //         method: "POST",
+  //         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+  //         body: reqBody
+  //       })
+  //       res = await res.json();
+  //       console.log("API setUser response", res);
+  //       const info = res.info;
+  //       this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
+  //     } else if (currPos === this.state.userId) {
+  //       let res = await fetch(`/matches/${this.state.matchId}/leavematch`, {
+  //         method: "POST",
+  //         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+  //         body: reqBody
+  //       })
+  //       res = await res.json();
+  //       console.log("API setUser response", res);
+  //       const info = res.info;
+  //       this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
+  //     }
+
+  //   } catch (error) {
+  //     console.log('error @joingame API');
+  //   }
+  // }
+
   render() {
-    const { playerList, matchId } = this.state
+    console.log('local state ', this.state)
+    const { players, positions, matchId, userId } = this.state
     const { classes } = this.props;
-    const mappedPlayers = playerList.length > 0
-      ? (this.state.playerList.map((player, idx) => (
+    const mappedPlayers = Object.keys(positions)
+      .map((player, idx) => (
         <div key={`invite${idx}`}>
           <CheckIcon className={classes.mainFill} />
-          {player.name} - {player.position}
-        </div>))) : null
+          {positions[player].role} {positions[player].userId === userId ? '(You)' : null}
+        </div>))
+
 
     return <Fragment>
       <Paper className="MuiPaper-customPrimary">
@@ -108,6 +299,11 @@ class WaitingRoom
           ref={(textarea) => this.textArea = textarea}
           style={{ opacity: '0', position: 'absolute' }}
           value={this.state.matchId} />}
+
+        <ServerPing ping={this.ping} />
+
+        {/* <UserDisplay onJoin={this.setUser} RS={players.RS} RF={players.RF} BS={players.BS} BF={players.BF} Host={players.Host} thisUser={this.state.userId} /> */}
+
         <Grid container spacing={2} className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>

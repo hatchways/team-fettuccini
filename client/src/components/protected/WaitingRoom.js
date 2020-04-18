@@ -26,7 +26,6 @@ class WaitingRoom
     this.state = {
       userId: '',
       matchId: '',
-      hasPosition: false,
       positions: {},
       matchState: {},
     }
@@ -35,7 +34,7 @@ class WaitingRoom
   }
 
   async ping() {
-    let { userId, matchId, positions, hasPosition } = this.state
+    let { userId, matchId, positions } = this.state
 
     let res, reqBody, updateState
 
@@ -69,18 +68,10 @@ class WaitingRoom
       for (let pos in waitingRoomDictionary) {
         if (res[pos] === "") { // if role is empty
           if (positions.hasOwnProperty(pos)) {
-            if (positions[pos].userId === userId) {
-              hasPosition = false
-            }
-
             delete positions[pos]
             updateState = true
           }
         } else { // if role is filled
-          if (res[pos] === userId) {
-            hasPosition = true
-          }
-
           if (positions.hasOwnProperty(pos)) {
             if (positions[pos].userId !== res[pos]) {
               positions[pos].userId = res[pos]
@@ -99,17 +90,20 @@ class WaitingRoom
       console.log('error @ PING .json() \n', error)
     }
 
+    if (Object.keys(positions).length === 4) {
+      this.startMatch()
+    }
+
     if (updateState) {
       this.setState({
         ...this.state,
-        positions,
-        hasPosition
+        positions
       })
     }
   }
 
   componentDidMount = async () => {
-    let { positions, hasPosition } = this.state
+    let { positions } = this.state
 
     const userId = auth.getUserInfo().id
     const { matchId } = this.props.match.params
@@ -148,9 +142,6 @@ class WaitingRoom
             role: waitingRoomDictionary[pos],
             userId: res[pos]
           }
-          if (userId === res[pos]) {
-            hasPosition = true
-          }
         }
       })
     } catch (error) {
@@ -183,7 +174,6 @@ class WaitingRoom
   async changePosition(e) {
     const { userId, matchId, positions } = this.state
     let res
-    let hasPosition = false
 
     const position = e.currentTarget.dataset.id.slice(0, 2)
     const action = e.currentTarget.dataset.id.slice(2)
@@ -220,9 +210,6 @@ class WaitingRoom
             delete positions[pos]
           }
         } else {
-          if (res[pos] === userId) {
-            hasPosition = true
-          }
           positions[pos] = {
             role: waitingRoomDictionary[pos],
             userId: res[pos]
@@ -235,8 +222,7 @@ class WaitingRoom
 
     this.setState({
       ...this.state,
-      positions,
-      hasPosition
+      positions
     })
   }
 
@@ -282,7 +268,7 @@ class WaitingRoom
         <Grid container className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>
-            <div className={classes.leftText}>{mappedPlayers}</div>
+            <List className={classes.leftText}>{mappedPlayers}</List>
           </Grid>
           <Grid item>
             <FormLabel className={classes.centerText}>Share match id:</FormLabel>

@@ -1,4 +1,25 @@
 export default (theme) => ({
+  availableRoles: {
+    maxWidth: "160px",
+    margin: "0 auto",
+  },
+  listItem: {
+    justifyContent: "center",
+    textAlign: "center"
+  },
+  itemText: {
+    flex: "unset"
+  },
+  iconHover: {
+    "&:hover": {
+      cursor: "pointer",
+      opacity: "0.8"
+    }
+  },
+  verticalAlign: {
+    alignItems: "center",
+    display: "flex"
+  },
   centerText: {
     textAlign: 'center',
     marginBottom: "0.5em"

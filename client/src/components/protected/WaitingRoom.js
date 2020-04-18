@@ -1,12 +1,13 @@
 import React, { Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, Grid, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
-import { withStyles } from "@material-ui/core/styles";
+import CancelIcon from '@material-ui/icons/Cancel';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 
-import UserDisplay from './UserDisplay'
 import ServerPing from './ServerPing'
 
+import { withStyles } from "@material-ui/core/styles";
 import style from "./styleWaitingNewGame"
 import auth from '../auth/auth'
 
@@ -25,30 +26,21 @@ class WaitingRoom
     this.state = {
       userId: '',
       matchId: '',
+      hasPosition: false,
       positions: {},
       matchState: {},
     }
     this.ping = this.ping.bind(this)
     this.assignTeam = this.assignTeam.bind(this)
+    this.pickPosition = this.pickPosition.bind(this)
+    this.pickPosition = this.pickPosition.bind(this)
+    this.leavePosition = this.leavePosition.bind(this)
   }
 
   async ping() {
-    /* todo
-      check if state of players changed
+    let { userId, matchId, positions, hasPosition } = this.state
 
-      fetch
-
-      compare states
-      if diff
-        setState
-    */
-    let { positions } = this.state
-
-    const userId = auth.getUserInfo().id
-    const { matchId } = this.props.match.params
-
-    let res, hasPosition, reqBody, position
-    let arr = ["RS", "RF", "BS", "BF"]
+    let res, reqBody, updateState
 
     try {
       reqBody = JSON.stringify({
@@ -62,7 +54,7 @@ class WaitingRoom
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
         body: reqBody
       })
-      console.log('\n API PING raw', res)
+      // console.log('\n API PING raw', res)
 
       if (res.status !== 200) {
         res = await res.text()
@@ -75,32 +67,57 @@ class WaitingRoom
     try {
       res = await res.json()
 
-      hasPosition = false
+      updateState = false
 
-      arr.forEach(pos => {
-        if (res[pos] !== "") {
-          positions[pos] = {
-            role: waitingRoomDictionary[pos],
-            userId: res[pos]
+      for (let pos in waitingRoomDictionary) {
+        if (res[pos] === "") { // if role is empty
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId === userId) {
+              hasPosition = false
+            }
+
+            delete positions[pos]
+            updateState = true
           }
-          if (userId === res[pos]) {
+        } else { // if role is filled
+          if (res[pos] === userId) {
             hasPosition = true
           }
+
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId !== res[pos]) {
+              positions[pos].userId = res[pos]
+              updateState = true
+            }
+          } else {
+            positions[pos] = {
+              role: waitingRoomDictionary[pos],
+              userId: res[pos]
+            }
+            updateState = true
+          }
         }
-      })
+      }
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
 
+    if (updateState) {
+      this.setState({
+        ...this.state,
+        positions,
+        hasPosition
+      })
+    }
   }
 
   componentDidMount = async () => {
-    let { positions } = this.state
+    let { positions, hasPosition } = this.state
 
     const userId = auth.getUserInfo().id
     const { matchId } = this.props.match.params
 
-    let res, hasPosition, reqBody, position
+    let res, reqBody, position
     let arr = ["RS", "RF", "BS", "BF"]
 
     try {
@@ -128,8 +145,6 @@ class WaitingRoom
     try {
       res = await res.json()
       // console.log('\n component did mount.json', res)
-
-      hasPosition = false
 
       arr.forEach(pos => {
         if (res[pos] !== "") {
@@ -224,6 +239,15 @@ class WaitingRoom
     })
   }
 
+  pickPosition() {
+
+  }
+
+  leavePosition(e) {
+    console.log(e)
+    console.log('leaving match')
+  }
+
   // setUser = async (player, pos) => {
 
   /* if (pos=="RS") {
@@ -281,14 +305,25 @@ class WaitingRoom
 
   render() {
     console.log('local state ', this.state)
-    const { players, positions, matchId, userId } = this.state
+    const { positions, matchId, userId } = this.state
     const { classes } = this.props;
+
+    const mapAvailablePos = Object.keys(waitingRoomDictionary)
+      .filter(pos => !positions.hasOwnProperty(pos))
+      .map((pos, i) => (
+        <ListItem button key={`openRole-${i}`} className={classes.listItem}>
+          <ListItemText primary={waitingRoomDictionary[pos]} className={classes.itemText} />
+          &nbsp;&nbsp;<AddCircleIcon />
+        </ListItem>))
+
     const mappedPlayers = Object.keys(positions)
       .map((player, idx) => (
-        <div key={`invite${idx}`}>
+        <ListItem key={`invite${idx}`} className={classes.verticalAlign}>
           <CheckIcon className={classes.mainFill} />
-          {positions[player].role} {positions[player].userId === userId ? '(You)' : null}
-        </div>))
+          {positions[player].role} {positions[player].userId === userId ? '(You)' : null} &nbsp;&nbsp;
+          <CancelIcon className={classes.iconHover} onClick={this.leavePosition} />
+        </ListItem>))
+
 
 
     return <Fragment>
@@ -302,9 +337,12 @@ class WaitingRoom
 
         <ServerPing ping={this.ping} />
 
-        {/* <UserDisplay onJoin={this.setUser} RS={players.RS} RF={players.RF} BS={players.BS} BF={players.BF} Host={players.Host} thisUser={this.state.userId} /> */}
+        <List className={classes.availableRoles}>
+          <Typography variant="h5">Available roles</Typography>
+          {mapAvailablePos}
+        </List>
 
-        <Grid container spacing={2} className={classes.gridContainer}>
+        <Grid container className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>
             <div className={classes.leftText}>{mappedPlayers}</div>

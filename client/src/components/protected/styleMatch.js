@@ -34,20 +34,25 @@ export default (theme) => ({
         height: '100%',
       },
       '&>.button:hover': {
-        color: "#ffffff",
-        backgroundColor: '#cccccc',
+        transform: "scale(1.3)"
       },
       "&>.chosenB": {
         backgroundColor: '#00008b',
-        color: '#ffffff'
+        color: '#ffffff',
+        width: '100%',
+        height: '100%',
       },
       "&>.chosenR": {
         backgroundColor: '#8b0000',
-        color: '#ffffff'
+        color: '#ffffff',
+        width: '100%',
+        height: '100%',
       },
       "&>.chosenA": {
         backgroundColor: '#000000',
-        color: '#ffffff'
+        color: '#ffffff',
+        width: '100%',
+        height: '100%',
       },
     },
 

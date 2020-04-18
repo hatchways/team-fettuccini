@@ -31,10 +31,7 @@ class WaitingRoom
       matchState: {},
     }
     this.ping = this.ping.bind(this)
-    this.assignTeam = this.assignTeam.bind(this)
-    this.pickPosition = this.pickPosition.bind(this)
-    this.pickPosition = this.pickPosition.bind(this)
-    this.leavePosition = this.leavePosition.bind(this)
+    this.changePosition = this.changePosition.bind(this)
   }
 
   async ping() {
@@ -118,7 +115,6 @@ class WaitingRoom
     const { matchId } = this.props.match.params
 
     let res, reqBody, position
-    let arr = ["RS", "RF", "BS", "BF"]
 
     try {
       reqBody = JSON.stringify({
@@ -146,7 +142,7 @@ class WaitingRoom
       res = await res.json()
       // console.log('\n component did mount.json', res)
 
-      arr.forEach(pos => {
+      Object.keys(waitingRoomDictionary).forEach(pos => {
         if (res[pos] !== "") {
           positions[pos] = {
             role: waitingRoomDictionary[pos],
@@ -161,47 +157,6 @@ class WaitingRoom
       console.log('error @ PING .json() \n', error)
     }
 
-    if (!hasPosition) {
-      let { RS, RF, BS, BF } = res
-      position = this.assignTeam({ userId, RS, RF, BS, BF })
-      reqBody = JSON.stringify({
-        userID: userId,
-        position
-      })
-
-      try {
-        res = await fetch(`/matches/${matchId}/joinmatch`, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-          body: reqBody
-        })
-
-        if (res.status !== 200) {
-          res = await res.text()
-          console.error('failed request :: ', res)
-        }
-      } catch (error) {
-        console.log("API error /:matchid/joinmatch")
-      }
-
-      try {
-        res = await res.json()
-        res = res.info
-
-        arr.forEach(pos => {
-          if (res[pos] !== "") {
-            positions[pos] = {
-              role: waitingRoomDictionary[pos],
-              userId: res[pos]
-            }
-          }
-        })
-      } catch (error) {
-        console.log(error.message)
-      }
-    }
-
-    console.log(res)
     this.setState({
       ...this.state,
       matchState: res,
@@ -209,20 +164,6 @@ class WaitingRoom
       matchId,
       userId,
     })
-  }
-
-  assignTeam = ({ userId, RS, RF, BS, BF }) => {
-    if (RS === "") {
-      return 'RS'
-    } else if (BS === "") {
-      return 'BS'
-    } else if (RF === "") {
-      return 'RF'
-    } else if (BF === "") {
-      return 'BF'
-    } else {
-      console.log('edge case @ assingTeam, need to redirect to match')
-    }
   }
 
   copyLink = () => {
@@ -239,79 +180,75 @@ class WaitingRoom
     })
   }
 
-  pickPosition() {
+  async changePosition(e) {
+    const { userId, matchId, positions } = this.state
+    let res
+    let hasPosition = false
 
+    const position = e.currentTarget.dataset.id.slice(0, 2)
+    const action = e.currentTarget.dataset.id.slice(2)
+
+    const reqBody = JSON.stringify({
+      userID: userId,
+      position
+    })
+
+    try {
+      res = await fetch(`/matches/${matchId}/${action}`, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
+        body: reqBody
+      })
+
+      if (res.status !== 200) {
+        res = await res.text()
+        console.error('failed request :: ', res)
+      }
+    } catch (error) {
+      console.log("API error /:matchid/joinmatch")
+    }
+
+    try {
+      res = await res.json()
+      res = res.info
+
+      console.log('res ', res)
+
+      Object.keys(waitingRoomDictionary).forEach(pos => {
+        if (res[pos] === "") {
+          if (positions.hasOwnProperty(pos)) {
+            delete positions[pos]
+          }
+        } else {
+          if (res[pos] === userId) {
+            hasPosition = true
+          }
+          positions[pos] = {
+            role: waitingRoomDictionary[pos],
+            userId: res[pos]
+          }
+        }
+      })
+    } catch (error) {
+      console.log(error.message)
+    }
+
+    this.setState({
+      ...this.state,
+      positions,
+      hasPosition
+    })
   }
-
-  leavePosition(e) {
-    console.log(e)
-    console.log('leaving match')
-  }
-
-  // setUser = async (player, pos) => {
-
-  /* if (pos=="RS") {
-     if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
-     else this.setState({RS: player});
-   } else if (pos=="RF") {
-     if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
-     else this.setState({RF: player});
-   } else if (pos=="BS") {
-     if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
-     else this.setState({BS: player});
-   } else if (pos=="BF") {
-     if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
-     else this.setState({BF: player});
-   }*/
-
-  //   let newUser = auth.getUserInfo().id;
-  //   let currPos = "";
-  //   if (pos === "RS" && this.state.RS === this.state.userId) currPos = this.state.RS;
-  //   else if (pos === "RF" && this.state.RF === this.state.userId) currPos = this.state.RF;
-  //   else if (pos === "BS" && this.state.BS === this.state.userId) currPos = this.state.BS;
-  //   else if (pos === "BF" && this.state.BF === this.state.userId) currPos = this.state.BF;
-
-  //   const reqBody = JSON.stringify({
-  //     userID: newUser,
-  //     position: pos
-  //   });
-  //   try {
-  //     if (currPos === "") {
-  //       let res = await fetch(`/matches/${this.state.matchId}/joinmatch`, {
-  //         method: "POST",
-  //         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-  //         body: reqBody
-  //       })
-  //       res = await res.json();
-  //       console.log("API setUser response", res);
-  //       const info = res.info;
-  //       this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
-  //     } else if (currPos === this.state.userId) {
-  //       let res = await fetch(`/matches/${this.state.matchId}/leavematch`, {
-  //         method: "POST",
-  //         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-  //         body: reqBody
-  //       })
-  //       res = await res.json();
-  //       console.log("API setUser response", res);
-  //       const info = res.info;
-  //       this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
-  //     }
-
-  //   } catch (error) {
-  //     console.log('error @joingame API');
-  //   }
-  // }
 
   render() {
-    console.log('local state ', this.state)
+
     const { positions, matchId, userId } = this.state
     const { classes } = this.props;
 
     const mapAvailablePos = Object.keys(waitingRoomDictionary)
       .filter(pos => !positions.hasOwnProperty(pos))
       .map((pos, i) => (
-        <ListItem button key={`openRole-${i}`} className={classes.listItem}>
+        <ListItem button data-id={`${pos}joinmatch`} key={`openRole-${i}`} className={classes.listItem} onClick={this.changePosition}>
           <ListItemText primary={waitingRoomDictionary[pos]} className={classes.itemText} />
           &nbsp;&nbsp;<AddCircleIcon />
         </ListItem>))
@@ -321,7 +258,7 @@ class WaitingRoom
         <ListItem key={`invite${idx}`} className={classes.verticalAlign}>
           <CheckIcon className={classes.mainFill} />
           {positions[player].role} {positions[player].userId === userId ? '(You)' : null} &nbsp;&nbsp;
-          <CancelIcon className={classes.iconHover} onClick={this.leavePosition} />
+          <CancelIcon className={classes.iconHover} data-id={`${player}leavematch`} onClick={this.changePosition} />
         </ListItem>))
 
 

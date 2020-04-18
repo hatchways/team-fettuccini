@@ -11,6 +11,7 @@ import { withStyles } from "@material-ui/core/styles";
 import style from "./styleWaitingNewGame"
 import auth from '../auth/auth'
 
+import fetchUtil from './fetchUtil'
 // TODO make this into a file
 const waitingRoomDictionary = {
   RS: "Red Spy Master",
@@ -36,69 +37,54 @@ class WaitingRoom
   async ping() {
     let { userId, matchId, positions } = this.state
 
-    let res, reqBody, updateState
+    let res
+    let updateState = false
 
     try {
-      reqBody = JSON.stringify({
-        userID: userId,
-        position: "_PING",
-        move: "_PING"
-      })
-
-      res = await fetch(`/matches/${matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      // console.log('\n API PING raw', res)
-
-      if (res.status !== 200) {
-        res = await res.text()
-        console.error('failed request :: ', res)
-      }
-    } catch (error) {
-      console.log('error @ PING raw', error)
-    }
-
-    try {
-      res = await res.json()
-
-      updateState = false
-
-      for (let pos in waitingRoomDictionary) {
-        if (res[pos] === "") { // if role is empty
-          if (positions.hasOwnProperty(pos)) {
-            delete positions[pos]
-            updateState = true
-          }
-        } else { // if role is filled
-          if (positions.hasOwnProperty(pos)) {
-            if (positions[pos].userId !== res[pos]) {
-              positions[pos].userId = res[pos]
-              updateState = true
-            }
-          } else {
-            positions[pos] = {
-              role: waitingRoomDictionary[pos],
-              userId: res[pos]
-            }
-            updateState = true
-          }
+        body: {
+          userID: userId,
+          position: "_PING",
+          move: "_PING"
         }
-      }
+      })
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
 
-    if (Object.keys(positions).length === 4) {
-      this.startMatch()
+    for (let pos in waitingRoomDictionary) {
+      if (res[pos] === "") { // if role is empty
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
+          updateState = true
+        }
+      } else { // if role is filled
+        if (positions.hasOwnProperty(pos)) {
+          if (positions[pos].userId !== res[pos]) {
+            positions[pos].userId = res[pos]
+            updateState = true
+          }
+        } else {
+          positions[pos] = {
+            role: waitingRoomDictionary[pos],
+            userId: res[pos]
+          }
+          updateState = true
+        }
+      }
     }
 
     if (updateState) {
       this.setState({
         ...this.state,
-        positions
+        positions,
+        matchState: res
       })
+    }
+    if (Object.keys(positions).length === 4) {
+      this.startMatch()
     }
   }
 
@@ -108,50 +94,8 @@ class WaitingRoom
     const userId = auth.getUserInfo().id
     const { matchId } = this.props.match.params
 
-    let res, reqBody, position
-
-    try {
-      reqBody = JSON.stringify({
-        userID: userId,
-        position: "_PING",
-        move: "_PING"
-      })
-
-      res = await fetch(`/matches/${matchId}/nextmove`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      // console.log('\n API PING raw', res)
-
-      if (res.status !== 200) {
-        res = await res.text()
-        console.error('failed request :: ', res)
-      }
-    } catch (error) {
-      console.log('error @ PING raw', error)
-    }
-
-    try {
-      res = await res.json()
-      // console.log('\n component did mount.json', res)
-
-      Object.keys(waitingRoomDictionary).forEach(pos => {
-        if (res[pos] !== "") {
-          positions[pos] = {
-            role: waitingRoomDictionary[pos],
-            userId: res[pos]
-          }
-        }
-      })
-    } catch (error) {
-      console.log('error @ PING .json() \n', error)
-    }
-
     this.setState({
       ...this.state,
-      matchState: res,
-      positions,
       matchId,
       userId,
     })
@@ -178,47 +122,40 @@ class WaitingRoom
     const position = e.currentTarget.dataset.id.slice(0, 2)
     const action = e.currentTarget.dataset.id.slice(2)
 
-    const reqBody = JSON.stringify({
-      userID: userId,
-      position
-    })
+    let updateState = false
 
     try {
-      res = await fetch(`/matches/${matchId}/${action}`, {
+
+      res = await fetchUtil({
+        url: `/matches/${matchId}/${action}`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-
-      if (res.status !== 200) {
-        res = await res.text()
-        console.error('failed request :: ', res)
-      }
-    } catch (error) {
-      console.log("API error /:matchid/joinmatch")
-    }
-
-    try {
-      res = await res.json()
-      res = res.info
-
-      console.log('res ', res)
-
-      Object.keys(waitingRoomDictionary).forEach(pos => {
-        if (res[pos] === "") {
-          if (positions.hasOwnProperty(pos)) {
-            delete positions[pos]
-          }
-        } else {
-          positions[pos] = {
-            role: waitingRoomDictionary[pos],
-            userId: res[pos]
-          }
+        body: {
+          userID: userId,
+          position
         }
       })
+
+
     } catch (error) {
-      console.log(error.message)
+      console.log('error @ PING .json() \n', error)
     }
+
+    res = res.info
+
+    console.log('res ', res)
+
+    Object.keys(waitingRoomDictionary).forEach(pos => {
+      if (res[pos] === "") {
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
+        }
+      } else {
+        positions[pos] = {
+          role: waitingRoomDictionary[pos],
+          userId: res[pos]
+        }
+      }
+    })
 
     this.setState({
       ...this.state,
@@ -227,7 +164,7 @@ class WaitingRoom
   }
 
   render() {
-
+    console.log('local state ', this.state)
     const { positions, matchId, userId } = this.state
     const { classes } = this.props;
 
@@ -246,8 +183,6 @@ class WaitingRoom
           {positions[player].role} {positions[player].userId === userId ? '(You)' : null} &nbsp;&nbsp;
           <CancelIcon className={classes.iconHover} data-id={`${player}leavematch`} onClick={this.changePosition} />
         </ListItem>))
-
-
 
     return <Fragment>
       <Paper className="MuiPaper-customPrimary">

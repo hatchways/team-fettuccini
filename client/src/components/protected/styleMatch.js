@@ -54,6 +54,13 @@ export default (theme) => ({
         width: '100%',
         height: '100%',
       },
+
+      "&>.chosenC": {
+        backgroundColor: '#ffcc99',
+        color: '#000000',
+        width: '100%',
+        height: '100%',
+      },
     },
 
     '&>.MuiTypography-h5': {

@@ -35,7 +35,7 @@ class WaitingRoom
   }
 
   async ping() {
-    let { userId, matchId, positions } = this.state
+    let { userId, matchId, positions, matchState } = this.state
 
     let res
     let updateState = false
@@ -53,6 +53,8 @@ class WaitingRoom
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
+
+    updateState = matchState.state !== res.state
 
     for (let pos in waitingRoomDictionary) {
       if (res[pos] === "") { // if role is empty
@@ -83,14 +85,9 @@ class WaitingRoom
         matchState: res
       })
     }
-    if (Object.keys(positions).length === 4) {
-      this.startMatch()
-    }
   }
 
   componentDidMount = async () => {
-    let { positions } = this.state
-
     const userId = auth.getUserInfo().id
     const { matchId } = this.props.match.params
 
@@ -121,8 +118,6 @@ class WaitingRoom
 
     const position = e.currentTarget.dataset.id.slice(0, 2)
     const action = e.currentTarget.dataset.id.slice(2)
-
-    let updateState = false
 
     try {
 
@@ -167,6 +162,11 @@ class WaitingRoom
     console.log('local state ', this.state)
     const { positions, matchId, userId } = this.state
     const { classes } = this.props;
+
+
+    if (Object.keys(positions).length === 4) {
+      this.startMatch()
+    }
 
     const mapAvailablePos = Object.keys(waitingRoomDictionary)
       .filter(pos => !positions.hasOwnProperty(pos))

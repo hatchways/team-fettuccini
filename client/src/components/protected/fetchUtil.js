@@ -13,14 +13,14 @@ export default async ({ url, method, body }) => {
       console.error('failed request :: ', res)
     }
   } catch (error) {
-    console.log('error @ PING raw', error)
+    console.log(`error @ ${url} raw \n`, error)
   }
 
   try {
     res = await res.json()
 
   } catch (error) {
-    console.log('error @ PING .json() \n', error)
+    console.log(`error @ ${url} .json() \n`, error)
   }
 
   return res

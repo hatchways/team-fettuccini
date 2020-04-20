@@ -14,7 +14,7 @@ export default (theme) => ({
   standardFlex: {
     display: 'flex',
     flexWrap: 'wrap',
-    height: '80%'
+    // height: '80%'
   },
   matchStyle: {
     display: "flex",
@@ -66,18 +66,18 @@ export default (theme) => ({
     '&>.MuiTypography-h5': {
       display: "flex",
       width: "50%",
-      height: "200px", 
+      height: "200px",
       margin: "auto",
       borderRadius: "10px",
-      border: "3px dashed #1c87c9", 
+      border: "3px dashed #1c87c9",
     },
   },
 
-  p: { 
-    margin: "auto", /* Important */ 
+  p: {
+    margin: "auto", /* Important */
     textAlign: "center",
   },
- 
+
   paper: {
     padding: "20px",
     width: '80vw',

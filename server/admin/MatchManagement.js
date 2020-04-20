@@ -39,7 +39,8 @@ class MatchManager {
 		const BS = game.getBlueSpy();
 		const BF = game.getBlueField();
 		const host = game.getHost();
-		return { info, RS, RF, BS, BF, Host: host, state };
+		const numGuess = game.getnumGuess()
+		return { info, RS, RF, BS, BF, Host: host, state, numGuess };
 	}
 
 	//Join the user to the match and give the user the given position.

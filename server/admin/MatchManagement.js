@@ -33,14 +33,13 @@ class MatchManager {
 		const game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		const info = game.getBoardInfo();
-    let numGuess = game.getNumGuess()
 		const state = game.getState();
 		const RS = game.getRedSpy();
 		const RF = game.getRedField();
 		const BS = game.getBlueSpy();
 		const BF = game.getBlueField();
 		const host = game.getHost();
-		return { info: info, RS: RS, RF: RF, BS: BS, BF: BF, Host: host, state: state };
+		return { info, RS, RF, BS, BF, Host: host, state };
 	}
 
 	//Join the user to the match and give the user the given position.
@@ -48,7 +47,7 @@ class MatchManager {
 		let mess = "Space is occupied";
 		console.log("Looking for " + matchID);
 		console.log(this.matchesByID.get(matchID));
-		console.log("Setting user "+userID);
+		console.log("Setting user " + userID);
 		if (this.matchesByID.has(matchID)) {
 			let game = this.getGame(matchID);
 			console.log(game);
@@ -92,19 +91,19 @@ class MatchManager {
 	//Remove the player from the match.
 	leaveMatch(matchID, userID, position) {
 		let game = this.getGame(matchID);
-		console.log(game.getRedSpy()+" "+userID);
+		console.log(game.getRedSpy() + " " + userID);
 		if (game == undefined || game == null) return matchNotFound;
-		if (game.getBlueField() == userID && position=="BF") {
+		if (game.getBlueField() == userID && position == "BF") {
 			game.setBlueField("");
-		} else if (game.getBlueSpy() == userID && position=="BS") {
+		} else if (game.getBlueSpy() == userID && position == "BS") {
 			game.setBlueSpy("");
-		} else if (game.getRedField() == userID && position=="RF") {
+		} else if (game.getRedField() == userID && position == "RF") {
 			game.setRedField("");
-		} else if (game.getRedSpy() == userID && position=="RS") {
+		} else if (game.getRedSpy() == userID && position == "RS") {
 			game.setRedSpy("");
 		}
 		console.log(this.getMatchInfo(matchID));
-		return {info: this.getMatchInfo(matchID), message: "Left Match" };
+		return { info: this.getMatchInfo(matchID), message: "Left Match" };
 	}
 
 	//Reset the match.
@@ -122,10 +121,10 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "Move failed";
 		if ((
-			// userID == game.getBlueSpy() &&
+			userID == game.getBlueSpy() &&
 			game.getState() == gameState.BLUE_SPY) ||
 			(
-				// userID == game.getRedSpy() &&
+				userID == game.getRedSpy() &&
 				game.getState() == gameState.RED_SPY)) {
 			mess = game.nextSpyHint(numGuesses, word);
 		}
@@ -138,10 +137,10 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "";
 		if ((
-			// userID == game.getBlueField() &&
+			userID == game.getBlueField() &&
 			game.getState() == gameState.BLUE_FIELD) ||
 			(
-				// userID == game.getRedField() &&
+				userID == game.getRedField() &&
 				game.getState() == gameState.RED_FIELD)) {
 			mess = game.nextWordGuess(guess);
 		}
@@ -155,10 +154,10 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "";
 		if ((
-			// userID == game.getBlueField() &&
+			userID == game.getBlueField() &&
 			game.getState() == gameState.BLUE_FIELD) ||
 			(
-				// userID == game.getRedField() &&
+				userID == game.getRedField() &&
 				game.getState() == gameState.RED_FIELD)) {
 			console.log("Calling end turn in game");
 			mess = game.endTurn();

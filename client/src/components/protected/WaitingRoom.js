@@ -1,79 +1,101 @@
 import React, { Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, Grid, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
+import CancelIcon from '@material-ui/icons/Cancel';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+
+import ServerPing from './ServerPing'
 
 import { withStyles } from "@material-ui/core/styles";
-
 import style from "./styleWaitingNewGame"
-
 import auth from '../auth/auth'
+
+import fetchUtil from './fetchUtil'
+// TODO make this into a file
+const waitingRoomDictionary = {
+  RS: "Red Spy Master",
+  RF: "Red Field Agent",
+  BS: "Blue Spy Master",
+  BF: "Blue Field Agent"
+}
 
 class WaitingRoom
   extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
+      userId: '',
       matchId: '',
-      playerList: [],
-      roles: {
-        RS: { n: 0, name: "Red Spy Master" },
-        RF: { n: 1, name: "Red Field Agent" },
-        BS: { n: 1, name: "Blue Spy Master" },
-        BF: { n: 1, name: "Blue Field Agent" },
-        matchState: []
+      positions: {},
+      matchState: {},
+    }
+    this.ping = this.ping.bind(this)
+    this.changePosition = this.changePosition.bind(this)
+  }
+
+  async ping() {
+    let { userId, matchId, positions, matchState } = this.state
+
+    let res
+    let updateState = false
+
+    try {
+      res = await fetchUtil({
+        url: `/matches/${matchId}/nextmove`,
+        method: "POST",
+        body: {
+          userID: userId,
+          position: "_PING",
+          move: "_PING"
+        }
+      })
+    } catch (error) {
+      console.log('error @ PING .json() \n', error)
+    }
+
+    updateState = matchState.state !== res.state
+
+    for (let pos in waitingRoomDictionary) {
+      if (res[pos] === "") { // if role is empty
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
+          updateState = true
+        }
+      } else { // if role is filled
+        if (positions.hasOwnProperty(pos)) {
+          if (positions[pos].userId !== res[pos]) {
+            positions[pos].userId = res[pos]
+            updateState = true
+          }
+        } else {
+          positions[pos] = {
+            role: waitingRoomDictionary[pos],
+            userId: res[pos]
+          }
+          updateState = true
+        }
       }
+    }
+
+    if (updateState) {
+      this.setState({
+        ...this.state,
+        positions,
+        matchState: res
+      })
     }
   }
 
   componentDidMount = async () => {
-
-    let { roles } = this.state
-    let position = this.assignTeam()
-    roles[position].n += 1
-
-    let res
+    const userId = auth.getUserInfo().id
     const { matchId } = this.props.match.params
-    let reqBody = JSON.stringify({
-      userID: auth.getUserInfo().id,
-      position
+
+    this.setState({
+      ...this.state,
+      matchId,
+      userId,
     })
-
-    try {
-      res = await fetch(`/matches/${matchId}/joinmatch`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      res = await res.json()
-
-      this.setState({
-        ...this.state,
-        matchId,
-        playerList:
-          [...this.state.playerList, {
-            name: auth.getUserInfo().username,
-            position: roles[position].name
-          }],
-        roles,
-        matchState: res.info
-      })
-    } catch (error) {
-      console.log("API error /:matchid/joinmatch")
-    }
-
-  }
-
-  assignTeam = () => {
-    let { roles } = this.state
-
-    if (roles.RS.n === 0) {
-      return 'RS'
-    } else if (roles.BS.n === 0) {
-      return 'BS'
-    } else {
-      return roles.RF.n > roles.BF.n ? 'BF' : 'RF'
-    }
   }
 
   copyLink = () => {
@@ -90,17 +112,77 @@ class WaitingRoom
     })
   }
 
+  async changePosition(e) {
+    const { userId, matchId, positions } = this.state
+    let res
+
+    const position = e.currentTarget.dataset.id.slice(0, 2)
+    const action = e.currentTarget.dataset.id.slice(2)
+
+    try {
+
+      res = await fetchUtil({
+        url: `/matches/${matchId}/${action}`,
+        method: "POST",
+        body: {
+          userID: userId,
+          position
+        }
+      })
+
+
+    } catch (error) {
+      console.log('error @ PING .json() \n', error)
+    }
+
+    res = res.info
+
+    console.log('res ', res)
+
+    Object.keys(waitingRoomDictionary).forEach(pos => {
+      if (res[pos] === "") {
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
+        }
+      } else {
+        positions[pos] = {
+          role: waitingRoomDictionary[pos],
+          userId: res[pos]
+        }
+      }
+    })
+
+    this.setState({
+      ...this.state,
+      positions
+    })
+  }
+
   render() {
-    const { playerList } = this.state
+    console.log('local state ', this.state)
+    const { positions, matchId, userId } = this.state
     const { classes } = this.props;
-    const mappedPlayers = playerList.length > 0
-      ? (this.state.playerList.map((player, idx) => (
-        <div key={`invite${idx}`}>
-          <Typography variant="body1">
-            <CheckIcon className={classes.mainFill} />
-            {player.name} - {player.position}
-          </Typography>
-        </div>))) : null
+
+
+    if (Object.keys(positions).length === 4) {
+      this.startMatch()
+    }
+
+    const mapAvailablePos = Object.keys(waitingRoomDictionary)
+      .filter(pos => !positions.hasOwnProperty(pos))
+      .map((pos, i) => (
+        <ListItem button data-id={`${pos}joinmatch`} key={`openRole-${i}`} className={classes.listItem} onClick={this.changePosition}>
+          <ListItemText primary={waitingRoomDictionary[pos]} className={classes.itemText} />
+          &nbsp;&nbsp;<AddCircleIcon />
+        </ListItem>))
+
+    const mappedPlayers = Object.keys(positions)
+      .map((player, idx) => (
+        <ListItem key={`invite${idx}`} className={classes.verticalAlign}>
+          <CheckIcon className={classes.mainFill} />
+          {positions[player].role} {positions[player].userId === userId ? '(You)' : null} &nbsp;&nbsp;
+          <CancelIcon className={classes.iconHover} data-id={`${player}leavematch`} onClick={this.changePosition} />
+        </ListItem>))
 
     return <Fragment>
       <Paper className="MuiPaper-customPrimary">
@@ -110,10 +192,18 @@ class WaitingRoom
           ref={(textarea) => this.textArea = textarea}
           className={classes.hiddenText}
           value={this.state.matchId} />}
-        <Grid container spacing={2} className={classes.gridContainer}>
+
+        <ServerPing ping={this.ping} />
+
+        <List className={classes.availableRoles}>
+          <Typography variant="h5">Available roles</Typography>
+          {mapAvailablePos}
+        </List>
+
+        <Grid container className={classes.gridContainer}>
           <Grid item>
             <FormLabel>Players ready for match:</FormLabel>
-            <div className={classes.leftText}>{mappedPlayers}</div>
+            <List className={classes.leftText}>{mappedPlayers}</List>
           </Grid>
           <Grid item className={classes.borderLeft}>
             <FormLabel className={classes.centerText}>Share match id:</FormLabel>

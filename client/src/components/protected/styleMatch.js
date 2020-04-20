@@ -22,8 +22,6 @@ export default (theme) => ({
     minHeight: "100vh",
     maxHeight: "100vh",
     justifyContent: 'left',
-    position: "fixed",
-    top: "7vh"
   },
   flexRow: {
     margin: "10px",

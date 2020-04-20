@@ -25,9 +25,8 @@ const useStyles = makeStyles({
     justifyContent: "space-between",
     backgroundColor: "white",
     textAlign: "center",
-    position: "fixed",
-    top: "0",
-    width: "100%"
+    position: "sticky",
+    top: 0,
   },
   invisible: {
     opacity: "0",

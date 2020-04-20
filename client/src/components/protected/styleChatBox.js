@@ -2,21 +2,34 @@ export default (theme) => ({
   buttonInput: {
 	  width: "5%", 
 	  height: "5%",
-	  boxShadow: "2px 2px 2px 2px black",
+	  boxShadow: "1px 1px 1px 1px black",
 	  marginRight: "1%",
 	  marginLeft: "1%"
   },
   chatList: {
-	  maxHeight:"80%",
-	  height:"80%",
-	  overflow: 'auto'
+	  minHeight: "80%",
+	  maxHeight: "80%",
+	  overflow: 'scroll'
   },
   numberLabel: {
 	width: 20,
 	appearance: "textfield"
   },
   inputBox: {
-	width: "60%",
-	height: "10%"
+	width: "50%",
+	justifyContent: "center",
+	flexWrap: "wrap",
+  },
+  chatBox: {
+	width: "20vw",
+	maxHeight: "95vh",
+    justifyContent: "center",
+    alignContent: "center",
+    flexWrap: "wrap"
+  },
+  inputStyle: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: 'left',
   }
 });

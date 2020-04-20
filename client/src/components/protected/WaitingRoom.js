@@ -186,11 +186,11 @@ class WaitingRoom
 
     return <Fragment>
       <Paper className="MuiPaper-customPrimary">
-        <Typography variant="h4">Match Id: {matchId}</Typography>
+        <Typography variant="h4">New Game</Typography>
         {document.queryCommandSupported('copy') && <textarea
           readOnly
           ref={(textarea) => this.textArea = textarea}
-          style={{ opacity: '0', position: 'absolute' }}
+          className={classes.hiddenText}
           value={this.state.matchId} />}
 
         <ServerPing ping={this.ping} />
@@ -205,7 +205,7 @@ class WaitingRoom
             <FormLabel>Players ready for match:</FormLabel>
             <List className={classes.leftText}>{mappedPlayers}</List>
           </Grid>
-          <Grid item>
+          <Grid item className={classes.borderLeft}>
             <FormLabel className={classes.centerText}>Share match id:</FormLabel>
             <Button variant="outlined" onClick={this.copyLink}><LinkIcon className={classes.rotate45} />Copy</Button>
           </Grid>

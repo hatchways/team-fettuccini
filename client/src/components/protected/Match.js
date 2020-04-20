@@ -12,30 +12,64 @@ import matchDictionary from './matchDictionary'
 
 import { withStyles } from "@material-ui/styles";
 import styleMatch from "./styleMatch";
+import GameOutcome from "./GameOutcome";
+
+const style = (theme) => ({
+  centerText: {
+    textAlign: "center",
+    marginBottom: "0.5em",
+  },
+  leftText: {
+    textAlign: "left",
+  },
+  gridContainer: {
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    margin: "10px auto",
+  },
+  standardFlex: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+  standardFlexChild: {
+    flexGrow: "1",
+  },
+});
 
 class Match extends Component {
   constructor(props) {
-    super(props)
+    super(props);
+
+    this.props.setIsMatchInProgres(true);
+    this.props.setBlueScore(0);
+    this.props.setRedScore(0);
+
     this.state = {
       matchId: '',
       userId: auth.getUserInfo().id,
       words: [],
       positionState: "",
       guessesLeft: 0,
+      isOver: false,
+      winner: "blue",
       RS: auth.getUserInfo().id,
       RF: "",
       BS: "",
       BF: "",
       Host: ""
     }
-    this.submitHint = this.submitHint.bind(this)
-    this.ping = this.ping.bind(this)
+    this.submitHint = this.submitHint.bind(this);
+    this.ping = this.ping.bind(this);
+    this.isSpyTurn = this.isSpyTurn.bind(this);
     this.userDisplay = React.createRef();
   }
 
   componentDidMount = () => {
-    if (this.props.location.state == null || this.props.match.params.matchId !== this.props.location.state.matchId) {
-      this.props.history.push('/welcome')
+    if (
+      this.props.location.state == null ||
+      this.props.match.params.matchId !== this.props.location.state.matchId
+    ) {
+      this.props.history.push("/welcome");
     }
     const { matchId, matchState } = this.props.location.state
     console.log('\n\nmatchState', matchState)
@@ -49,12 +83,16 @@ class Match extends Component {
     })
   }
 
+  isSpyTurn() {
+    return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
+  }
+
   async ping() {
     if (this.state.words.length === 0) {
       return
     }
 
-    let { matchId, userId, positionState, words } = this.state
+    let { matchId, userId, positionState, words, guessesLeft } = this.state
     let res
     try {
       const reqBody = JSON.stringify({
@@ -81,10 +119,12 @@ class Match extends Component {
 
     try {
       res = await res.json()
+      if (res.info === "") {
+        this.props.history.push("/welcome")
+      }
       console.log('\n API PING.json', res)
 
       let updateState = false
-      let i = 0
 
       for (let i = 0; i < words.length; i++) {
         if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
@@ -93,9 +133,12 @@ class Match extends Component {
         }
       }
 
-      if (updateState || (res.state !== positionState)) {
+      if (updateState || (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)) {
         this.setState({
+          words,
           positionState: res.state,
+          guessesLeft: Number(res.numGuess),
+          message: "",
           words,
           RS: res.RS,
           RF: res.RF,
@@ -110,9 +153,12 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
+    let { matchId, positionState, words } = this.state
+    if (this.isSpyTurn()) {
+      return
+    }
 
     try {
-      let { matchId, positionState, guessesLeft, words } = this.state
       let index = e.currentTarget.dataset.tag;
 
       const reqBody = JSON.stringify({
@@ -133,10 +179,9 @@ class Match extends Component {
         console.log('\n API clickWord response', res)
 
         words[index] = res.info.info[index].slice(0, 2) + words[index]
-        guessesLeft--
 
         console.log('res state', res.info.state)
-        this.setState({ ...this.state, words, guessesLeft, positionState: res.info.state })
+        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
 
       }
     } catch (error) {
@@ -145,6 +190,9 @@ class Match extends Component {
   }
 
   endFieldTurn = async () => {
+    if (this.isSpyTurn()) {
+      return
+    }
     try {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
@@ -160,9 +208,13 @@ class Match extends Component {
       })
       res = await res.json()
       console.log('\n API endFieldTurn response', res)
+      if (res.message === "Have to make at least one guess for a turn") {
+        this.setState({ ...this.state, message: res.message })
+      } else {
+        let positionState = res.info.state
+        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
 
-      let positionState = res.info.state
-      this.setState({ ...this.state, positionState, guessesLeft: 0 })
+      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
     }
@@ -188,7 +240,7 @@ class Match extends Component {
       let positionState = `${res.state}`
 
       console.log('\n positionState', positionState)
-      this.setState({ ...this.state, positionState, guessesLeft: Number(move.num) })
+      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
     } catch (error) {
       console.log('error @ submitHint API')
     }
@@ -251,30 +303,43 @@ class Match extends Component {
 
   render() {
     console.log('local state', this.state)
-    const { classes } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, RS, RF, BS, BF, Host } = this.state;
+    const {
+      classes,
+      setIsMatchInProgres,
+      blueScore,
+      setBlueScore,
+      redScore,
+      setRedScore
+    } = this.props;
+    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, RS, RF, BS, BF, Host } = this.state;
+    document.body.style.overflow = "noscroll";
     return (<div className={ classes.matchStyle }>
-      <ChatBox
-          className={ classes.chatBox }
-          submitHint={this.submitHint}
-          matchID={matchId}
-          userID={userId}
-          position={matchDictionary[positionState]} />
-      <Grid container spacing={0} className={classes.gridContainer}>
-        <Paper className={`${classes.paper} ${classes.centerText}`}>
-        <Grid item xs={4}>
-          <UserDisplay onJoin={this.setUser} RS={RS} RF={RF} BS={BS} BF={BF} Host={Host} thisUser={this.state.userId} ref={this.userDisplay}/>
-        </Grid>
-          <Typography variant="h4">{positionState}</Typography>
-          <ServerPing ping={this.ping} />
-          {(matchDictionary[positionState] === "RF" || matchDictionary[positionState] === "BF") ? <p>{guessesLeft} guesses left</p> : null}
-          <Grid container item xs={12} className={classes.standardFlex}>
-            <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
-          </Grid>
-          <Button variant="outlined" onClick={this.endFieldTurn}>End Turn</Button>
-        </Paper>
-      </Grid>
-    </div>)
+              <ChatBox
+                  submitHint={this.submitHint}
+                  matchID={matchId}
+                  userID={userId}
+                  position={matchDictionary[positionState]} />
+
+              <Paper className={`${classes.paper} ${classes.centerText}`}>
+                <Typography variant="h4">{positionState}</Typography>
+                <ServerPing ping={this.ping} />
+                {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+                {message !== "" ? <p>{message}</p> : null}
+                <Grid container item xs={12} className={classes.standardFlex}>
+                  <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+                </Grid>
+                <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
+              </Paper>
+              {isOver ? (
+                <GameOutcome
+                  isOver={isOver}
+                  setIsMatchInProgres={setIsMatchInProgres}
+                  winner={winner}
+                  blueScore={blueScore}
+                  redScore={redScore}
+                />
+              ) : null}
+            </div>)
   }
 }
 

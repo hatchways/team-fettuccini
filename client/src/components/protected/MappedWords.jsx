@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Grid, Card } from "@material-ui/core";
+import { Typography, Grid, Card, Zoom } from "@material-ui/core";
 
 export default ({ words, classes, clickWord }) => {
 
@@ -13,18 +13,21 @@ export default ({ words, classes, clickWord }) => {
             const currIndex = i + 5 * index
 
             return (
-              <Grid item xs={2} key={`word-${currIndex}`}>
-                <Card
-                  disabled={chosen}
-                  data-tag={i + 5 * index}
-                  variant="contained"
-                  className={chosen ? `chosen${word.slice(1, 2)}` : ""}
-                  onClick={clickWord}>
-                  <Typography variant="h5">
-                    {chosen ? word.slice(2) : word}
-                  </Typography>
-                </Card>
-              </Grid>)
+              <Zoom key={`word-${currIndex}-${chosen}`} direction="up" in="true" mountOnEnter unmountOnExit>
+                <Grid item xs={2} key={`word-${currIndex}`} className={classes.flexRow}>
+                  <Card
+                    disabled={chosen}
+                    data-tag={i + 5 * index}
+                    variant="contained"
+                    className={chosen ? `chosen${word.slice(1, 2)}` : "button"}
+                    onClick={clickWord}>
+                    <Typography variant="h5">
+                      <p>{chosen ? word.slice(2) : word}</p>
+                    </Typography>
+                  </Card>
+                </Grid>
+              </Zoom>)
+
           })}
         </Grid>
       ))

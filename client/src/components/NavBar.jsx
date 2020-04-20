@@ -25,6 +25,9 @@ const useStyles = makeStyles({
     justifyContent: "space-between",
     backgroundColor: "white",
     textAlign: "center",
+    position: "fixed",
+    top: "0",
+    width: "100%"
   },
   invisible: {
     opacity: "0",
@@ -48,6 +51,7 @@ const useStyles = makeStyles({
     fontSize: "20px",
     fontWeight: "bold",
   },
+
 });
 
 export default function NavBar(props) {

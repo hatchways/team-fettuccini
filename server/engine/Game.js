@@ -33,6 +33,9 @@ class Game {
 		this.hostID = "";
 	}
 
+	getnumGuess() {
+		return this.numGuessesLeft;
+	}
 	getHost() {
 		return this.hostID;
 	}

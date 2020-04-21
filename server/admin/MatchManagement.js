@@ -1,31 +1,42 @@
-
 const { Game, gameState } = require("../engine/Game.js");
 const matchNotFound = { info: "", message: "Match not found" };
 
 class MatchManager {
 
 	constructor() {
-		this.matchesByID = new Map();
+		this.onGoingMatchesByID = new Map();
+		this.publicMatches = new Map();
+		this.privateMatches = new Map();
+		this.numberInMatch = new Map();
 	}
 
 	getGame(matchID) {
-		if (!(this.matchesByID.has(matchID))) {
+		if (!(this.onGoingMatchesByID.has(matchID))) {
 			//throw exception
 		}
-		return this.matchesByID.get(matchID);
+		return this.onGoingMatchesByID.get(matchID);
 	}
 
-	//Create match with id of time + host id.
-	createMatch(hostID) {
+	createMatch(hostID, public) {
 		let game = new Game();
 		game.setHost(hostID);
 		let d = new Date();
 		let matchID = d.getTime() + "-" + hostID;
-		this.matchesByID.set(matchID, game);
+		if (public==true) {
+			this.publicMatches.set(matchID, game);
+		} else {
+			this.privateMatches.set(matchID, game);
+		}
+		this.numberInMatch.set(matchID, 1);
 		console.log("Created game " + matchID);
-		console.log("Create game " + this.matchesByID.get(matchID));
+		console.log("Create game " + this.onGoingMatchesByID.get(matchID));
 		console.log(this.getMatchInfo(matchID));
 		return { matchID: matchID };
+	}
+
+	//Create match with id of time + host id.
+	createMatch(hostID) {
+		this.createMatch(hostID, true);
 	}
 
 	//Match info
@@ -43,16 +54,38 @@ class MatchManager {
 		return { info, RS, RF, BS, BF, Host: host, state, numGuess };
 	}
 
-	//Join the user to the match and give the user the given position.
+	//Enter the waiting room.
+	enterWaitingRoom(matchID) {
+		if (!this.numberInMatch.has(matchID)) return { gamestart: false, message: "Match does not exist in waiting stage."}
+		let num = this.numberInMatch.get(matchID);
+		if (num>=4) return { message: "Match Full" };
+		num++;
+		return { gamestart: false, message: "Successfully joined match." };
+	}
+
+	randomPublicMatch(userID) {
+		const size = publicMatches.size;
+		if (size == 0) return {message: "No matches made public."}
+		const gameArr = Array.from(publicMatches.keys());
+
+		const index = Math.floor(Math.random() * Math.floor(size));
+		this.enterWaitingRoom(gameArr(matchID));
+		return {matchID: gameArr[index]};
+	}
+
+	//Join the user to the match and set the user to the given position.
 	joinMatch(matchID, userID, position) {
 		let mess = "Space is occupied";
 		console.log("Looking for " + matchID);
-		console.log(this.matchesByID.get(matchID));
 		console.log("Setting user " + userID);
-		if (this.matchesByID.has(matchID)) {
-			let game = this.getGame(matchID);
-			console.log(game);
-			if (game == undefined || game == null) return matchNotFound;
+		let game;
+		if (this.privateMatches.has(matchID)) {
+			game = privateMatches.get(matchID);
+		} else if (this.publicMatches.has(matchID)) {
+			game = publicMatches.get(matchID);
+		}
+
+		if (game != undefined && game != null) {
 			if (position == "BF") {
 				if (game.getBlueField() == "") {
 					game.setBlueField(userID);
@@ -74,17 +107,22 @@ class MatchManager {
 					mess = "You are the Red Field Agent";
 				}
 			}
+		} else {
+			return {message: matchNotFound};
 		}
-		console.log(mess);
-		let retVal = { info: this.getMatchInfo(matchID), message: mess }
-		console.log("another");
-		return retVal;
+
+		if (game.getRedField() != "" && game.getRedSpy() != "" && game.getBlueSpy() != "" && game.getBlueField() != "") {
+			return {gamestart: true, info: this.getMatchInfo(matchID), message: mess };
+		}
+		return {gamestart: false, info: this.getMatchInfo(matchID), message: mess }
+		
 	}
 
 	//End the match.
 	endMatch(matchID) {
 		//Store in db and remove from maps.
-		let mess = this.matchesByID.delete(matchID);
+		let mess = this.onGoingMatchesByID.delete(matchID);
+
 		console.log(mess);
 		return { message: "Match deleted" };
 	}

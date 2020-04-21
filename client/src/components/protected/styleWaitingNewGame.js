@@ -1,4 +1,12 @@
 export default (theme) => ({
+  flexCol: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  removeMarginRight: {
+    marginRight: 0
+  },
   availableRoles: {
     maxWidth: "160px",
     margin: "0 auto",
@@ -18,7 +26,8 @@ export default (theme) => ({
   },
   verticalAlign: {
     alignItems: "center",
-    display: "flex"
+    display: "flex",
+    justifyContent: "space-around"
   },
   centerText: {
     textAlign: 'center',

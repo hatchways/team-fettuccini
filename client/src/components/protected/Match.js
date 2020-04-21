@@ -1,9 +1,8 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 
 import { Typography, Paper, Button, Grid } from "@material-ui/core";
 
 import ChatBox from './ChatBox'
-import UserDisplay from './UserDisplay'
 import MappedWords from './MappedWords'
 import ServerPing from './ServerPing'
 
@@ -13,28 +12,6 @@ import matchDictionary from './matchDictionary'
 import { withStyles } from "@material-ui/styles";
 import styleMatch from "./styleMatch";
 import GameOutcome from "./GameOutcome";
-
-const style = (theme) => ({
-  centerText: {
-    textAlign: "center",
-    marginBottom: "0.5em",
-  },
-  leftText: {
-    textAlign: "left",
-  },
-  gridContainer: {
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    margin: "10px auto",
-  },
-  standardFlex: {
-    display: "flex",
-    flexWrap: "wrap",
-  },
-  standardFlexChild: {
-    flexGrow: "1",
-  },
-});
 
 class Match extends Component {
   constructor(props) {
@@ -61,7 +38,6 @@ class Match extends Component {
     this.submitHint = this.submitHint.bind(this);
     this.ping = this.ping.bind(this);
     this.isSpyTurn = this.isSpyTurn.bind(this);
-    this.userDisplay = React.createRef();
   }
 
   componentDidMount = () => {
@@ -139,7 +115,6 @@ class Match extends Component {
           positionState: res.state,
           guessesLeft: Number(res.numGuess),
           message: "",
-          words,
           RS: res.RS,
           RF: res.RF,
           BS: res.BS,
@@ -248,54 +223,54 @@ class Match extends Component {
 
   setUser = async (player, pos) => {
 
-   /* if (pos=="RS") {
-      if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
-      else this.setState({RS: player});
-    } else if (pos=="RF") {
-      if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
-      else this.setState({RF: player});
-    } else if (pos=="BS") {
-      if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
-      else this.setState({BS: player});
-    } else if (pos=="BF") {
-      if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
-      else this.setState({BF: player});
-    }*/
+    /* if (pos=="RS") {
+       if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
+       else this.setState({RS: player});
+     } else if (pos=="RF") {
+       if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
+       else this.setState({RF: player});
+     } else if (pos=="BS") {
+       if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
+       else this.setState({BS: player});
+     } else if (pos=="BF") {
+       if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
+       else this.setState({BF: player});
+     }*/
 
     let newUser = auth.getUserInfo().id;
     let currPos = "";
-    if (pos=="RS" && this.state.RS==this.state.userId) currPos = this.state.RS;
-    else if (pos=="RF" && this.state.RF==this.state.userId) currPos = this.state.RF;
-    else if (pos=="BS" && this.state.BS==this.state.userId) currPos = this.state.BS;
-    else if (pos=="BF" && this.state.BF==this.state.userId) currPos = this.state.BF;
+    if (pos === "RS" && this.state.RS === this.state.userId) currPos = this.state.RS;
+    else if (pos === "RF" && this.state.RF === this.state.userId) currPos = this.state.RF;
+    else if (pos === "BS" && this.state.BS === this.state.userId) currPos = this.state.BS;
+    else if (pos === "BF" && this.state.BF === this.state.userId) currPos = this.state.BF;
 
     const reqBody = JSON.stringify({
       userID: newUser,
       position: pos
     });
     try {
-      if (currPos=="") {
+      if (currPos === "") {
         let res = await fetch(`/matches/${this.state.matchId}/joinmatch`, {
           method: "POST",
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
           body: reqBody
         })
         res = await res.json();
-        console.log("API setUser response",res);
+        console.log("API setUser response", res);
         const info = res.info;
-        this.setState({RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host});
-      } else if (currPos==this.state.userId){
+        this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
+      } else if (currPos === this.state.userId) {
         let res = await fetch(`/matches/${this.state.matchId}/leavematch`, {
           method: "POST",
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
           body: reqBody
         })
         res = await res.json();
-        console.log("API setUser response",res);
+        console.log("API setUser response", res);
         const info = res.info;
-        this.setState({RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host});
+        this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
       }
-      
+
     } catch (error) {
       console.log('error @joingame API');
     }
@@ -307,39 +282,37 @@ class Match extends Component {
       classes,
       setIsMatchInProgres,
       blueScore,
-      setBlueScore,
-      redScore,
-      setRedScore
+      redScore
     } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, RS, RF, BS, BF, Host } = this.state;
+    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
     document.body.style.overflow = "noscroll";
-    return (<div className={ classes.matchStyle }>
-              <ChatBox
-                  submitHint={this.submitHint}
-                  matchID={matchId}
-                  userID={userId}
-                  position={matchDictionary[positionState]} />
+    return (<div className={classes.matchStyle}>
+      <ChatBox
+        submitHint={this.submitHint}
+        matchID={matchId}
+        userID={userId}
+        position={matchDictionary[positionState]} />
 
-              <Paper className={`${classes.paper} ${classes.centerText}`}>
-                <Typography variant="h4">{positionState}</Typography>
-                <ServerPing ping={this.ping} />
-                {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
-                {message !== "" ? <p>{message}</p> : null}
-                <Grid container item xs={12} className={classes.standardFlex}>
-                  <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
-                </Grid>
-                <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
-              </Paper>
-              {isOver ? (
-                <GameOutcome
-                  isOver={isOver}
-                  setIsMatchInProgres={setIsMatchInProgres}
-                  winner={winner}
-                  blueScore={blueScore}
-                  redScore={redScore}
-                />
-              ) : null}
-            </div>)
+      <Paper className={`${classes.paper} ${classes.centerText}`}>
+        <Typography variant="h4">{positionState}</Typography>
+        <ServerPing ping={this.ping} />
+        {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+        {message !== "" ? <p>{message}</p> : null}
+        <Grid container item xs={12} className={classes.standardFlex}>
+          <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+        </Grid>
+        <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
+      </Paper>
+      {isOver ? (
+        <GameOutcome
+          isOver={isOver}
+          setIsMatchInProgres={setIsMatchInProgres}
+          winner={winner}
+          blueScore={blueScore}
+          redScore={redScore}
+        />
+      ) : null}
+    </div>)
   }
 }
 

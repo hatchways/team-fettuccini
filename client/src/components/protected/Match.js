@@ -13,6 +13,8 @@ import { withStyles } from "@material-ui/styles";
 import styleMatch from "./styleMatch";
 import GameOutcome from "./GameOutcome";
 
+import fetchUtil from './fetchUtil'
+
 class Match extends Component {
   constructor(props) {
     super(props);
@@ -29,14 +31,17 @@ class Match extends Component {
       guessesLeft: 0,
       isOver: false,
       winner: "blue",
-      RS: auth.getUserInfo().id,
-      RF: "",
-      BS: "",
-      BF: "",
+      roles: {
+        RS: "",
+        RF: "",
+        BS: "",
+        BF: "",
+      },
       Host: ""
     }
     this.submitHint = this.submitHint.bind(this);
     this.ping = this.ping.bind(this);
+    this.isMyTurn = this.isMyTurn.bind(this);
     this.isSpyTurn = this.isSpyTurn.bind(this);
   }
 
@@ -59,8 +64,11 @@ class Match extends Component {
     })
   }
 
+  isMyTurn() {
+    return this.state.roles[matchDictionary[this.state.positionState]] === this.state.userId
+  }
   isSpyTurn() {
-    return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
+    return ["RS", "BS"].includes(matchDictionary[this.state.positionState])
   }
 
   async ping() {
@@ -68,68 +76,66 @@ class Match extends Component {
       return
     }
 
-    let { matchId, userId, positionState, words, guessesLeft } = this.state
+    let { matchId, userId, positionState, words, guessesLeft, roles } = this.state
     let res
     try {
-      const reqBody = JSON.stringify({
-        userID: userId,
-        position: "_PING",
-        move: "_PING"
-      })
-      console.log('sending body', reqBody)
-      console.log('matchId', matchId)
-      res = await fetch(`/matches/${matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
+        body: {
+          userID: userId,
+          position: "_PING",
+          move: "_PING"
+        }
       })
-      console.log('\n API PING raw', res)
-
-      if (res.status !== 200) {
-        let temp = await res.text()
-        console.error('failed request :: ', temp)
-      }
     } catch (error) {
-      console.log('error @ PING raw', error)
+      console.log('error @ PING .json() \n', error)
     }
 
-    try {
-      res = await res.json()
-      if (res.info === "") {
-        this.props.history.push("/welcome")
+    if (res.info === "") {
+      this.props.history.push("/welcome")
+    }
+
+    console.log('\n API PING.json', res)
+
+    let updateState = (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)
+
+    Object.keys(roles).forEach(role => {
+      if (roles[role] !== res[role]) {
+        updateState = true
       }
-      console.log('\n API PING.json', res)
+    })
 
-      let updateState = false
-
-      for (let i = 0; i < words.length; i++) {
-        if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
-          updateState = true
-          words[i] = res.info[i].slice(0, 2) + words[i]
-        }
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
+        updateState = true
+        words[i] = res.info[i].slice(0, 2) + words[i]
       }
+    }
 
-      if (updateState || (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)) {
-        this.setState({
-          words,
-          positionState: res.state,
-          guessesLeft: Number(res.numGuess),
-          message: "",
+    if (updateState) {
+      console.log('updating state')
+      this.setState({
+        ...this.state,
+        words,
+        positionState: res.state,
+        guessesLeft: Number(res.numGuess),
+        message: "",
+        roles: {
           RS: res.RS,
           RF: res.RF,
           BS: res.BS,
           BF: res.BF,
-          Host: res.Host
-        })
-      }
-    } catch (error) {
-      console.log('error @ PING .json() \n', error)
+        },
+        Host: res.Host
+      })
     }
+
   }
 
   clickWord = async (e) => {
     let { matchId, positionState, words } = this.state
-    if (this.isSpyTurn()) {
+    if (!this.isMyTurn() || this.isSpyTurn()) {
       return
     }
 
@@ -165,7 +171,7 @@ class Match extends Component {
   }
 
   endFieldTurn = async () => {
-    if (this.isSpyTurn()) {
+    if (!this.isMyTurn()) {
       return
     }
     try {
@@ -284,19 +290,25 @@ class Match extends Component {
       blueScore,
       redScore
     } = this.props;
+
     const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
+
     document.body.style.overflow = "noscroll";
+
     return (<div className={classes.matchStyle}>
       <ChatBox
+        isMyTurn={this.isMyTurn}
+        isSpyTurn={this.isSpyTurn}
         submitHint={this.submitHint}
-        matchID={matchId}
-        userID={userId}
-        position={matchDictionary[positionState]} />
+      />
 
       <Paper className={`${classes.paper} ${classes.centerText}`}>
-        <Typography variant="h4">{positionState}</Typography>
+        <Typography variant="h4">
+          {positionState} &nbsp;
+      {this.isMyTurn() ? "(You)" : null}
+        </Typography>
         <ServerPing ping={this.ping} />
-        {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+        <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? `${guessesLeft} guesses left` : null}</p>
         {message !== "" ? <p>{message}</p> : null}
         <Grid container item xs={12} className={classes.standardFlex}>
           <MappedWords classes={classes} words={words} clickWord={this.clickWord} />

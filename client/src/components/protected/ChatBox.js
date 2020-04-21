@@ -32,7 +32,7 @@ class ChatBox extends React.Component {
 
   sendCurrentMsg = () => {
     const { num, word, messages } = this.state
-    if (num === '' || word === '') {
+    if (num === '' || word === '' || !this.props.isMyTurn() || !this.props.isSpyTurn()) {
       return
     }
     this.props.submitHint({ num, word })

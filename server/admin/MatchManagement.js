@@ -70,6 +70,14 @@ class MatchManager {
 		return { matchID: game };
 	}
 
+	playerInGame(game, userID) {
+		if (game.getBlueField()==userID || game.getBlueSpy()==userID 
+		|| game.getRedField()==userID || game.getRedSpy()==userID) {
+			return true;
+		}
+		return false;
+	}
+
 	//Join the user to the match and set the user to the given position.
 	joinMatch(matchID, userID, position) {
 		let mess = "Space is occupied";
@@ -83,6 +91,8 @@ class MatchManager {
 		}
 		console.log("hello " + game);
 		if (game != undefined && game != null) {
+			console.log("Player in game ", this.playerInGame(game, userID));
+			if (this.playerInGame(game, userID)) return {gamestart: false, info: this.getMatchInfo(matchID), message: "This player has already selected a role."};
 			console.log(position);
 			if (position == "BF") {
 				console.log("here" + game.getBlueField());

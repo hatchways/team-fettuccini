@@ -13,7 +13,8 @@ class Welcome extends Component {
     super(props)
     this.state = {
       matchId: '',
-      isPrivate: false
+      isPrivate: false,
+      errorMess: ""
     }
   }
 
@@ -33,6 +34,27 @@ class Welcome extends Component {
 
   handlePrivate = (e) => {
     this.setState((prevState) => ({ ...prevState, isPrivate: !prevState.isPrivate }))
+  }
+
+  joinRandom = async () => {
+    let res
+    try {
+      // API call to create new game
+      res = await fetchUtil({
+        url: '/matches/joinrandom',
+        method: "GET"
+      })
+    } catch (error) {
+      console.log('failed to create new game', error)
+    }
+
+    if (res.hasOwnProperty('matchID')) {
+      this.props.history.push({
+        pathname: `/waitingroom/${res.matchID}`
+      })
+    } else {
+      window.alert('no matches available')
+    }
   }
 
   newGame = async () => {
@@ -87,6 +109,8 @@ class Welcome extends Component {
                 <Button variant="contained" className={classes.darkGray} type="submit">Join Game</Button>
               </div>
             </form>
+            <p>
+              <Button variant="contained" className={classes.darkGray} onClick={this.joinRandom}>Join Random Game</Button></p>
           </Grid>
           <Grid item className={classes.borderLeft}>
             <form className={classes.flexCol}>

@@ -83,7 +83,6 @@ router.post("/:matchid/joinmatch",
 		}
 	});
 
-
 router.post("/:matchid/nextmove",
 	[
 		check('userID', 'User ID is required').not().isEmpty(),
@@ -128,4 +127,16 @@ router.post("/:matchid/nextmove",
 			res.status(500).send('Server error');
 		}
 	});
+
+router.get('/joinrandom',
+	function (req, res, next) {
+		try {
+			const randomGame = MatchManager.randomPublicMatch()
+			console.log('\n\nrandomGame ', randomGame)
+			res.json(randomGame)
+		} catch (err) {
+			console.error(err.message)
+			res.status(500).send('Server error');
+		}
+	})
 module.exports = router;

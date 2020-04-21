@@ -5,7 +5,7 @@ export default async ({ url, method, body }) => {
     res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-      body: JSON.stringify(body)
+      body: method === "POST" ? JSON.stringify(body) : null
     })
 
     if (res.status !== 200) {

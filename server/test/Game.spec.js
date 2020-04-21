@@ -108,7 +108,7 @@ describe('Game', () => {
 	const g = infoObj.g;
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.RED_FIELD);
-	equal(g.numGuessesLeft,1);
+	equal(g.numGuessesLeft,2);
 	equal(g.spyHint, "hi");
   });
 
@@ -118,7 +118,7 @@ describe('Game', () => {
 	g.state = gameState.BLUE_SPY;
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.BLUE_FIELD);
-	equal(g.numGuessesLeft,1);
+	equal(g.numGuessesLeft,2);
 	equal(g.spyHint, "hi");
   });
 
@@ -360,6 +360,7 @@ describe('Game', () => {
 	g.numGuessesLeft = 2;
 	g.nextWordGuess(infoObj.ri[0]);
 	equal(g.getState(), gameState.RED_FIELD);
+	equal(g.numGuessesLeft,1);
 	equal(g.redLeft, temp-1);
   });
 
@@ -458,10 +459,12 @@ describe('Game', () => {
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.RED_FIELD, "State should be RED FIELD AGENT's turn");
 	g.nextWordGuess(infoObj.ri[0]);
+	g.nextWordGuess(infoObj.ri[1]);
 	equal(g.getState(), gameState.BLUE_SPY);
 	g.nextSpyHint(1,"bye");
 	equal(g.getState(), gameState.BLUE_FIELD);
 	g.nextWordGuess(infoObj.bi[0]);
+	g.nextWordGuess(infoObj.bi[1]);
 	equal(g.getState(), gameState.RED_SPY);
   });
 });

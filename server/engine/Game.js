@@ -33,9 +33,6 @@ class Game {
 		this.hostID = "";
 	}
 
-	getnumGuess() {
-		return this.numGuessesLeft;
-	}
 	getHost() {
 		return this.hostID;
 	}
@@ -250,7 +247,7 @@ class Game {
 		}
 		console.log("New Spy Hint is " + word + " for " + guesses);
 		this.spyHint = word;
-		this.numGuessesLeft = guesses;
+		this.numGuessesLeft = parseInt(guesses)+1;
 		let n = this.nextTurn();
 		console.log(n);
 		return this.getBoardInfo();

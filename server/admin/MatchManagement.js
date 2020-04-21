@@ -46,7 +46,8 @@ class MatchManager {
 		const BS = game.getBlueSpy();
 		const BF = game.getBlueField();
 		const host = game.getHost();
-		const numGuess = game.getnumGuess()
+		const numGuess = game.getNumGuess();
+		console.log("num guess in match manager "+numGuess);
 		return { info, RS, RF, BS, BF, Host: host, state, numGuess };
 	}
 
@@ -170,6 +171,7 @@ class MatchManager {
 	//Spy turn.
 	spyCommand(matchID, userID, numGuesses, word) {
 		let game = this.getGame(matchID);
+		console.log("numGuess in spy command "+numGuesses);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "Move failed";
 		if ((

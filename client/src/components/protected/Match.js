@@ -285,6 +285,9 @@ class Match extends Component {
       redScore
     } = this.props;
     const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
+    let guessText; 
+    if (guessesLeft >= 0) guessText = (guessesLeft - 1)+ " +1 guesses left";
+    else guessText = "0 guesses left";
     document.body.style.overflow = "noscroll";
     return (<div className={classes.matchStyle}>
       <ChatBox
@@ -296,7 +299,7 @@ class Match extends Component {
       <Paper className={`${classes.paper} ${classes.centerText}`}>
         <Typography variant="h4">{positionState}</Typography>
         <ServerPing ping={this.ping} />
-        {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+        {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessText}</p> : null}
         {message !== "" ? <p>{message}</p> : null}
         <Grid container item xs={12} className={classes.standardFlex}>
           <MappedWords classes={classes} words={words} clickWord={this.clickWord} />

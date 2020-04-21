@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import { FormLabel, TextField, Button } from "@material-ui/core";
+import { FormLabel, TextField, Button, FormControl } from "@material-ui/core";
 
-export default class SignUp extends Component {
+import { withStyles } from "@material-ui/core/styles";
+import style from './styleAuth'
+
+export default withStyles(style)(class SignUp extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -46,17 +49,19 @@ export default class SignUp extends Component {
     };
 
     fetch('/users', requestOptions)
-        .then(res => {
-          if (res.status === 201){
-            this.props.login();
-          } else {
-            console.log(res.message);
-          }
-        })
-        .catch (error => {
-          console.log(error.message)
-        }) 
-    
+      .then(res => {
+        if (res.status === 201) {
+          return res.json()
+        } else {
+          console.log(res.message);
+        }
+      }).then(data => {
+        this.props.login(data.user);
+      })
+      .catch(error => {
+        console.log(error.message)
+      })
+
 
   }
 
@@ -73,57 +78,68 @@ export default class SignUp extends Component {
   }
 
   render() {
-    const errorMessage = this.state.error.length !== 0 ? <p className="Form-warning">{this.state.error}</p> : null;
+    const { classes } = this.props
+    const errorMessage = this.state.error.length !== 0 ? <p className={classes.formWarning}>{this.state.error}</p> : null;
 
     return (
       <>
-        <form onSubmit={this.handleSubmit}>
-          <FormLabel htmlFor="name">Name:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="name"
-            name="name"
-            type="text"
-            value={this.state.name}
-            onChange={this.handleChange}
-            placeholder="Enter your Name"
-            required />
-          <FormLabel htmlFor="email">Email:</FormLabel>
-          <TextField
-            variant="outlined"
-            name="email"
-            id="email"
-            type="email"
-            value={this.state.email}
-            onChange={this.handleChange}
-            placeholder="Enter your Email"
-            required />
-          <FormLabel htmlFor="password">Password:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="password"
-            name="password"
-            type="password"
-            minLength='6'
-            value={this.state.password}
-            onChange={this.handleChange}
-            placeholder="Enter Password"
-            required />
-          <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
-          <TextField
-            variant="outlined"
-            id="passwordConfirm"
-            name="passwordConfirm"
-            type="password"
-            minLength='6'
-            value={this.state.passwordConfirm}
-            onChange={this.handleConfirmPassword}
-            placeholder="Enter Password Again"
-            required />
+        <form className={classes.form} onSubmit={this.handleSubmit}>
+          <FormControl>
+            <FormLabel htmlFor="name">Name:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="name"
+              name="name"
+              type="text"
+              value={this.state.name}
+              onChange={this.handleChange}
+              placeholder="Enter your Name"
+              required />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="email">Email:</FormLabel>
+            <TextField
+              variant="outlined"
+              name="email"
+              id="email"
+              type="email"
+              value={this.state.email}
+              onChange={this.handleChange}
+              placeholder="Enter your Email"
+              required />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="password">Password:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="password"
+              name="password"
+              type="password"
+              minLength='6'
+              value={this.state.password}
+              onChange={this.handleChange}
+              placeholder="Enter Password"
+              required />
+          </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="passwordConfirm">Confirm Password:</FormLabel>
+            <TextField
+              variant="outlined"
+              id="passwordConfirm"
+              name="passwordConfirm"
+              type="password"
+              minLength='6'
+              value={this.state.passwordConfirm}
+              onChange={this.handleConfirmPassword}
+              placeholder="Enter Password Again"
+              required />
+          </FormControl>
           {errorMessage}
-          <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
+          <div>
+            <Button variant="contained" color="primary" type='submit'>Sign Up</Button>
+          </div>
         </form>
       </>
     );
   }
-}
+})

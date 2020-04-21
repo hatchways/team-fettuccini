@@ -1,13 +1,23 @@
 export default ({
-  authenticate(cb) {
-    window.localStorage.setItem('token', true);
+  authenticate(user, cb) {
+    for (let key in user) {
+      window.sessionStorage.setItem(key, user[key]);
+    }
+    window.sessionStorage.setItem('token', true);
     cb()
   },
   signout(cb) {
-    window.localStorage.removeItem('token')
+    window.sessionStorage.clear()
     cb()
   },
   isAuthenticated() {
-    return window.localStorage.hasOwnProperty('token')
+    return window.sessionStorage.hasOwnProperty('token')
+  },
+  getUserInfo() {
+    return ({
+      id: window.sessionStorage.getItem('_id'),
+      username: window.sessionStorage.getItem('username'),
+      email: window.sessionStorage.getItem('email')
+    })
   }
 });

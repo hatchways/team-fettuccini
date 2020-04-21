@@ -23,25 +23,27 @@ function Auth(props) {
   let location = useLocation();
 
   let { from } = location.state || { from: { pathname: "/" } };
-  let login = () => {
-    auth.authenticate(() => {
+  let login = (user) => {
+    auth.authenticate(user, (() => {
       history.replace(from);
-    });
+    }));
   };
 
 
   return (
-    (auth.isAuthenticated()) ? <Redirect to="/newgame" />
+    (auth.isAuthenticated()) ? <Redirect to="/welcome" />
       : (
-        <Paper>
+        <Paper className="MuiPaper-customPrimary">
           <Typography variant="h4">{signIn ? "Sign In" : "Sign Up"}</Typography>
           {signIn ?
             <Login login={login} /> :
             <SignUp login={login} />}
 
-          {text} have an account? &nbsp;
-          <span className={`Form-switch ${signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign In</span>
-          <span className={`Form-switch ${!signIn && 'Form-tab-selected'}`} onClick={() => switchLogin(!signIn)}>Sign Up</span>
+          <Typography variant="body1">{text} have an account? &nbsp;</Typography>
+
+          {signIn
+            ? <Typography variant="h6" onClick={() => switchLogin(!signIn)}>Sign Up</Typography>
+            : <Typography variant="h6" onClick={() => switchLogin(!signIn)}>Sign In</Typography>}
         </Paper>
 
       )

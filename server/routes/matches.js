@@ -21,7 +21,7 @@ router.post("/creatematch",
 		const { hostID } = req.body;
 
 		try {
-			let gameID = MatchManager.createMatch(hostID);
+			let gameID = MatchManager.createMatch(hostID, true);
 
 			res.json(gameID);
 		} catch (err) {

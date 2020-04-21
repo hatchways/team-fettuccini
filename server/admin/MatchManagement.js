@@ -1,5 +1,5 @@
 const { Game, gameState } = require("../engine/Game.js");
-const matchNotFound = { info: "", message: "Match not found" };
+const matchNotFound = { info: "",RS: "", RF: "", BS: "", BF: "", message: "Match not found" };
 
 class MatchManager {
 
@@ -11,18 +11,19 @@ class MatchManager {
 	}
 
 	getGame(matchID) {
-		if (!(this.onGoingMatchesByID.has(matchID))) {
-			//throw exception
-		}
-		return this.onGoingMatchesByID.get(matchID);
+		if (this.onGoingMatchesByID.has(matchID)) return this.onGoingMatchesByID.get(matchID);
+		if (this.publicMatches.has(matchID)) return this.publicMatches.get(matchID);
+		if (this.privateMatches.has(matchID)) return this.privateMatches.get(matchID);
+		return undefined;
 	}
 
-	createMatch(hostID, public) {
+	createMatch(hostID, pub) {
 		let game = new Game();
 		game.setHost(hostID);
 		let d = new Date();
 		let matchID = d.getTime() + "-" + hostID;
-		if (public==true) {
+		if (pub==true) {
+			console.log("Creating public match");
 			this.publicMatches.set(matchID, game);
 		} else {
 			this.privateMatches.set(matchID, game);
@@ -32,11 +33,6 @@ class MatchManager {
 		console.log("Create game " + this.onGoingMatchesByID.get(matchID));
 		console.log(this.getMatchInfo(matchID));
 		return { matchID: matchID };
-	}
-
-	//Create match with id of time + host id.
-	createMatch(hostID) {
-		this.createMatch(hostID, true);
 	}
 
 	//Match info
@@ -63,7 +59,7 @@ class MatchManager {
 		return { gamestart: false, message: "Successfully joined match." };
 	}
 
-	randomPublicMatch(userID) {
+	randomPublicMatch() {
 		const size = publicMatches.size;
 		if (size == 0) return {message: "No matches made public."}
 		const gameArr = Array.from(publicMatches.keys());
@@ -80,29 +76,35 @@ class MatchManager {
 		console.log("Setting user " + userID);
 		let game;
 		if (this.privateMatches.has(matchID)) {
-			game = privateMatches.get(matchID);
+			game = this.privateMatches.get(matchID);
 		} else if (this.publicMatches.has(matchID)) {
-			game = publicMatches.get(matchID);
+			game = this.publicMatches.get(matchID);
 		}
-
+		console.log("hello " + game);
 		if (game != undefined && game != null) {
+			console.log(position);
 			if (position == "BF") {
-				if (game.getBlueField() == "") {
+				console.log("here"+game.getBlueField());
+				if (game.getBlueField() == "" || game.getBlueField() == undefined) {
 					game.setBlueField(userID);
 					mess = "You are the Blue Field Agent";
 				}
 			} else if (position == "BS") {
-				if (game.getBlueSpy() == "") {
+				console.log("here"+game.getBlueSpy());
+				if (game.getBlueSpy() == "" || game.getBlueSpy() == undefined) {
 					game.setBlueSpy(userID);
 					mess = "You are the Blue Spy Master";
 				}
 			} else if (position == "RS") {
-				if (game.getRedSpy() == "") {
+				console.log("here"+game.getRedSpy());
+				if (game.getRedSpy() == "" || game.getRedSpy() == undefined) {
+					console.log("hello");
 					game.setRedSpy(userID);
 					mess = "You are the Red Spy Master";
 				}
 			} else if (position == "RF") {
-				if (game.getRedField() == "") {
+				console.log("here"+game.getRedField());
+				if (game.getRedField() == "" || game.getRedField() == undefined) {
 					game.setRedField(userID);
 					mess = "You are the Red Field Agent";
 				}

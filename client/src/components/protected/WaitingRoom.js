@@ -53,11 +53,11 @@ class WaitingRoom
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
-
-    updateState = matchState.state !== res.state
-
+    console.log(matchState.state+" "+res.state + " " +(res.state != undefined));
+    updateState = (matchState.state !== res.state && res.state != undefined);
     for (let pos in waitingRoomDictionary) {
-      if (res[pos] === "") { // if role is empty
+      console.log(res[pos]);
+      if (res[pos] === "" || res[pos]==undefined) { // if role is empty
         if (positions.hasOwnProperty(pos)) {
           delete positions[pos]
           updateState = true
@@ -77,6 +77,7 @@ class WaitingRoom
         }
       }
     }
+    console.log(updateState);
 
     if (updateState) {
       this.setState({

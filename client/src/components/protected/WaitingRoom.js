@@ -105,10 +105,12 @@ class WaitingRoom
 
   startMatch = () => {
     const { matchId, matchState } = this.state
+
     this.props.history.push({
       pathname: `/match/${matchId}`,
       state: { matchId, matchState }
     })
+
   }
 
   async changePosition(e) {
@@ -209,7 +211,7 @@ class WaitingRoom
           </Grid>
         </Grid>
         <div>
-          <Button variant="contained" color="primary" onClick={this.startMatch}>Start Match</Button>
+          <Button variant="contained" disabled={Object.keys(positions).length !== 4} color="primary" onClick={this.startMatch}>Start Match</Button>
         </div>
       </Paper>
     </Fragment>

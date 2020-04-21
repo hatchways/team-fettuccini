@@ -10,8 +10,8 @@ const MatchManager = require('../admin/MatchManagement.js');
 router.post("/creatematch",
 	[
 		check('hostID', "No host id provided").not().isEmpty(),
-		check('isPrivate', "isPrivate required").not().isEmpty(),
-		check('isPrivate', "Invalid position").isIn(["true", "false"])
+		check('isPublic', "isPublic required").not().isEmpty(),
+		check('isPublic', "Invalid isPublic").isIn(["true", "false"])
 	],
 	function (req, res, next) {
 		console.log("hello");
@@ -20,11 +20,10 @@ router.post("/creatematch",
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const { hostID, isPrivate } = req.body;
+		const { hostID, isPublic } = req.body;
 
 		try {
-			let gameID = MatchManager.createMatch(hostID, !isPrivate);
-
+			let gameID = MatchManager.createMatch(hostID, isPublic);
 			res.json(gameID);
 		} catch (err) {
 			console.error(err.message);

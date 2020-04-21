@@ -13,7 +13,6 @@ class Welcome extends Component {
     super(props)
     this.state = {
       matchId: '',
-      isPrivate: false,
       errorMess: ""
     }
   }
@@ -32,10 +31,6 @@ class Welcome extends Component {
     }
   }
 
-  handlePrivate = (e) => {
-    this.setState((prevState) => ({ ...prevState, isPrivate: !prevState.isPrivate }))
-  }
-
   joinRandom = async () => {
     let res
     try {
@@ -48,29 +43,29 @@ class Welcome extends Component {
       console.log('failed to create new game', error)
     }
 
+    console.log(res)
+
     if (res.hasOwnProperty('matchID')) {
       this.props.history.push({
         pathname: `/waitingroom/${res.matchID}`
       })
     } else {
-      window.alert('no matches available')
+      window.alert(res.message)
     }
   }
 
-  newGame = async () => {
+  newGame = async (e) => {
 
     let matchId
     let res
-    const { isPrivate } = this.state
 
     try {
-      // API call to create new game
       res = await fetchUtil({
         url: '/matches/creatematch',
         method: "POST",
         body: {
           hostID: auth.getUserInfo().id,
-          isPrivate
+          isPublic: e.currentTarget.dataset.id
         }
       })
     } catch (error) {
@@ -86,7 +81,6 @@ class Welcome extends Component {
 
   render() {
     const { classes } = this.props
-    const { isPrivate } = this.state
 
     return (<Fragment>
       <Paper className="MuiPaper-customPrimary">
@@ -109,17 +103,14 @@ class Welcome extends Component {
                 <Button variant="contained" className={classes.darkGray} type="submit">Join Game</Button>
               </div>
             </form>
-            <p>
-              <Button variant="contained" className={classes.darkGray} onClick={this.joinRandom}>Join Random Game</Button></p>
+            <FormLabel className={classes.centerText}>Or</FormLabel>
+            <Button variant="contained" className={classes.darkGray} onClick={this.joinRandom}>Join Random</Button>
           </Grid>
           <Grid item className={classes.borderLeft}>
             <form className={classes.flexCol}>
-              <FormLabel className={classes.centerText}>Create a Game:</FormLabel>
-              <Button variant="outlined" onClick={this.newGame}>New Game</Button>
-              <FormControlLabel className={classes.removeMarginRight}
-                control={<Checkbox onChange={this.handlePrivate} name="isPrivate" value={isPrivate} />}
-                label="Private"
-              />
+              <FormLabel className={classes.centerText}>New Game:</FormLabel>
+              <Button variant="outlined" data-id="true" onClick={this.newGame}>Public</Button>
+              <Button variant="outlined" data-id="false" onClick={this.newGame}>Private</Button>
             </form>
           </Grid>
         </Grid>

@@ -22,7 +22,7 @@ class MatchManager {
 		game.setHost(hostID);
 		let d = new Date();
 		let matchID = d.getTime() + "-" + hostID;
-		if (pub == true) {
+		if (pub == "true") {
 			console.log("Creating public match");
 			this.publicMatches.set(matchID, game);
 		} else {
@@ -30,7 +30,6 @@ class MatchManager {
 		}
 		this.numberInMatch.set(matchID, 1);
 		console.log("Created game " + matchID);
-		// console.log("Create game " + this.onGoingMatchesByID.set(matchID));
 		console.log(this.getMatchInfo(matchID));
 		return { matchID: matchID };
 	}

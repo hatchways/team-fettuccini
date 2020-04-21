@@ -23,7 +23,7 @@ router.post("/creatematch",
 		const { hostID, isPrivate } = req.body;
 
 		try {
-			let gameID = MatchManager.createMatch(hostID, isPrivate);
+			let gameID = MatchManager.createMatch(hostID, !isPrivate);
 
 			res.json(gameID);
 		} catch (err) {

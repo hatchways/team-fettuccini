@@ -26,6 +26,8 @@ class Game {
 		this.blueSpy = "";
 		this.redField = "";
 		this.blueField = "";
+		this.turnId = "";
+		this.turnInterval = null;
 		this.reset();
 	}
 
@@ -81,6 +83,10 @@ class Game {
 		this.numGuessesLeft = 0;
 		this.spyHint = "";
 		this.madeGuess = false;
+		this.turnId = (new Date()).toUTCString();
+		this.turnInterval = setInterval(async () => {
+			this.nextTurn();
+		}, 60 * 1000);
 	}
 
 	//Function to get state of the board to be sent to front end.
@@ -157,6 +163,13 @@ class Game {
 				this.state = gameState.RED_SPY;
 				break;
 		}
+
+		this.turnId = (new Date()).toUTCString();
+		clearInterval(this.turnInterval);
+		this.turnInterval = setInterval(async () => {
+			this.nextTurn();
+		}, 60 * 1000);
+
 		return this.state;
 	}
 

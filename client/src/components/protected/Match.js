@@ -33,7 +33,9 @@ class Match extends Component {
       RF: "",
       BS: "",
       BF: "",
-      Host: ""
+      Host: "",
+      secondsLeft: 60,
+      turnId: ""
     }
     this.submitHint = this.submitHint.bind(this);
     this.ping = this.ping.bind(this);
@@ -68,13 +70,24 @@ class Match extends Component {
       return
     }
 
-    let { matchId, userId, positionState, words, guessesLeft } = this.state
+    let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId } = this.state
+
+    if (isOver) {
+      return;
+    }
+    else {
+      this.setState({
+        secondsLeft: secondsLeft > 0 ? --secondsLeft : 0
+      });
+    }
+
     let res
     try {
       const reqBody = JSON.stringify({
         userID: userId,
         position: "_PING",
-        move: "_PING"
+        move: "_PING",
+        turnId: turnId
       })
       console.log('sending body', reqBody)
       console.log('matchId', matchId)
@@ -124,7 +137,9 @@ class Match extends Component {
           BF: res.BF,
           Host: res.Host,
           isOver: res.isOver,
-          winner: res.winner
+          winner: res.winner,
+          secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
+          turnId: res.turnId
         })
       }
     } catch (error) {
@@ -133,7 +148,7 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
-    let { matchId, positionState, words } = this.state
+    let { matchId, positionState, words, secondsLeft, turnId } = this.state
     if (this.isSpyTurn()) {
       return
     }
@@ -144,7 +159,8 @@ class Match extends Component {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
         position: matchDictionary[positionState],
-        move: index
+        move: index,
+        turnId: turnId
       })
 
       let res = await fetch(`/matches/${matchId}/nextmove`, {
@@ -164,8 +180,17 @@ class Match extends Component {
         this.props.setRedScore(res.redScore);
 
         console.log('res state', res.info.state)
-        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "", isOver: res.isOver, winner: res.winner })
-
+        this.setState({
+          ...this.state,
+          words,
+          guessesLeft: Number(res.info.numGuess),
+          positionState: res.info.state,
+          message: "",
+          isOver: res.isOver,
+          winner: res.winner,
+          secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
+          turnId: res.turnId
+        });
       }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove')
@@ -180,7 +205,8 @@ class Match extends Component {
       const reqBody = JSON.stringify({
         userID: auth.getUserInfo().id,
         position: matchDictionary[this.state.positionState],
-        move: matchDictionary.end
+        move: matchDictionary.end,
+        turnId: this.state.turnId
       })
       console.log('reqbody end turn', reqBody)
 
@@ -195,8 +221,7 @@ class Match extends Component {
         this.setState({ ...this.state, message: res.message })
       } else {
         let positionState = res.info.state
-        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
-
+        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "", secondsLeft: 60, turnId: res.turnId });
       }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
@@ -208,7 +233,8 @@ class Match extends Component {
     const reqBody = JSON.stringify({
       userID: auth.getUserInfo().id,
       position: matchDictionary[this.state.positionState],
-      move: `${move.num} ${move.word}`
+      move: `${move.num} ${move.word}`,
+      turnId: this.state.turnId
     })
 
     try {
@@ -223,7 +249,7 @@ class Match extends Component {
       let positionState = `${res.state}`
 
       console.log('\n positionState', positionState)
-      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
+      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "", secondsLeft: 60, turnId: res.turnId });
     } catch (error) {
       console.log('error @ submitHint API')
     }
@@ -292,7 +318,7 @@ class Match extends Component {
       blueScore,
       redScore
     } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
+    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner, secondsLeft } = this.state;
     document.body.style.overflow = "noscroll";
     return (<div className={classes.matchStyle}>
       <ChatBox
@@ -311,6 +337,7 @@ class Match extends Component {
         </Grid>
         <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
       </Paper>
+      <div>Time remains: {secondsLeft}</div>
       {isOver ? (
         <GameOutcome
           isOver={isOver}

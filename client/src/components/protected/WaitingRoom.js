@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Typography, Paper, Button, FormLabel, Grid, List, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import { Typography, Paper, Button, FormLabel, Grid, List, ListItem } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -130,14 +130,11 @@ class WaitingRoom
         }
       })
 
-
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
 
     res = res.info
-
-    console.log('res ', res)
 
     Object.keys(waitingRoomDictionary).forEach(pos => {
       if (res[pos] === "") {
@@ -159,8 +156,7 @@ class WaitingRoom
   }
 
   render() {
-    console.log('local state ', this.state)
-    const { positions, matchId, userId } = this.state
+    const { positions, userId } = this.state
     const { classes } = this.props;
 
 
@@ -171,17 +167,20 @@ class WaitingRoom
     const mapAvailablePos = Object.keys(waitingRoomDictionary)
       .filter(pos => !positions.hasOwnProperty(pos))
       .map((pos, i) => (
-        <ListItem button data-id={`${pos}joinmatch`} key={`openRole-${i}`} className={classes.listItem} onClick={this.changePosition}>
-          <ListItemText primary={waitingRoomDictionary[pos]} className={classes.itemText} />
-          &nbsp;&nbsp;<AddCircleIcon />
+        <ListItem key={`openRole-${i}`} className={classes.listItem}>
+          <Typography variant="body1">{waitingRoomDictionary[pos]}
+            &nbsp;&nbsp;
+          </Typography>
+          <AddCircleIcon className={classes.iconHover} data-id={`${pos}joinmatch`} onClick={this.changePosition} />
         </ListItem>))
 
     const mappedPlayers = Object.keys(positions)
-      .map((player, idx) => (
+      .map((pos, idx) => (
         <ListItem key={`invite${idx}`} className={classes.verticalAlign}>
           <CheckIcon className={classes.mainFill} />
-          {positions[player].role} {positions[player].userId === userId ? '(You)' : null} &nbsp;&nbsp;
-          <CancelIcon className={classes.iconHover} data-id={`${player}leavematch`} onClick={this.changePosition} />
+          <Typography variant="body1">
+            {positions[pos].role} {positions[pos].userId === userId ? '(You)' : null} &nbsp;&nbsp;</Typography>
+          <CancelIcon className={classes.iconHover} data-id={`${pos}leavematch`} onClick={this.changePosition} />
         </ListItem>))
 
     return <Fragment>

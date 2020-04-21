@@ -85,5 +85,9 @@ export default (theme) => ({
   },
   ".Mui-disabled": {
     backgroundColor: '#B319EB'
+  },
+
+  smallWords: {
+    fontSize: "10px"
   }
 });

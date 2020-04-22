@@ -1,3 +1,5 @@
+import { buttonColors } from "./styleMatch.js";
+
 export default (theme) => ({
   listItem: {
     flexDirection: 'column',
@@ -8,15 +10,17 @@ export default (theme) => ({
   listItemred: {
     alignItems: 'flex-start',
     "&> .MuiTypography-subtitle1": {
-      backgroundColor: "red",
-      borderRadius: "0 10px 10px 10px"
+      backgroundColor: buttonColors.red,
+      borderRadius: "0 10px 10px 10px",
+      color: '#ffffff'
     }
   },
   listItemblue: {
     alignItems: 'flex-end',
     "&> .MuiTypography-subtitle1": {
-      backgroundColor: "#639dd8",
-      borderRadius: "10px 0 10px 10px"
+      backgroundColor: buttonColors.blue,
+      borderRadius: "10px 0 10px 10px",
+      color: '#ffffff'
     }
   },
   buttonInput: {

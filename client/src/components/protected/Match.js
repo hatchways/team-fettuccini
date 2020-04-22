@@ -25,13 +25,13 @@ class Match extends Component {
 
     this.state = {
       matchId: '',
-      userId: auth.getUserInfo().id,
+      userId: '',
       words: [],
       chatHistory: [],
       positionState: "",
       guessesLeft: 0,
       isOver: false,
-      winner: "blue",
+      winner: "",
       roles: {
         RS: "",
         RF: "",
@@ -135,7 +135,7 @@ class Match extends Component {
     if (!this.isMyTurn() || this.isSpyTurn()) {
       return
     }
-    let { matchId, positionState, words } = this.state
+    let { matchId, positionState, words, userId } = this.state
     let index = e.currentTarget.dataset.tag
     let res
 
@@ -144,7 +144,7 @@ class Match extends Component {
         url: `/matches/${matchId}/nextmove`,
         method: "POST",
         body: {
-          userID: auth.getUserInfo().id,
+          userID: userId,
           position: matchDictionary[positionState],
           move: index
         }

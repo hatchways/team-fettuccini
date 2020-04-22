@@ -22,10 +22,10 @@ class Game {
 		this.spyHint = "";
 		this.madeGuess = false;
 		this.hostID = "";
-		this.redSpy = "";
-		this.blueSpy = "";
-		this.redField = "";
-		this.blueField = "";
+		this.redSpy = {};
+		this.blueSpy = {};
+		this.redField = {};
+		this.blueField = {};
 		this.chatHistory = [];
 		this.reset();
 	}
@@ -44,32 +44,32 @@ class Game {
 		return this.chatHistory
 	}
 
-	setRedSpy(id) {
-		this.redSpy = id;
+	setRedSpy(id, name) {
+		this.redSpy = { id, name };
 	}
 
 	getRedSpy() {
 		return this.redSpy;
 	}
 
-	setRedField(id) {
-		this.redField = id;
+	setRedField(id, name) {
+		this.redField = { id, name };
 	}
 
 	getRedField() {
 		return this.redField;
 	}
 
-	setBlueSpy(id) {
-		this.blueSpy = id;
+	setBlueSpy(id, name) {
+		this.blueSpy = { id, name };
 	}
 
 	getBlueSpy() {
 		return this.blueSpy;
 	}
 
-	setBlueField(id) {
-		this.blueField = id;
+	setBlueField(id, name) {
+		this.blueField = { id, name };
 	}
 
 	getBlueField() {

@@ -1,3 +1,5 @@
+/* eslint-disable complexity */
+/* eslint-disable max-statements */
 const { Game, gameState } = require("../engine/Game.js");
 const matchNotFound = { info: "", RS: "", RF: "", BS: "", BF: "", message: "Match not found" };
 
@@ -71,7 +73,7 @@ class MatchManager {
 	}
 
 	//Join the user to the match and set the user to the given position.
-	joinMatch(matchID, userID, position) {
+	joinMatch(matchID, userID, position, name) {
 		let mess = "Space is occupied";
 		console.log("Looking for " + matchID);
 		console.log("Setting user " + userID);
@@ -85,28 +87,28 @@ class MatchManager {
 		if (game != undefined && game != null) {
 			console.log(position);
 			if (position == "BF") {
-				console.log("here" + game.getBlueField());
-				if (game.getBlueField() == "" || game.getBlueField() == undefined) {
-					game.setBlueField(userID);
+				console.log("here" + game.getBlueField().id);
+				if (game.getBlueField().id == "" || Object.keys(game.getBlueField()).length === 0) {
+					game.setBlueField(userID, name);
 					mess = "You are the Blue Field Agent";
 				}
 			} else if (position == "BS") {
-				console.log("here" + game.getBlueSpy());
-				if (game.getBlueSpy() == "" || game.getBlueSpy() == undefined) {
-					game.setBlueSpy(userID);
+				console.log("here" + game.getBlueSpy().id);
+				if (game.getBlueSpy().id == "" || Object.keys(game.getBlueSpy()).length === 0) {
+					game.setBlueSpy(userID, name);
 					mess = "You are the Blue Spy Master";
 				}
 			} else if (position == "RS") {
-				console.log("here" + game.getRedSpy());
-				if (game.getRedSpy() == "" || game.getRedSpy() == undefined) {
+				console.log("here" + game.getRedSpy().id);
+				if (game.getRedSpy().id == "" || Object.keys(game.getRedSpy()).length === 0) {
 					console.log("hello");
-					game.setRedSpy(userID);
+					game.setRedSpy(userID, name);
 					mess = "You are the Red Spy Master";
 				}
 			} else if (position == "RF") {
-				console.log("here" + game.getRedField());
-				if (game.getRedField() == "" || game.getRedField() == undefined) {
-					game.setRedField(userID);
+				console.log("here" + game.getRedField().id);
+				if (game.getRedField().id == "" || Object.keys(game.getRedField()).length === 0) {
+					game.setRedField(userID, name);
 					mess = "You are the Red Field Agent";
 				}
 			}
@@ -114,7 +116,7 @@ class MatchManager {
 			return { message: matchNotFound };
 		}
 
-		if (game.getRedField() != "" && game.getRedSpy() != "" && game.getBlueSpy() != "" && game.getBlueField() != "") {
+		if (game.getRedField().id != "" && game.getRedSpy().id != "" && game.getBlueSpy().id != "" && game.getBlueField().id != "") {
 			return { gamestart: true, info: this.getMatchInfo(matchID), message: mess };
 		}
 		return { gamestart: false, info: this.getMatchInfo(matchID), message: mess }
@@ -133,16 +135,16 @@ class MatchManager {
 	//Remove the player from the match.
 	leaveMatch(matchID, userID, position) {
 		let game = this.getGame(matchID);
-		console.log(game.getRedSpy() + " " + userID);
+		console.log(game.getRedSpy().id + " " + userID);
 		if (game == undefined || game == null) return matchNotFound;
-		if (game.getBlueField() == userID && position == "BF") {
-			game.setBlueField("");
-		} else if (game.getBlueSpy() == userID && position == "BS") {
-			game.setBlueSpy("");
-		} else if (game.getRedField() == userID && position == "RF") {
-			game.setRedField("");
-		} else if (game.getRedSpy() == userID && position == "RS") {
-			game.setRedSpy("");
+		if (game.getBlueField().id == userID && position == "BF") {
+			game.setBlueField("", "");
+		} else if (game.getBlueSpy().id == userID && position == "BS") {
+			game.setBlueSpy("", "");
+		} else if (game.getRedField().id == userID && position == "RF") {
+			game.setRedField("", "");
+		} else if (game.getRedSpy().id == userID && position == "RS") {
+			game.setRedSpy("", "");
 		}
 		console.log(this.getMatchInfo(matchID));
 		return { info: this.getMatchInfo(matchID), message: "Left Match" };
@@ -163,10 +165,10 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "Move failed";
 		if ((
-			userID == game.getBlueSpy() &&
+			userID == game.getBlueSpy().id &&
 			game.getState() == gameState.BLUE_SPY) ||
 			(
-				userID == game.getRedSpy() &&
+				userID == game.getRedSpy().id &&
 				game.getState() == gameState.RED_SPY)) {
 			mess = game.nextSpyHint(numGuesses, word);
 		}
@@ -179,10 +181,10 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "";
 		if ((
-			userID == game.getBlueField() &&
+			userID == game.getBlueField().id &&
 			game.getState() == gameState.BLUE_FIELD) ||
 			(
-				userID == game.getRedField() &&
+				userID == game.getRedField().id &&
 				game.getState() == gameState.RED_FIELD)) {
 			mess = game.nextWordGuess(guess);
 		}
@@ -196,10 +198,10 @@ class MatchManager {
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "";
 		if ((
-			userID == game.getBlueField() &&
+			userID == game.getBlueField().id &&
 			game.getState() == gameState.BLUE_FIELD) ||
 			(
-				userID == game.getRedField() &&
+				userID == game.getRedField().id &&
 				game.getState() == gameState.RED_FIELD)) {
 			console.log("Calling end turn in game");
 			mess = game.endTurn();

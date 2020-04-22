@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 const express = require('express');
 const router = express.Router();
 //const bcrypt = require('bcryptjs');
@@ -60,6 +61,7 @@ router.post("/:matchid/leavematch",
 router.post("/:matchid/joinmatch",
 	[
 		check('userID', 'User ID is required').not().isEmpty(),
+		check('name', 'name is required').not().isEmpty(),
 		check('position', "Position required").not().isEmpty(),
 		check('position', "Invalid position").isIn(["RS", "RF", "BS", "BF"])
 	],
@@ -69,11 +71,11 @@ router.post("/:matchid/joinmatch",
 			return res.status(400).json({ errors: errors.array() });
 		}
 		console.log("In join match");
-		const { userID, position } = req.body;
+		const { userID, position, name } = req.body;
 		const matchID = req.params.matchid;
 		//Put the player in the match at the given position.
 		try {
-			const payload = MatchManager.joinMatch(matchID, userID, position);
+			const payload = MatchManager.joinMatch(matchID, userID, position, name);
 			console.log("End join match");
 			res.json(payload);
 		} catch (err) {
@@ -86,7 +88,7 @@ router.post("/:matchid/nextmove",
 	[
 		check('userID', 'User ID is required').not().isEmpty(),
 		check('position', "Position required").not().isEmpty(),
-		check('position', "Invalid position").isIn(["RS", "RF", "BS", "BF", "_PING"]),
+		check('position', "Invalid position").isIn(["RS", "RF", "BS", "BF", "_PING", "_CHAT"]),
 		check("move", "Move is required").not().isEmpty()
 	],
 	function (req, res, next) {
@@ -105,16 +107,13 @@ router.post("/:matchid/nextmove",
 				if (move == "_END") {
 					console.log("calling end turn in match manager");
 					gameState = MatchManager.endTurn(matchID, userID);
-				}
-				else gameState = MatchManager.fieldGuess(matchID, userID, move);
-			}
-			else if (position == "BS" || position == "RS") {
+				} else gameState = MatchManager.fieldGuess(matchID, userID, move);
+			} else if (position == "BS" || position == "RS") {
 				let num = move.substr(0, move.indexOf(' '));
 				let word = move.substr(move.indexOf(' ') + 1);
 				console.log("calling spycommand in match manager");
 				gameState = MatchManager.spyCommand(matchID, userID, num, word);
 			} else {
-				//TODO return game state for spectator.
 				gameState = MatchManager.getMatchInfo(matchID)
 			}
 			console.log("bye");

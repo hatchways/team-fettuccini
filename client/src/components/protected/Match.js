@@ -97,8 +97,6 @@ class Match extends Component {
       this.props.history.push("/welcome")
     }
 
-    console.log('\n API PING.json', res)
-
     let updateState = (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft) || chatHistory.length !== res.chatHistory.length
 
     Object.keys(roles).forEach(role => {
@@ -131,94 +129,86 @@ class Match extends Component {
         chatHistory: res.chatHistory
       })
     }
-
   }
 
   clickWord = async (e) => {
+    if (!this.isMyTurn() || this.isSpyTurn()) {
+      return
+    }
     let { matchId, positionState, words } = this.state
+    let index = e.currentTarget.dataset.tag
+    let res
+
+    try {
+      res = await fetchUtil({
+        url: `/matches/${matchId}/nextmove`,
+        method: "POST",
+        body: {
+          userID: auth.getUserInfo().id,
+          position: matchDictionary[positionState],
+          move: index
+        }
+      })
+    } catch (error) {
+      console.log('error @ API /matches/:matchId/nextmove')
+    }
+
+    words[index] = res.info.info[index] !== words[index] ? res.info.info[index].slice(0, 2) + words[index] : words[index]
+
+    this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
+  }
+
+  endFieldTurn = async () => {
     if (!this.isMyTurn() || this.isSpyTurn()) {
       return
     }
 
+    let res
+
     try {
-      let index = e.currentTarget.dataset.tag;
-
-      const reqBody = JSON.stringify({
-        userID: auth.getUserInfo().id,
-        position: matchDictionary[positionState],
-        move: index
-      })
-
-      let res = await fetch(`/matches/${matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${this.state.matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
+        body: {
+          userID: this.state.userId,
+          position: matchDictionary[this.state.positionState],
+          move: matchDictionary.end
+        }
       })
 
-      if (res.status === 200) {
-        res = await res.json()
-
-        words[index] = res.info.info[index].slice(0, 2) + words[index]
-
-        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
-
-      }
-    } catch (error) {
-      console.log('error @ API /matches/:matchId/nextmove')
-    }
-  }
-
-  endFieldTurn = async () => {
-    if (!this.isMyTurn()) {
-      return
-    }
-    try {
-      const reqBody = JSON.stringify({
-        userID: auth.getUserInfo().id,
-        position: matchDictionary[this.state.positionState],
-        move: matchDictionary.end
-      })
-
-      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      res = await res.json()
-
-      if (res.message === "Have to make at least one guess for a turn") {
-        this.setState({ ...this.state, message: res.message })
-      } else {
-        let positionState = res.info.state
-        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
-
-      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
+    }
+
+    if (res.message === "Have to make at least one guess for a turn") {
+      this.setState({ ...this.state, message: res.message })
+    } else {
+      let positionState = res.info.state
+      this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
     }
   }
 
   async submitHint(move) {
-    const reqBody = JSON.stringify({
-      userID: auth.getUserInfo().id,
-      position: matchDictionary[this.state.positionState],
-      move: `${move.num} ${move.word}`
-    })
+    let res
 
     try {
-      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${this.state.matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
+        body: {
+          userID: this.state.userId,
+          position: matchDictionary[this.state.positionState],
+          move: `${move.num} ${move.word}`
+        }
       })
-      res = await res.json()
 
-      let positionState = `${res.state}`
-
-      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
     } catch (error) {
       console.log('error @ submitHint API')
     }
+
+    let positionState = `${res.state}`
+
+    this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
   }
 
   render() {

@@ -31,15 +31,14 @@ class MatchManager {
 		this.numberInMatch.set(matchID, 1);
 		console.log("Created game " + matchID);
 		// console.log("Create game " + this.onGoingMatchesByID.set(matchID));
-		console.log(this.getMatchInfo(matchID));
+		console.log(this.getMatchInfo(matchID, hostID));
 		return { matchID: matchID };
 	}
 
 	//Match info
-	getMatchInfo(matchID) {
+	getMatchInfo(matchID, userID) {
 		const game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
-		const info = game.getBoardInfo();
 		const state = game.getState();
 		const RS = game.getRedSpy();
 		const RF = game.getRedField();
@@ -47,6 +46,9 @@ class MatchManager {
 		const BF = game.getBlueField();
 		const host = game.getHost();
 		const numGuess = game.getNumGuess();
+		let info;
+		if (userID == RS || userID == BS) info = game.getBoardInfo(true);
+		else info = game.getBoardInfo(false);
 		console.log("num guess in match manager "+numGuess);
 		return { info, RS, RF, BS, BF, Host: host, state, numGuess };
 	}
@@ -93,7 +95,7 @@ class MatchManager {
 		console.log("hello " + game);
 		if (game != undefined && game != null) {
 			console.log("Player in game ", this.playerInGame(game, userID));
-			if (this.playerInGame(game, userID)) return {gamestart: false, info: this.getMatchInfo(matchID), message: "This player has already selected a role."};
+			if (this.playerInGame(game, userID)) return {gamestart: false, info: this.getMatchInfo(matchID, userID), message: "This player has already selected a role."};
 			console.log(position);
 			if (position == "BF") {
 				console.log("here" + game.getBlueField());
@@ -126,9 +128,9 @@ class MatchManager {
 		}
 
 		if (game.getRedField() != "" && game.getRedSpy() != "" && game.getBlueSpy() != "" && game.getBlueField() != "") {
-			return { gamestart: true, info: this.getMatchInfo(matchID), message: mess };
+			return { gamestart: true, info: this.getMatchInfo(matchID, userID), message: mess };
 		}
-		return { gamestart: false, info: this.getMatchInfo(matchID), message: mess }
+		return { gamestart: false, info: this.getMatchInfo(matchID, userID), message: mess }
 
 	}
 
@@ -155,17 +157,17 @@ class MatchManager {
 		} else if (game.getRedSpy() == userID && position == "RS") {
 			game.setRedSpy("");
 		}
-		console.log(this.getMatchInfo(matchID));
-		return { info: this.getMatchInfo(matchID), message: "Left Match" };
+		console.log(this.getMatchInfo(matchID, userID));
+		return { info: this.getMatchInfo(matchID, userID), message: "Left Match" };
 	}
 
 	//Reset the match.
-	resetMatch(matchID) {
+	resetMatch(matchID, userID) {
 		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = game.resetMatch();
 		console.log(mess);
-		return { info: this.getMatchInfo(matchID), message: mess };
+		return { info: this.getMatchInfo(matchID, userID), message: mess };
 	}
 
 	//Spy turn.
@@ -182,7 +184,7 @@ class MatchManager {
 				game.getState() == gameState.RED_SPY)) {
 			mess = game.nextSpyHint(numGuesses, word);
 		}
-		return this.getMatchInfo(matchID);
+		return this.getMatchInfo(matchID, userID);
 	}
 
 	//Field agent turn.
@@ -199,7 +201,7 @@ class MatchManager {
 			mess = game.nextWordGuess(guess);
 		}
 		console.log(mess);
-		return { info: this.getMatchInfo(matchID), message: mess };
+		return { info: this.getMatchInfo(matchID, userID), message: mess };
 	}
 
 	//End turn of field agent.
@@ -217,7 +219,7 @@ class MatchManager {
 			mess = game.endTurn();
 		}
 		console.log(mess);
-		return { info: this.getMatchInfo(matchID), message: mess };
+		return { info: this.getMatchInfo(matchID, userID), message: mess };
 	}
 }
 

@@ -81,9 +81,10 @@ class Game {
 	}
 
 	//Function to get state of the board to be sent to front end.
-	getBoardInfo() {
+	getBoardInfo(spyView) {
 		const words = this.board.getWords();
 		let boardValues = new Array(25);
+		let factionValues = new Array(25);
 		for (var i = 0; i < 25; i++) {
 			var gWord = words[i];
 			if (gWord.getChosen()) {
@@ -100,8 +101,11 @@ class Game {
 			} else {
 				boardValues[i] = gWord.getVal();
 			}
+			if (spyView) factionValues[i] = gWord.getPerson();
 		}
-		return boardValues;
+		if (!spyView) return {board: boardValues};
+		else return {board: boardValues, factions: factionValues};
+		//return boardValues;
 	}
 
 	getNumGuess() {
@@ -250,7 +254,7 @@ class Game {
 		this.numGuessesLeft = parseInt(guesses)+1;
 		let n = this.nextTurn();
 		console.log(n);
-		return this.getBoardInfo();
+		return this.getBoardInfo(true);
 	}
 
 	//Check if a team has won and change the state accordingly.

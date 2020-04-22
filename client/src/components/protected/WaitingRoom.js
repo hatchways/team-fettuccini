@@ -78,7 +78,7 @@ class WaitingRoom
       }
     }
     console.log(updateState);
-
+    console.log(res);
     if (updateState) {
       this.setState({
         ...this.state,

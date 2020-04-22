@@ -25,11 +25,12 @@ class Match extends Component {
       matchId: '',
       userId: auth.getUserInfo().id,
       words: [],
+      factions: [],
       positionState: "",
       guessesLeft: 0,
       isOver: false,
       winner: "blue",
-      RS: auth.getUserInfo().id,
+      RS: "",
       RF: "",
       BS: "",
       BF: "",
@@ -49,13 +50,19 @@ class Match extends Component {
     }
     const { matchId, matchState } = this.props.location.state
     console.log('\n\nmatchState', matchState)
-
+    console.log(matchState.info);
+    console.log(matchState.info.board);
     this.setState({
       ...this.state,
       userId: auth.getUserInfo().id,
       matchId: matchId,
-      words: matchState.info,
-      positionState: matchState.state
+      words: matchState.info.board,
+      factions: matchState.info.factions,
+      positionState: matchState.state,
+      RS: matchState.RS,
+      RF: matchState.RF,
+      BS: matchState.BS,
+      BF: matchState.BF
     })
   }
 
@@ -101,11 +108,11 @@ class Match extends Component {
       console.log('\n API PING.json', res)
 
       let updateState = false
-
+      
       for (let i = 0; i < words.length; i++) {
-        if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
+        if (words[i].slice(0, 2) !== res.info.board[i].slice(0, 2)) {
           updateState = true
-          words[i] = res.info[i].slice(0, 2) + words[i]
+          words[i] = res.info.board[i].slice(0, 2) + words[i]
         }
       }
 
@@ -128,7 +135,7 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
-    let { matchId, positionState, words } = this.state
+    let { matchId, positionState, words, factions } = this.state
     if (this.isSpyTurn()) {
       return
     }
@@ -153,10 +160,12 @@ class Match extends Component {
         res = await res.json()
         console.log('\n API clickWord response', res)
 
-        words[index] = res.info.info[index].slice(0, 2) + words[index]
+        words[index] = res.info.info.board[index].slice(0, 2) + words[index]
+        if (factions!=undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
 
         console.log('res state', res.info.state)
-        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
+        console.log("click word response "+res.info);
+        this.setState({ ...this.state, words, factions, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
 
       }
     } catch (error) {
@@ -284,11 +293,12 @@ class Match extends Component {
       blueScore,
       redScore
     } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
+    const { words, factions, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
     let guessText; 
     if (guessesLeft >= 0) guessText = (guessesLeft - 1)+ " +1 guesses left";
     else guessText = "0 guesses left";
     document.body.style.overflow = "noscroll";
+    const spy = (this.state.RS==this.state.userId || this.state.BS==this.state.userId);
     return (<div className={classes.matchStyle}>
       <ChatBox
         submitHint={this.submitHint}
@@ -302,7 +312,7 @@ class Match extends Component {
         {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessText}</p> : null}
         {message !== "" ? <p>{message}</p> : null}
         <Grid container item xs={12} className={classes.standardFlex}>
-          <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+          <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={spy} />
         </Grid>
         <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
       </Paper>

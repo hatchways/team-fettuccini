@@ -116,7 +116,7 @@ router.post("/:matchid/nextmove",
 				gameState = MatchManager.spyCommand(matchID, userID, num, word);
 			} else {
 				//TODO return game state for spectator.
-				gameState = MatchManager.getMatchInfo(matchID)
+				gameState = MatchManager.getMatchInfo(matchID, userID);
 			}
 			console.log("bye");
 			console.log(gameState);

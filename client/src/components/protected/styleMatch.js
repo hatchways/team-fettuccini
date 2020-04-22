@@ -25,15 +25,26 @@ export default (theme) => ({
     width: "75%",
     height: "75%",
   },
+
+  "@keyframes zoom": {
+    from: { transform: "scale(0.7)" },
+    to: { transform: "scale(1.0)" },
+  },
   gridElement: {
     display: "flex",
     justifyContent: "center",
     // width: "100%",
     alignItems: "center",
     margin: "5px",
+
+    animationName: "$zoom",
+    animationDuration: "0.75s",
+    animationDirection: "forward",
+    animationTimingFunction: "ease-in-out",
     "&:hover": {
       transform: "scale(1.3)",
     },
+
     borderRadius: "5%",
     cursor: "pointer",
     padding: "5%",
@@ -47,6 +58,7 @@ export default (theme) => ({
 
     wordWrap: "break-word",
   },
+
   chosenB: {
     backgroundColor: "#00008b",
     color: "#ffffff",

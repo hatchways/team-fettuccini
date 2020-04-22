@@ -4,6 +4,11 @@ import { Paper, Button, List, ListItem, Input, Typography, Grid } from "@materia
 import { withStyles } from "@material-ui/styles";
 import styleChatBox from "./styleChatBox.js";
 
+const spyDictionary = {
+  RS: "red",
+  BS: "blue",
+}
+
 class ChatBox extends React.Component {
   constructor(props) {
     super(props);
@@ -42,16 +47,16 @@ class ChatBox extends React.Component {
 
   render() {
     const { num, word } = this.state
-    const text = this.props.chatHistory.map((msg, index) => {
-      return (
-        <ListItem key={`msg-${index}`}>
-          <Typography>{msg.player}:</Typography>
-          <Typography>
-            {msg.text}
-          </Typography>
-        </ListItem>);
-    });
     const { classes } = this.props;
+
+    const text = this.props.chatHistory.map((msg, index) => (
+      <ListItem className={`${classes.listItem} ${classes['listItem' + spyDictionary[msg.player]]}`} key={`msg-${index}`}>
+        <Typography variant="subtitle2">{spyDictionary[msg.player]}:</Typography>
+        <Typography variant="subtitle1">
+          {msg.text}
+        </Typography>
+      </ListItem>));
+
     return (
       <Paper className={classes.chatBox}>
         <List className={classes.chatList}>

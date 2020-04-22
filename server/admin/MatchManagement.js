@@ -44,9 +44,10 @@ class MatchManager {
 		const RF = game.getRedField();
 		const BS = game.getBlueSpy();
 		const BF = game.getBlueField();
-		const host = game.getHost();
+		const Host = game.getHost();
 		const numGuess = game.getnumGuess()
-		return { info, RS, RF, BS, BF, Host: host, state, numGuess };
+		const chatHistory = game.getChatHistory()
+		return { info, RS, RF, BS, BF, Host, state, numGuess, chatHistory };
 	}
 
 	//Enter the waiting room.

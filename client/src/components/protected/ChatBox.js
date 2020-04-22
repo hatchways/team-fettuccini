@@ -10,7 +10,7 @@ class ChatBox extends React.Component {
     this.state = {
       num: '1',
       word: '',
-      messages: []
+      chatHistory: []
     }
   }
 
@@ -31,20 +31,25 @@ class ChatBox extends React.Component {
   }
 
   sendCurrentMsg = () => {
-    const { num, word, messages } = this.state
+    const { num, word } = this.state
     if (num === '' || word === '' || !this.props.isMyTurn() || !this.props.isSpyTurn()) {
       return
     }
     this.props.submitHint({ num, word })
-    const newMessage = `${num} - ${word}`
 
-    this.setState({ num: '1', word: '', messages: [...messages, newMessage] })
+    this.setState({ num: '1', word: '' })
   }
 
   render() {
-    const { num, word, messages } = this.state
-    const text = messages.map((step, index) => {
-      return (<ListItem key={`msg-${index}`}>{step}</ListItem>);
+    const { num, word } = this.state
+    const text = this.props.chatHistory.map((msg, index) => {
+      return (
+        <ListItem key={`msg-${index}`}>
+          <Typography>{msg.player}:</Typography>
+          <Typography>
+            {msg.text}
+          </Typography>
+        </ListItem>);
     });
     const { classes } = this.props;
     return (

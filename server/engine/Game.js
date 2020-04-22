@@ -26,6 +26,7 @@ class Game {
 		this.blueSpy = "";
 		this.redField = "";
 		this.blueField = "";
+		this.chatHistory = [];
 		this.reset();
 	}
 
@@ -38,6 +39,9 @@ class Game {
 	}
 	getHost() {
 		return this.hostID;
+	}
+	getChatHistory() {
+		return this.chatHistory
 	}
 
 	setRedSpy(id) {
@@ -249,6 +253,10 @@ class Game {
 			return;
 		}
 		console.log("New Spy Hint is " + word + " for " + guesses);
+		this.chatHistory.push({
+			player: this.state === gameState.RED_SPY ? "RS" : "BS",
+			text: `${guesses} - ${word}`
+		})
 		this.spyHint = word;
 		this.numGuessesLeft = guesses;
 		let n = this.nextTurn();

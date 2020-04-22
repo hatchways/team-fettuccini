@@ -27,6 +27,7 @@ class Match extends Component {
       matchId: '',
       userId: auth.getUserInfo().id,
       words: [],
+      chatHistory: [],
       positionState: "",
       guessesLeft: 0,
       isOver: false,
@@ -53,7 +54,6 @@ class Match extends Component {
       this.props.history.push("/welcome");
     }
     const { matchId, matchState } = this.props.location.state
-    console.log('\n\nmatchState', matchState)
 
     this.setState({
       ...this.state,
@@ -76,8 +76,9 @@ class Match extends Component {
       return
     }
 
-    let { matchId, userId, positionState, words, guessesLeft, roles } = this.state
+    let { matchId, userId, positionState, words, guessesLeft, roles, chatHistory } = this.state
     let res
+
     try {
       res = await fetchUtil({
         url: `/matches/${matchId}/nextmove`,
@@ -98,7 +99,7 @@ class Match extends Component {
 
     console.log('\n API PING.json', res)
 
-    let updateState = (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)
+    let updateState = (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft) || chatHistory.length !== res.chatHistory.length
 
     Object.keys(roles).forEach(role => {
       if (roles[role] !== res[role]) {
@@ -114,7 +115,6 @@ class Match extends Component {
     }
 
     if (updateState) {
-      console.log('updating state')
       this.setState({
         ...this.state,
         words,
@@ -127,7 +127,8 @@ class Match extends Component {
           BS: res.BS,
           BF: res.BF,
         },
-        Host: res.Host
+        Host: res.Host,
+        chatHistory: res.chatHistory
       })
     }
 
@@ -153,15 +154,12 @@ class Match extends Component {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
         body: reqBody
       })
-      console.log('\n API clickWord first response', res)
 
       if (res.status === 200) {
         res = await res.json()
-        console.log('\n API clickWord response', res)
 
         words[index] = res.info.info[index].slice(0, 2) + words[index]
 
-        console.log('res state', res.info.state)
         this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
 
       }
@@ -180,7 +178,6 @@ class Match extends Component {
         position: matchDictionary[this.state.positionState],
         move: matchDictionary.end
       })
-      console.log('reqbody end turn', reqBody)
 
       let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
         method: "POST",
@@ -188,7 +185,7 @@ class Match extends Component {
         body: reqBody
       })
       res = await res.json()
-      console.log('\n API endFieldTurn response', res)
+
       if (res.message === "Have to make at least one guess for a turn") {
         this.setState({ ...this.state, message: res.message })
       } else {
@@ -202,7 +199,6 @@ class Match extends Component {
   }
 
   async submitHint(move) {
-    console.log(move)
     const reqBody = JSON.stringify({
       userID: auth.getUserInfo().id,
       position: matchDictionary[this.state.positionState],
@@ -216,69 +212,12 @@ class Match extends Component {
         body: reqBody
       })
       res = await res.json()
-      console.log('\n API submitHint response', res)
 
       let positionState = `${res.state}`
 
-      console.log('\n positionState', positionState)
       this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
     } catch (error) {
       console.log('error @ submitHint API')
-    }
-  }
-
-  setUser = async (player, pos) => {
-
-    /* if (pos=="RS") {
-       if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
-       else this.setState({RS: player});
-     } else if (pos=="RF") {
-       if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
-       else this.setState({RF: player});
-     } else if (pos=="BS") {
-       if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
-       else this.setState({BS: player});
-     } else if (pos=="BF") {
-       if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
-       else this.setState({BF: player});
-     }*/
-
-    let newUser = auth.getUserInfo().id;
-    let currPos = "";
-    if (pos === "RS" && this.state.RS === this.state.userId) currPos = this.state.RS;
-    else if (pos === "RF" && this.state.RF === this.state.userId) currPos = this.state.RF;
-    else if (pos === "BS" && this.state.BS === this.state.userId) currPos = this.state.BS;
-    else if (pos === "BF" && this.state.BF === this.state.userId) currPos = this.state.BF;
-
-    const reqBody = JSON.stringify({
-      userID: newUser,
-      position: pos
-    });
-    try {
-      if (currPos === "") {
-        let res = await fetch(`/matches/${this.state.matchId}/joinmatch`, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-          body: reqBody
-        })
-        res = await res.json();
-        console.log("API setUser response", res);
-        const info = res.info;
-        this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
-      } else if (currPos === this.state.userId) {
-        let res = await fetch(`/matches/${this.state.matchId}/leavematch`, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-          body: reqBody
-        })
-        res = await res.json();
-        console.log("API setUser response", res);
-        const info = res.info;
-        this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
-      }
-
-    } catch (error) {
-      console.log('error @joingame API');
     }
   }
 
@@ -291,7 +230,7 @@ class Match extends Component {
       redScore
     } = this.props;
 
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
+    const { words, positionState, chatHistory, guessesLeft, message, isOver, winner } = this.state;
 
     document.body.style.overflow = "noscroll";
 
@@ -300,6 +239,7 @@ class Match extends Component {
         isMyTurn={this.isMyTurn}
         isSpyTurn={this.isSpyTurn}
         submitHint={this.submitHint}
+        chatHistory={chatHistory}
       />
 
       <Paper className={`${classes.paper} ${classes.centerText}`}>

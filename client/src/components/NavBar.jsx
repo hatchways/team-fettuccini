@@ -26,6 +26,7 @@ const useStyles = makeStyles({
     backgroundColor: "white",
     textAlign: "center",
     position: "sticky",
+    height: "10vh",
     top: 0,
   },
   invisible: {
@@ -50,7 +51,6 @@ const useStyles = makeStyles({
     fontSize: "20px",
     fontWeight: "bold",
   },
-
 });
 
 export default function NavBar(props) {

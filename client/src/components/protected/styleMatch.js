@@ -1,89 +1,80 @@
+import { emphasize } from "@material-ui/core/styles";
+
 export default (theme) => ({
   centerText: {
-    textAlign: 'center',
-    marginBottom: "0.5em"
+    textAlign: "center",
   },
   leftText: {
-    textAlign: 'left'
+    textAlign: "left",
   },
   gridContainer: {
     flexWrap: "wrap",
     justifyContent: "space-around",
-    margin: "10px auto"
-  },
-  standardFlex: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    // height: '80%'
+    margin: "10px auto",
   },
   matchStyle: {
     display: "flex",
     flexDirection: "row",
-    minHeight: "100vh",
-    maxHeight: "100vh",
-    justifyContent: 'left',
+    maxHeight: "90vh",
+    justifyContent: "left",
   },
-  flexRow: {
-    margin: "10px",
-    justifyContent: 'space-evenly',
-    '&>.MuiGrid-item': {
-      '&>.button': {
-        color: "#000000",
-        backgroundColor: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      '&>.button:hover': {
-        transform: "scale(1.3)"
-      },
-      "&>.chosenB": {
-        backgroundColor: '#00008b',
-        color: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      "&>.chosenR": {
-        backgroundColor: '#8b0000',
-        color: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      "&>.chosenA": {
-        backgroundColor: '#000000',
-        color: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
+  grid: {
+    display: "grid",
+    gridTemplate: "repeat(5, 1fr) / repeat(5, 1fr)",
 
-      "&>.chosenC": {
-        backgroundColor: '#ffcc99',
-        color: '#000000',
-        width: '100%',
-        height: '100%',
-      },
+    width: "75%",
+    height: "75%",
+  },
+  gridElement: {
+    display: "flex",
+    justifyContent: "center",
+    // width: "100%",
+    alignItems: "center",
+    margin: "5px",
+    "&:hover": {
+      transform: "scale(1.3)",
+    },
+    borderRadius: "5%",
+    cursor: "pointer",
+    padding: "5%",
+    justifyContent: "space-evenly",
+    "&>.button": {
+      color: "#000000",
+      backgroundColor: "#ffffff",
+      width: "100%",
+      height: "100%",
     },
 
-    '&>.MuiTypography-h5': {
-      display: "flex",
-      width: "50%",
-      height: "200px",
-      margin: "auto",
-      borderRadius: "10px",
-      border: "3px dashed #1c87c9",
-    },
+    wordWrap: "break-word",
+  },
+  chosenB: {
+    backgroundColor: "#00008b",
+    color: "#ffffff",
+  },
+  chosenR: {
+    backgroundColor: "#8b0000",
+    color: "#ffffff",
+  },
+  chosenA: {
+    backgroundColor: "#000000",
+    color: "#ffffff",
   },
 
-  p: {
-    margin: "auto", /* Important */
-    textAlign: "center",
+  chosenC: {
+    backgroundColor: "#ffcc99",
+    color: "#000000",
   },
 
   paper: {
-    padding: "20px",
-    width: '80vw',
-    height: '90vh'
+    width: "80%",
+    paddingTop: "10vh",
+    height: "80vh",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    display: "flex",
   },
   ".Mui-disabled": {
-    backgroundColor: '#B319EB'
-  }
+    backgroundColor: "#B319EB",
+  },
 });

@@ -6,10 +6,10 @@ const logger = require("morgan");
 const connectDB = require("./db");
 const cors = require("cors");
 
-
 const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
 const usersRouter = require("./routes/users");
+const matchHistoryRouter = require("./routes/matchHistory");
 
 const { json, urlencoded } = express;
 
@@ -18,7 +18,7 @@ const readline = require("readline");
 
 var app = express();
 app.use(express.json({ extended: false }));
-app.get('/', (req, res) => res.send('API Running'));
+app.get("/", (req, res) => res.send("API Running"));
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
@@ -26,11 +26,11 @@ app.use(cookieParser());
 app.use(express.static(join(__dirname, "public")));
 app.use(cors());
 
-
 app.use("/users", usersRouter);
 app.use("/ping", pingRouter);
-app.use("/matches", require('./routes/matches'));
+app.use("/matches", require("./routes/matches"));
 app.use(usersRouter);
+app.use("/matchHistory", matchHistoryRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

@@ -30,7 +30,7 @@ class Match extends Component {
       positionState: "",
       guessesLeft: 0,
       isOver: false,
-      winner: "blue",
+      winner: "",
       roles: {
         RS: "",
         RF: "",
@@ -114,7 +114,8 @@ class Match extends Component {
     }
 
     if (updateState) {
-      console.log('updating state')
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
       this.setState({
         ...this.state,
         words,
@@ -127,7 +128,9 @@ class Match extends Component {
           BS: res.BS,
           BF: res.BF,
         },
-        Host: res.Host
+        Host: res.Host,
+        isOver: res.isOver,
+        winner: res.winner
       })
     }
 
@@ -161,8 +164,11 @@ class Match extends Component {
 
         words[index] = res.info.info[index].slice(0, 2) + words[index]
 
+        this.props.setBlueScore(res.blueScore);
+        this.props.setRedScore(res.redScore);
+
         console.log('res state', res.info.state)
-        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
+        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "", isOver: res.isOver, winner: res.winner })
 
       }
     } catch (error) {

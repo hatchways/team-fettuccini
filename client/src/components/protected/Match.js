@@ -33,10 +33,10 @@ class Match extends Component {
       isOver: false,
       winner: "",
       roles: {
-        RS: "",
-        RF: "",
-        BS: "",
-        BF: "",
+        RS: {},
+        RF: {},
+        BS: {},
+        BF: {},
       },
       Host: ""
     }
@@ -65,7 +65,11 @@ class Match extends Component {
   }
 
   isMyTurn() {
-    return this.state.roles[matchDictionary[this.state.positionState]] === this.state.userId
+    if (!this.state.roles.hasOwnProperty(matchDictionary[this.state.positionState])) {
+      return false
+    }
+
+    return this.state.roles[matchDictionary[this.state.positionState]].id === this.state.userId
   }
   isSpyTurn() {
     return ["RS", "BS"].includes(matchDictionary[this.state.positionState])
@@ -97,10 +101,17 @@ class Match extends Component {
       this.props.history.push("/welcome")
     }
 
-    let updateState = (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft) || chatHistory.length !== res.chatHistory.length
+    let updateState = (res.state !== positionState)
+      || (Number(res.numGuess) !== guessesLeft)
+      || chatHistory.length !== res.chatHistory.length
 
     Object.keys(roles).forEach(role => {
-      if (roles[role] !== res[role]) {
+      if (!roles.hasOwnProperty(role) ||
+        roles[role].id !== res[role].id) {
+        roles[role] = {
+          name: res[role].name,
+          id: res[role].id
+        }
         updateState = true
       }
     })
@@ -119,12 +130,7 @@ class Match extends Component {
         positionState: res.state,
         guessesLeft: Number(res.numGuess),
         message: "",
-        roles: {
-          RS: res.RS,
-          RF: res.RF,
-          BS: res.BS,
-          BF: res.BF,
-        },
+        roles,
         Host: res.Host,
         chatHistory: res.chatHistory
       })

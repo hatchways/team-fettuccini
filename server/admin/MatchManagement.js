@@ -1,29 +1,35 @@
-
 const { Game, gameState } = require("../engine/Game.js");
-const matchNotFound = { info: "", message: "Match not found" };
+const matchNotFound = { info: "", RS: "", RF: "", BS: "", BF: "", message: "Match not found" };
 
 class MatchManager {
 
 	constructor() {
-		this.matchesByID = new Map();
+		this.onGoingMatchesByID = new Map();
+		this.publicMatches = new Map();
+		this.privateMatches = new Map();
+		this.numberInMatch = new Map();
 	}
 
 	getGame(matchID) {
-		if (!(this.matchesByID.has(matchID))) {
-			//throw exception
-		}
-		return this.matchesByID.get(matchID);
+		if (this.onGoingMatchesByID.has(matchID)) return this.onGoingMatchesByID.get(matchID);
+		if (this.publicMatches.has(matchID)) return this.publicMatches.get(matchID);
+		if (this.privateMatches.has(matchID)) return this.privateMatches.get(matchID);
+		return undefined;
 	}
 
-	//Create match with id of time + host id.
-	createMatch(hostID) {
+	createMatch(hostID, pub) {
 		let game = new Game();
 		game.setHost(hostID);
 		let d = new Date();
 		let matchID = d.getTime() + "-" + hostID;
-		this.matchesByID.set(matchID, game);
+		if (pub == "true") {
+			console.log("Creating public match");
+			this.publicMatches.set(matchID, game);
+		} else {
+			this.privateMatches.set(matchID, game);
+		}
+		this.numberInMatch.set(matchID, 1);
 		console.log("Created game " + matchID);
-		console.log("Create game " + this.matchesByID.get(matchID));
 		console.log(this.getMatchInfo(matchID));
 		return { matchID: matchID };
 	}
@@ -43,48 +49,82 @@ class MatchManager {
 		return { info, RS, RF, BS, BF, Host: host, state, numGuess };
 	}
 
-	//Join the user to the match and give the user the given position.
+	//Enter the waiting room.
+	enterWaitingRoom(matchID) {
+		if (!this.numberInMatch.has(matchID)) return { gamestart: false, message: "Match does not exist in waiting stage." }
+		let num = this.numberInMatch.get(matchID);
+		if (num >= 4) return { message: "Match Full" };
+		num++;
+		return { gamestart: false, message: "Successfully joined match." };
+	}
+
+	randomPublicMatch() {
+		const size = this.publicMatches.size;
+		if (size == 0) return { message: "No matches made public." }
+		const gameArr = Array.from(this.publicMatches.keys());
+
+		const index = Math.floor(Math.random() * Math.floor(size));
+		const game = gameArr[index]
+		this.enterWaitingRoom(game);
+		return { matchID: game };
+	}
+
+	//Join the user to the match and set the user to the given position.
 	joinMatch(matchID, userID, position) {
 		let mess = "Space is occupied";
 		console.log("Looking for " + matchID);
-		console.log(this.matchesByID.get(matchID));
 		console.log("Setting user " + userID);
-		if (this.matchesByID.has(matchID)) {
-			let game = this.getGame(matchID);
-			console.log(game);
-			if (game == undefined || game == null) return matchNotFound;
+		let game;
+		if (this.privateMatches.has(matchID)) {
+			game = this.privateMatches.get(matchID);
+		} else if (this.publicMatches.has(matchID)) {
+			game = this.publicMatches.get(matchID);
+		}
+		console.log("hello " + game);
+		if (game != undefined && game != null) {
+			console.log(position);
 			if (position == "BF") {
-				if (game.getBlueField() == "") {
+				console.log("here" + game.getBlueField());
+				if (game.getBlueField() == "" || game.getBlueField() == undefined) {
 					game.setBlueField(userID);
 					mess = "You are the Blue Field Agent";
 				}
 			} else if (position == "BS") {
-				if (game.getBlueSpy() == "") {
+				console.log("here" + game.getBlueSpy());
+				if (game.getBlueSpy() == "" || game.getBlueSpy() == undefined) {
 					game.setBlueSpy(userID);
 					mess = "You are the Blue Spy Master";
 				}
 			} else if (position == "RS") {
-				if (game.getRedSpy() == "") {
+				console.log("here" + game.getRedSpy());
+				if (game.getRedSpy() == "" || game.getRedSpy() == undefined) {
+					console.log("hello");
 					game.setRedSpy(userID);
 					mess = "You are the Red Spy Master";
 				}
 			} else if (position == "RF") {
-				if (game.getRedField() == "") {
+				console.log("here" + game.getRedField());
+				if (game.getRedField() == "" || game.getRedField() == undefined) {
 					game.setRedField(userID);
 					mess = "You are the Red Field Agent";
 				}
 			}
+		} else {
+			return { message: matchNotFound };
 		}
-		console.log(mess);
-		let retVal = { info: this.getMatchInfo(matchID), message: mess }
-		console.log("another");
-		return retVal;
+
+		if (game.getRedField() != "" && game.getRedSpy() != "" && game.getBlueSpy() != "" && game.getBlueField() != "") {
+			return { gamestart: true, info: this.getMatchInfo(matchID), message: mess };
+		}
+		return { gamestart: false, info: this.getMatchInfo(matchID), message: mess }
+
 	}
 
 	//End the match.
 	endMatch(matchID) {
 		//Store in db and remove from maps.
-		let mess = this.matchesByID.delete(matchID);
+		let mess = this.onGoingMatchesByID.delete(matchID);
+
 		console.log(mess);
 		return { message: "Match deleted" };
 	}

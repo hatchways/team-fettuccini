@@ -9,7 +9,9 @@ const MatchManager = require('../admin/MatchManagement.js');
 
 router.post("/creatematch",
 	[
-		check('hostID', "No host id provided").not().isEmpty()
+		check('hostID', "No host id provided").not().isEmpty(),
+		check('isPublic', "isPublic required").not().isEmpty(),
+		check('isPublic', "Invalid isPublic").isIn(["true", "false"])
 	],
 	function (req, res, next) {
 		console.log("hello");
@@ -18,11 +20,10 @@ router.post("/creatematch",
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const { hostID } = req.body;
+		const { hostID, isPublic } = req.body;
 
 		try {
-			let gameID = MatchManager.createMatch(hostID);
-
+			let gameID = MatchManager.createMatch(hostID, isPublic);
 			res.json(gameID);
 		} catch (err) {
 			console.error(err.message);
@@ -81,7 +82,6 @@ router.post("/:matchid/joinmatch",
 		}
 	});
 
-
 router.post("/:matchid/nextmove",
 	[
 		check('userID', 'User ID is required').not().isEmpty(),
@@ -126,4 +126,16 @@ router.post("/:matchid/nextmove",
 			res.status(500).send('Server error');
 		}
 	});
+
+router.get('/joinrandom',
+	function (req, res, next) {
+		try {
+			const randomGame = MatchManager.randomPublicMatch()
+			console.log('\n\nrandomGame ', randomGame)
+			res.json(randomGame)
+		} catch (err) {
+			console.error(err.message)
+			res.status(500).send('Server error');
+		}
+	})
 module.exports = router;

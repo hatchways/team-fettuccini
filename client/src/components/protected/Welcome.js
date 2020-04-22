@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from "react";
-import { InputBase, Typography, Paper, Button, FormLabel, Grid } from "@material-ui/core";
+import { InputBase, Typography, Paper, Button, FormLabel, Grid, Checkbox, FormControlLabel } from "@material-ui/core";
 
 import auth from '../auth/auth'
+import fetchUtil from './fetchUtil'
 
 import { withStyles } from "@material-ui/styles";
 
@@ -11,7 +12,8 @@ class Welcome extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      matchId: ''
+      matchId: '',
+      errorMess: ""
     }
   }
 
@@ -29,34 +31,57 @@ class Welcome extends Component {
     }
   }
 
-  newGame = async () => {
-
-    let matchId
+  joinRandom = async () => {
     let res
-    let hostID = auth.getUserInfo().id
-    let reqBody = JSON.stringify({ hostID })
-
     try {
       // API call to create new game
-      res = await fetch('/matches/creatematch', {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      res = await res.json()
-      console.log('res form welcome ', res)
-      matchId = res.matchID
-      this.props.history.push({
-        pathname: `/waitingroom/${matchId}`
+      res = await fetchUtil({
+        url: '/matches/joinrandom',
+        method: "GET"
       })
     } catch (error) {
       console.log('failed to create new game', error)
     }
 
+    console.log(res)
+
+    if (res.hasOwnProperty('matchID')) {
+      this.props.history.push({
+        pathname: `/waitingroom/${res.matchID}`
+      })
+    } else {
+      window.alert(res.message)
+    }
+  }
+
+  newGame = async (e) => {
+
+    let matchId
+    let res
+
+    try {
+      res = await fetchUtil({
+        url: '/matches/creatematch',
+        method: "POST",
+        body: {
+          hostID: auth.getUserInfo().id,
+          isPublic: e.currentTarget.dataset.id
+        }
+      })
+    } catch (error) {
+      console.log('failed to create new game', error)
+    }
+
+    console.log('res form welcome ', res)
+    matchId = res.matchID
+    this.props.history.push({
+      pathname: `/waitingroom/${matchId}`
+    })
   }
 
   render() {
     const { classes } = this.props
+
     return (<Fragment>
       <Paper className="MuiPaper-customPrimary">
         <Typography variant="h4">Welcome {auth.getUserInfo().username}</Typography>
@@ -78,14 +103,19 @@ class Welcome extends Component {
                 <Button variant="contained" className={classes.darkGray} type="submit">Join Game</Button>
               </div>
             </form>
+            <FormLabel className={classes.centerText}>Or</FormLabel>
+            <Button variant="contained" className={classes.darkGray} onClick={this.joinRandom}>Join Random</Button>
           </Grid>
           <Grid item className={classes.borderLeft}>
-            <FormLabel className={classes.centerText}>Create a Game:</FormLabel>
-            <Button variant="outlined" onClick={this.newGame}>New Game</Button>
+            <form className={classes.flexCol}>
+              <FormLabel className={classes.centerText}>New Game:</FormLabel>
+              <Button variant="outlined" data-id="true" onClick={this.newGame}>Public</Button>
+              <Button variant="outlined" data-id="false" onClick={this.newGame}>Private</Button>
+            </form>
           </Grid>
         </Grid>
       </Paper>
-    </Fragment>)
+    </Fragment >)
   }
 }
 

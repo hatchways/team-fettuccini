@@ -59,6 +59,14 @@ class Match extends Component {
       words: matchState.info,
       positionState: matchState.state
     })
+
+    setInterval(() => {
+      if (!this.state.isOver && this.state.secondsLeft > 0) {
+        this.setState({
+          secondsLeft: --this.state.secondsLeft
+        });
+      }
+    }, 1000);
   }
 
   isSpyTurn() {
@@ -66,19 +74,9 @@ class Match extends Component {
   }
 
   async ping() {
-    if (this.state.words.length === 0) {
-      return
-    }
-
     let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId } = this.state
-
-    if (isOver) {
+    if (words.length === 0 || isOver) {
       return;
-    }
-    else {
-      this.setState({
-        secondsLeft: secondsLeft > 0 ? --secondsLeft : 0
-      });
     }
 
     let res
@@ -332,12 +330,12 @@ class Match extends Component {
         <ServerPing ping={this.ping} />
         {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
         {message !== "" ? <p>{message}</p> : null}
+        <p style={{ fontFamily: "Roboto", fontSize: "20px" }}>Time remaining: {secondsLeft}</p>
         <Grid container item xs={12} className={classes.standardFlex}>
           <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
         </Grid>
         <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
       </Paper>
-      <div>Time remains: {secondsLeft}</div>
       {isOver ? (
         <GameOutcome
           isOver={isOver}

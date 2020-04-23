@@ -85,7 +85,7 @@ class Game {
 		this.madeGuess = false;
 		this.turnId = (new Date()).toUTCString();
 		this.turnInterval = setInterval(async () => {
-			this.nextTurn();
+			this.nextTurn(true);
 		}, 60 * 1000);
 	}
 
@@ -137,37 +137,53 @@ class Game {
 	}
 
 	//Cycle through the turns
-	nextTurn() {
+	nextTurn(turnTimedOut) {
 		this.checkIfWon();
-		this.madeGuess = false;
 		if (this.isGameOver()) return;
 		switch (this.state) {
 			case gameState.RED_SPY:
+				if (turnTimedOut) {
+					this.numGuessesLeft = 1;
+				}
 				console.log("Red Field Agent next")
 				this.state = gameState.RED_FIELD;
 				break;
 			case gameState.RED_FIELD:
-				console.log("Blue SpyMaster next")
-				this.spyHint = "";
-				this.guesses = 0;
-				this.state = gameState.BLUE_SPY;
+				if (turnTimedOut && !this.madeGuess) {
+					this.forceWordGuess();
+				}
+				if (!this.isGameOver()) {
+					console.log("Blue SpyMaster next")
+					this.spyHint = "";
+					this.guesses = 0;
+					this.state = gameState.BLUE_SPY;
+				}
 				break;
 			case gameState.BLUE_SPY:
+				if (turnTimedOut) {
+					this.numGuessesLeft = 1;
+				}
 				console.log("Blue Field Agent next");
 				this.state = gameState.BLUE_FIELD;
 				break;
 			case gameState.BLUE_FIELD:
-				console.log("Red SpyMaster next");
-				this.spyHint = "";
-				this.guesses = 0;
-				this.state = gameState.RED_SPY;
+				if (turnTimedOut && !this.madeGuess) {
+					this.forceWordGuess();
+				}
+				if (!this.isGameOver()) {
+					console.log("Red SpyMaster next");
+					this.spyHint = "";
+					this.guesses = 0;
+					this.state = gameState.RED_SPY;
+				}
 				break;
 		}
 
+		this.madeGuess = false;
 		this.turnId = (new Date()).toUTCString();
 		clearInterval(this.turnInterval);
 		this.turnInterval = setInterval(async () => {
-			this.nextTurn();
+			this.nextTurn(true);
 		}, 60 * 1000);
 
 		return this.state;
@@ -185,6 +201,62 @@ class Game {
 		}
 		this.madeGuess = false;
 		return this.nextTurn();
+	}
+
+	forceWordGuess() {
+		const remainingWords = this.board.getWords().filter(word => !word.chosen);
+		const index = Math.floor(Math.random() * Math.floor(remainingWords.length));
+		remainingWords[index].choose();
+		this.processWordGuess(remainingWords[index].person);
+	}
+
+	processWordGuess(person) {
+		if (person == WordStates.ASSASSIN) {
+			console.log("Assassin Hit");
+			//When a field agent hits an assassin, the other team wins.
+			if (this.state == gameState.RED_FIELD) {
+				this.state = gameState.BLUE_WON;
+				console.log("Blue wins");
+			} else {
+				this.state = gameState.RED_WON;
+				console.log("Red wins");
+			}
+		} else if (person == WordStates.BLUE) {
+			this.blueLeft--;
+			this.checkIfWon();
+			console.log("Blue Agent hit");
+			//Turn ends when red field agent hits blue target
+			if (this.state == gameState.RED_FIELD) {
+				return true;
+			} else if (this.state == gameState.BLUE_FIELD) {
+				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
+				this.numGuessesLeft--;
+				console.log(this.numGuessesLeft + " guesses left");
+				console.log(this.blueLeft + " blue left");
+				//Go to next turn if there are no guesses left.
+				if (this.numGuessesLeft == 0) return true;
+			}
+		} else if (person == WordStates.RED) {
+			this.redLeft--;
+			this.checkIfWon();
+			console.log("Red Agent hit");
+			//Turn ends when a blue field agent hits red target.
+			if (this.state == gameState.BLUE_FIELD) {
+				return true;
+			} else if (this.state == gameState.RED_FIELD) {
+				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
+				this.numGuessesLeft--;
+				console.log(this.numGuessesLeft + " guesses left");
+				console.log(this.blueLeft + " red left");
+				//Go to next turn if there are no guesses left.
+				if (this.numGuessesLeft == 0) return true;
+			}
+		} else {
+			//Go to the next turn if a civilian is hit.
+			console.log("Civilian hit");
+			return true;
+		}
+		return false;
 	}
 
 	//Guess the next word given the index of the word to be chosen.
@@ -207,49 +279,8 @@ class Game {
 		}
 		//At least one guess has been made.
 		this.madeGuess = true;
-		if (person == WordStates.ASSASSIN) {
-			console.log("Assassin Hit");
-			//When a field agent hits an assassin, the other team wins.
-			if (this.state == gameState.RED_FIELD) {
-				this.state = gameState.BLUE_WON;
-				console.log("Blue wins");
-			} else {
-				this.state = gameState.RED_WON;
-				console.log("Red wins");
-			}
-		} else if (person == WordStates.BLUE) {
-			this.blueLeft--;
-			console.log("Blue Agent hit");
-			//Turn ends when red field agent hits blue target
-			if (this.state == gameState.RED_FIELD) {
-				return this.nextTurn();
-			} else if (this.state == gameState.BLUE_FIELD) {
-				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
-				this.numGuessesLeft--;
-				console.log(this.numGuessesLeft + " guesses left");
-				console.log(this.blueLeft + " blue left");
-				this.checkIfWon();
-				//Go to next turn if there are no guesses left.
-				if (this.numGuessesLeft == 0) return this.nextTurn();
-			}
-		} else if (person == WordStates.RED) {
-			this.redLeft--;
-			console.log("Red Agent hit");
-			//Turn ends when a blue field agent hits red target.
-			if (this.state == gameState.BLUE_FIELD) {
-				return this.nextTurn();
-			} else if (this.state == gameState.RED_FIELD) {
-				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
-				this.numGuessesLeft--;
-				console.log(this.numGuessesLeft + " guesses left");
-				console.log(this.blueLeft + " red left");
-				this.checkIfWon();
-				//Go to next turn if there are no guesses left.
-				if (this.numGuessesLeft == 0) return this.nextTurn();
-			}
-		} else {
-			//Go to the next turn if a civilian is hit.
-			console.log("Civilian hit");
+		const turnEnded = this.processWordGuess(person);
+		if (turnEnded) {
 			return this.nextTurn();
 		}
 	}

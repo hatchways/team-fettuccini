@@ -1,5 +1,6 @@
 export default ({
   authenticate(user, cb) {
+    console.log('user ', user)
     for (let key in user) {
       window.sessionStorage.setItem(key, user[key]);
     }
@@ -16,7 +17,7 @@ export default ({
   getUserInfo() {
     return ({
       id: window.sessionStorage.getItem('_id'),
-      username: window.sessionStorage.getItem('username'),
+      name: window.sessionStorage.getItem('username'),
       email: window.sessionStorage.getItem('email')
     })
   }

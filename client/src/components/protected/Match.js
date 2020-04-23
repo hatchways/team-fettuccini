@@ -13,6 +13,8 @@ import { withStyles } from "@material-ui/styles";
 import styleMatch from "./styleMatch";
 import GameOutcome from "./GameOutcome";
 
+import fetchUtil from './fetchUtil'
+
 class Match extends Component {
   constructor(props) {
     super(props);
@@ -22,45 +24,50 @@ class Match extends Component {
     this.props.setRedScore(0);
 
     this.state = {
-      matchId: '',
-      userId: auth.getUserInfo().id,
-      words: [],
-      positionState: "",
-      guessesLeft: 0,
       isOver: false,
+      matchId: '',
+      myRole: '',
+      userId: '',
+      positionState: "",
       winner: "",
-      RS: auth.getUserInfo().id,
-      RF: "",
-      BS: "",
-      BF: "",
-      Host: ""
+      Host: "",
+      guessesLeft: 0,
+      words: [],
+      chatHistory: [],
+      roles: {}
     }
     this.submitHint = this.submitHint.bind(this);
     this.ping = this.ping.bind(this);
-    this.isSpyTurn = this.isSpyTurn.bind(this);
+    this.isMyTurn = this.isMyTurn.bind(this);
+    this.amISpy = this.amISpy.bind(this);
   }
 
   componentDidMount = () => {
-    if (
-      this.props.location.state == null ||
-      this.props.match.params.matchId !== this.props.location.state.matchId
-    ) {
-      this.props.history.push("/welcome");
-    }
-    const { matchId, matchState } = this.props.location.state
-    console.log('\n\nmatchState', matchState)
+    if (this.props.location.state == null) {
+      this.props.history.push(`/waitingroom/${this.props.match.params.matchId}`);
+    } else {
+      const { matchId, matchState, positions } = this.props.location.state
 
-    this.setState({
-      ...this.state,
-      userId: auth.getUserInfo().id,
-      matchId: matchId,
-      words: matchState.info,
-      positionState: matchState.state
-    })
+      this.setState({
+        ...this.state,
+        userId: auth.getUserInfo().id,
+        matchId: matchId,
+        words: matchState.info,
+        positionState: matchState.state,
+        roles: { ...positions },
+      })
+    }
   }
 
-  isSpyTurn() {
-    return !["RF", "BF"].includes(matchDictionary[this.state.positionState])
+  isMyTurn() {
+    if (!this.state.roles.hasOwnProperty(this.state.myRole)) {
+      return false
+    }
+
+    return matchDictionary[this.state.positionState] === this.state.myRole
+  }
+  amISpy() {
+    return ["RS", "BS"].includes(this.state.myRole)
   }
 
   async ping() {
@@ -68,220 +75,186 @@ class Match extends Component {
       return
     }
 
-    let { matchId, userId, positionState, words, guessesLeft } = this.state
+    let { matchId, userId, positionState, words, guessesLeft, roles, myRole, chatHistory } = this.state
     let res
+
     try {
-      const reqBody = JSON.stringify({
-        userID: userId,
-        position: "_PING",
-        move: "_PING"
-      })
-      console.log('sending body', reqBody)
-      console.log('matchId', matchId)
-      res = await fetch(`/matches/${matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      console.log('\n API PING raw', res)
-
-      if (res.status !== 200) {
-        let temp = await res.text()
-        console.error('failed request :: ', temp)
-      }
-    } catch (error) {
-      console.log('error @ PING raw', error)
-    }
-
-    try {
-      res = await res.json()
-      if (res.info === "") {
-        this.props.history.push("/welcome")
-      }
-      console.log('\n API PING.json', res)
-
-      let updateState = false
-
-      for (let i = 0; i < words.length; i++) {
-        if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
-          updateState = true
-          words[i] = res.info[i].slice(0, 2) + words[i]
+        body: {
+          userID: userId,
+          position: "_PING",
+          move: "_PING"
         }
-      }
-
-      if (updateState || (res.state !== positionState) || (Number(res.numGuess) !== guessesLeft)) {
-        this.props.setBlueScore(res.blueScore);
-        this.props.setRedScore(res.redScore);
-
-        this.setState({
-          words,
-          positionState: res.state,
-          guessesLeft: Number(res.numGuess),
-          message: "",
-          RS: res.RS,
-          RF: res.RF,
-          BS: res.BS,
-          BF: res.BF,
-          Host: res.Host,
-          isOver: res.isOver,
-          winner: res.winner
-        })
-      }
+      })
     } catch (error) {
       console.log('error @ PING .json() \n', error)
+    }
+
+    if (res.info === "") {
+      this.props.history.push("/welcome")
+    }
+
+    let updateState = (res.state !== positionState)
+      || (Number(res.numGuess) !== guessesLeft)
+      || chatHistory.length !== res.chatHistory.length
+
+    Object.keys(roles).forEach(role => {
+      if (userId === res[role].id) {
+        myRole = role
+      }
+
+      if (!roles.hasOwnProperty(role)) {
+        roles[role] = {
+          name: res[role].name,
+          id: res[role].id
+        }
+      } else if (roles[role].id !== res[role].id) {
+        roles[role] = {
+          name: res[role].name,
+          id: res[role].id
+        }
+        updateState = true
+      }
+    })
+
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
+        updateState = true
+        words[i] = res.info[i].slice(0, 2) + words[i]
+      }
+    }
+
+    if (updateState) {
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
+
+      this.setState({
+        ...this.state,
+        words,
+        positionState: res.state,
+        guessesLeft: Number(res.numGuess),
+        message: "",
+        roles,
+        myRole,
+        Host: res.Host,
+        chatHistory: res.chatHistory,
+        isOver: res.isOver,
+        winner: res.winner
+      })
     }
   }
 
   clickWord = async (e) => {
-    let { matchId, positionState, words } = this.state
-    if (this.isSpyTurn()) {
+    if (!this.isMyTurn() || this.amISpy()) {
       return
-    }
+    } else {
+      let { matchId, positionState, words, userId, myRole } = this.state
+      let index = e.currentTarget.dataset.tag
+      let res
 
-    try {
-      let index = e.currentTarget.dataset.tag;
-
-      const reqBody = JSON.stringify({
-        userID: auth.getUserInfo().id,
-        position: matchDictionary[positionState],
-        move: index
-      })
-
-      let res = await fetch(`/matches/${matchId}/nextmove`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
-      })
-      console.log('\n API clickWord first response', res)
-
-      if (res.status === 200) {
-        res = await res.json()
-        console.log('\n API clickWord response', res)
-
-        words[index] = res.info.info[index].slice(0, 2) + words[index]
-
-        this.props.setBlueScore(res.blueScore);
-        this.props.setRedScore(res.redScore);
-
-        console.log('res state', res.info.state)
-        this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "", isOver: res.isOver, winner: res.winner })
-
+      try {
+        res = await fetchUtil({
+          url: `/matches/${matchId}/nextmove`,
+          method: "POST",
+          body: {
+            userID: userId,
+            position: myRole,
+            move: index
+          }
+        })
+      } catch (error) {
+        console.log('error @ API /matches/:matchId/nextmove')
       }
-    } catch (error) {
-      console.log('error @ API /matches/:matchId/nextmove')
+
+      words[index] = res.info.info[index] !== words[index] ? res.info.info[index].slice(0, 2) + words[index] : words[index]
+
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
+
+      this.setState({
+        ...this.state,
+        words,
+        guessesLeft: Number(res.info.numGuess),
+        positionState: res.info.state,
+        message: "",
+        isOver: res.isOver,
+        winner: res.winner
+      })
     }
   }
 
   endFieldTurn = async () => {
-    if (this.isSpyTurn()) {
+    if (!this.isMyTurn() || this.amISpy()) {
       return
     }
+    const { myRole } = this.state
+
+    let res
+
     try {
-      const reqBody = JSON.stringify({
-        userID: auth.getUserInfo().id,
-        position: matchDictionary[this.state.positionState],
-        move: matchDictionary.end
-      })
-      console.log('reqbody end turn', reqBody)
-
-      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${this.state.matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
+        body: {
+          userID: this.state.userId,
+          position: myRole,
+          move: matchDictionary.end
+        }
       })
-      res = await res.json()
-      console.log('\n API endFieldTurn response', res)
-      if (res.message === "Have to make at least one guess for a turn") {
-        this.setState({ ...this.state, message: res.message })
-      } else {
-        let positionState = res.info.state
-        this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
 
-      }
     } catch (error) {
       console.log('error @ API /matches/:matchId/nextmove to end turn')
+    }
+
+    if (res.message === "Have to make at least one guess for a turn") {
+      this.setState({ ...this.state, message: res.message })
+    } else {
+      let positionState = res.info.state
+      this.setState({ ...this.state, positionState, guessesLeft: 0, message: "" })
     }
   }
 
   async submitHint(move) {
-    console.log(move)
-    const reqBody = JSON.stringify({
-      userID: auth.getUserInfo().id,
-      position: matchDictionary[this.state.positionState],
-      move: `${move.num} ${move.word}`
-    })
+
+    const { myRole } = this.state
+
+
+    let res, reqMove, reqPosition
+
+    if (this.amISpy()) {
+      if (this.isMyTurn()) {
+        reqMove = `${move.num} ${move.word}`
+        reqPosition = myRole
+      } else {
+        return
+      }
+    } else if (!this.amISpy()) {
+      reqMove = move.word
+      reqPosition = "_CHAT"
+    }
 
     try {
-      let res = await fetch(`/matches/${this.state.matchId}/nextmove`, {
+      res = await fetchUtil({
+        url: `/matches/${this.state.matchId}/nextmove`,
         method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-        body: reqBody
+        body: {
+          userID: this.state.userId,
+          position: reqPosition,
+          move: reqMove,
+          name: auth.getUserInfo().name,
+          role: myRole
+        }
       })
-      res = await res.json()
-      console.log('\n API submitHint response', res)
 
-      let positionState = `${res.state}`
-
-      console.log('\n positionState', positionState)
-      this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
     } catch (error) {
       console.log('error @ submitHint API')
     }
-  }
 
-  setUser = async (player, pos) => {
+    let positionState = res.state
 
-    /* if (pos=="RS") {
-       if (this.state.RS==this.state.thisUser) {this.setState({RS: ""}); reqBody.userID = "";}
-       else this.setState({RS: player});
-     } else if (pos=="RF") {
-       if (this.state.RF==this.state.thisUser) {this.setState({RF: ""}); reqBody.userID = "";}
-       else this.setState({RF: player});
-     } else if (pos=="BS") {
-       if (this.state.BS==this.state.thisUser) {this.setState({BS: ""}); reqBody.userID = "";}
-       else this.setState({BS: player});
-     } else if (pos=="BF") {
-       if (this.state.BF==this.state.thisUser) {this.setState({BF: ""}); reqBody.userID = "";}
-       else this.setState({BF: player});
-     }*/
-
-    let newUser = auth.getUserInfo().id;
-    let currPos = "";
-    if (pos === "RS" && this.state.RS === this.state.userId) currPos = this.state.RS;
-    else if (pos === "RF" && this.state.RF === this.state.userId) currPos = this.state.RF;
-    else if (pos === "BS" && this.state.BS === this.state.userId) currPos = this.state.BS;
-    else if (pos === "BF" && this.state.BF === this.state.userId) currPos = this.state.BF;
-
-    const reqBody = JSON.stringify({
-      userID: newUser,
-      position: pos
-    });
-    try {
-      if (currPos === "") {
-        let res = await fetch(`/matches/${this.state.matchId}/joinmatch`, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-          body: reqBody
-        })
-        res = await res.json();
-        console.log("API setUser response", res);
-        const info = res.info;
-        this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
-      } else if (currPos === this.state.userId) {
-        let res = await fetch(`/matches/${this.state.matchId}/leavematch`, {
-          method: "POST",
-          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-          body: reqBody
-        })
-        res = await res.json();
-        console.log("API setUser response", res);
-        const info = res.info;
-        this.setState({ RS: info.RS, RF: info.RF, BS: info.BS, BF: info.BF, Host: info.Host });
-      }
-
-    } catch (error) {
-      console.log('error @joingame API');
-    }
+    this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "" })
   }
 
   render() {
@@ -292,19 +265,24 @@ class Match extends Component {
       blueScore,
       redScore
     } = this.props;
-    const { words, positionState, matchId, userId, guessesLeft, message, isOver, winner } = this.state;
+
+    const { words, positionState, chatHistory, guessesLeft, myRole, message, isOver, winner } = this.state;
+
     document.body.style.overflow = "noscroll";
+
     return (<div className={classes.matchStyle}>
       <ChatBox
         submitHint={this.submitHint}
-        matchID={matchId}
-        userID={userId}
-        position={matchDictionary[positionState]} />
+        chatHistory={chatHistory}
+      />
 
       <Paper className={`${classes.paper} ${classes.centerText}`}>
-        <Typography variant="h4">{positionState}</Typography>
+        <Typography variant="h4">
+          {positionState} &nbsp;
+      {this.isMyTurn() ? "(You)" : null}
+        </Typography>
         <ServerPing ping={this.ping} />
-        {["RF", "BF"].includes(matchDictionary[positionState]) ? <p>{guessesLeft} guesses left</p> : null}
+        <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? `${guessesLeft} guesses left` : <>&nbsp;</>}</p>
         {message !== "" ? <p>{message}</p> : null}
         <Grid container item xs={12} className={classes.standardFlex}>
           <MappedWords classes={classes} words={words} clickWord={this.clickWord} />

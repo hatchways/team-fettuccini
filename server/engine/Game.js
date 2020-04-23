@@ -22,10 +22,11 @@ class Game {
 		this.spyHint = "";
 		this.madeGuess = false;
 		this.hostID = "";
-		this.redSpy = "";
-		this.blueSpy = "";
-		this.redField = "";
-		this.blueField = "";
+		this.redSpy = {};
+		this.blueSpy = {};
+		this.redField = {};
+		this.blueField = {};
+		this.chatHistory = [];
 		this.reset();
 	}
 
@@ -39,33 +40,36 @@ class Game {
 	getHost() {
 		return this.hostID;
 	}
+	getChatHistory() {
+		return this.chatHistory
+	}
 
-	setRedSpy(id) {
-		this.redSpy = id;
+	setRedSpy(id, name) {
+		this.redSpy = { id, name };
 	}
 
 	getRedSpy() {
 		return this.redSpy;
 	}
 
-	setRedField(id) {
-		this.redField = id;
+	setRedField(id, name) {
+		this.redField = { id, name };
 	}
 
 	getRedField() {
 		return this.redField;
 	}
 
-	setBlueSpy(id) {
-		this.blueSpy = id;
+	setBlueSpy(id, name) {
+		this.blueSpy = { id, name };
 	}
 
 	getBlueSpy() {
 		return this.blueSpy;
 	}
 
-	setBlueField(id) {
-		this.blueField = id;
+	setBlueField(id, name) {
+		this.blueField = { id, name };
 	}
 
 	getBlueField() {
@@ -242,17 +246,27 @@ class Game {
 	}
 
 	//Function for processing a spies hint. Takes in number of words that are related and the word hint itself as parameters.
-	nextSpyHint(guesses, word) {
+	nextSpyHint(guesses, word, name) {
 		if (this.isGameOver()) return;
 		if (this.state == gameState.RED_FIELD || this.state == gameState.BLUE_FIELD) {
 			console.log("It is the spy masters turn.");
 			return;
 		}
 		console.log("New Spy Hint is " + word + " for " + guesses);
+		this.chatHistory.push({
+			role: this.state === gameState.RED_SPY ? "RS" : "BS",
+			name,
+			text: `${guesses} - ${word}`
+		})
 		this.spyHint = word;
 		this.numGuessesLeft = guesses;
 		let n = this.nextTurn();
 		console.log(n);
+		return this.getBoardInfo();
+	}
+
+	agentChat(role, name, text) {
+		this.chatHistory.push({ role, name, text })
 		return this.getBoardInfo();
 	}
 

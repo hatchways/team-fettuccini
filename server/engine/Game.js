@@ -290,6 +290,16 @@ class Game {
 		}
 		return false;
 	}
+
+	getWinner() {
+		if (this.state == gameState.RED_WON) {
+			return "Red";
+		}
+		if (this.state == gameState.BLUE_WON) {
+			return "Blue";
+		}
+		return "";
+	}
 }
 
 module.exports = { Game, gameState };

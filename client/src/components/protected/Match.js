@@ -34,7 +34,7 @@ class Match extends Component {
       guessesLeft: 0,
       words: [],
       chatHistory: [],
-      roles: {},
+      roles: {}
     }
     this.submitHint = this.submitHint.bind(this);
     this.ping = this.ping.bind(this);
@@ -127,6 +127,9 @@ class Match extends Component {
     }
 
     if (updateState) {
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
+
       this.setState({
         ...this.state,
         words,
@@ -136,7 +139,9 @@ class Match extends Component {
         roles,
         myRole,
         Host: res.Host,
-        chatHistory: res.chatHistory
+        chatHistory: res.chatHistory,
+        isOver: res.isOver,
+        winner: res.winner
       })
     }
   }
@@ -165,7 +170,18 @@ class Match extends Component {
 
       words[index] = res.info.info[index] !== words[index] ? res.info.info[index].slice(0, 2) + words[index] : words[index]
 
-      this.setState({ ...this.state, words, guessesLeft: Number(res.info.numGuess), positionState: res.info.state, message: "" })
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
+
+      this.setState({
+        ...this.state,
+        words,
+        guessesLeft: Number(res.info.numGuess),
+        positionState: res.info.state,
+        message: "",
+        isOver: res.isOver,
+        winner: res.winner
+      })
     }
   }
 

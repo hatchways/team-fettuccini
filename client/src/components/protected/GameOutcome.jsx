@@ -7,7 +7,6 @@ import { withRouter } from "react-router-dom";
 class GameOutcome extends Component {
   render() {
     const { isOver, winner, blueScore, redScore } = this.props;
-    const winningTeamName = winner.charAt(0).toUpperCase() + winner.slice(1);
 
     const styles = {
       blue: {
@@ -22,6 +21,7 @@ class GameOutcome extends Component {
         fontWeight: "600",
         fontFamily: "Roboto",
       },
+
       sides: {
         flexGrow: "1",
       },
@@ -38,17 +38,16 @@ class GameOutcome extends Component {
         margin: "0"
       },
       score: {
-        margin: "0px",
+        margin: "0px 0px 0px 0px",
         padding: "0px 98px"
       },
       img: {
-        marginRight: "auto",
-        marginLeft: "auto"
+        padding: "10px 0px 0px 40px"
       }
     };
 
     const getTeamColor = () => {
-      if (winner == "blue") {
+      if (winner == "Blue") {
         return styles.blue;
       } else {
         return styles.red;
@@ -56,29 +55,27 @@ class GameOutcome extends Component {
     };
 
     const getGameoutcomePicture = () => {
-      // if joker is chosen, show scal
-      // otherwise, winning 
-      return "/profile_icon.jpg"
+      return "/dialog_icon.jpg"
 
     };
 
     return (
       <Dialog aria-labelledby="dialog-title" open={isOver}>
         <div className={styles.img}>
-          <img alt="icon" src={getGameoutcomePicture()}></img>
+          <img alt="icon" src={getGameoutcomePicture()} style={styles.img}></img>
         </div>
         <DialogTitle id="dialog-title">
           <p style={styles.title}>Game over!</p>
         </DialogTitle>
         <div style={styles.wins}>
-          <p style={getTeamColor()}>{winningTeamName} wins</p>
+          <p style={getTeamColor()}>{winner} wins</p>
         </div>
-
-        <p style={styles.score}>
-          <span style={styles.blue}>{blueScore} </span> :{" "}
-          <span style={styles.red}> {redScore}</span>
-        </p>
-
+        <div style={styles.score}>
+          <p>
+            <span style={styles.blue}>{blueScore} </span> :{" "}
+            <span style={styles.red}> {redScore}</span>
+          </p>
+        </div>
 
         <Button
           className={styles.sides}

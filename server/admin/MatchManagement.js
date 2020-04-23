@@ -201,9 +201,8 @@ class MatchManager {
 			} else if (!["BS", "RS"].includes(role)) {
 				mess = game.agentChat(role, name, word)
 			}
-			// TODO does this return go outside of this else?
-			return this.getMatchInfo(matchID, userID);
 		}
+		return this.getMatchInfo(matchID, userID);
 	}
 
 	//Field agent turn.

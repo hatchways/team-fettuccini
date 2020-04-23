@@ -5,6 +5,49 @@ export const buttonColors = {
 }
 
 export default (theme) => ({
+  button: {
+    color: "#000000",
+    backgroundColor: '#ffffff',
+    animationName: "$zoom",
+    animationDuration: "0.75s",
+    animationDirection: "forward",
+    animationTimingFunction: "ease-in-out",
+    "&:hover": {
+      transform: "scale(1.3)"
+    }
+  },
+  buttonSpyA: {
+    color: "#000000",
+    backgroundColor: '#ffffff'
+  },
+  buttonSpyB: {
+    color: "#00008b",
+    backgroundColor: '#ffffff'
+  },
+  buttonSpyR: {
+    color: "#8b0000",
+    backgroundColor: '#ffffff'
+  },
+  buttonSpyC: {
+    color: "#ffcc99",
+    backgroundColor: '#ffffff'
+  },
+  chosenB: {
+    backgroundColor: buttonColors.blue,
+    color: '#ffffff'
+  },
+  chosenR: {
+    backgroundColor: buttonColors.red,
+    color: '#ffffff'
+  },
+  chosenA: {
+    backgroundColor: '#000000',
+    color: '#ffffff'
+  },
+  chosenC: {
+    backgroundColor: buttonColors.civilian,
+    color: '#000000'
+  },
   centerText: {
     textAlign: 'center',
     marginBottom: "0.5em"
@@ -17,10 +60,15 @@ export default (theme) => ({
     justifyContent: "space-around",
     margin: "10px auto"
   },
+  gridElement: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: "5px"
+  },
   standardFlex: {
     display: 'flex',
     flexWrap: 'wrap',
-    // height: '80%'
   },
   matchStyle: {
     display: "flex",
@@ -32,67 +80,6 @@ export default (theme) => ({
   flexRow: {
     margin: "10px",
     justifyContent: 'space-evenly',
-    '&>.MuiGrid-item': {
-      '&>.button': {
-        color: "#000000",
-        backgroundColor: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      '&>.button:hover': {
-        transform: "scale(1.3)"
-      },
-      '&>.buttonSpyA': {
-        color: "#000000",
-        backgroundColor: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      '&>.buttonSpyB': {
-        color: "#00008b",
-        backgroundColor: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      '&>.buttonSpyR': {
-        color: "#8b0000",
-        backgroundColor: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      '&>.buttonSpyC': {
-        color: "#ffcc99",
-        backgroundColor: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      "&>.chosenB": {
-        backgroundColor: buttonColors.blue,
-        color: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      "&>.chosenR": {
-        backgroundColor: buttonColors.red,
-        color: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-      "&>.chosenA": {
-        backgroundColor: '#000000',
-        color: '#ffffff',
-        width: '100%',
-        height: '100%',
-      },
-
-      "&>.chosenC": {
-        backgroundColor: buttonColors.civilian,
-        color: '#000000',
-        width: '100%',
-        height: '100%',
-      },
-    },
-
     '&>.MuiTypography-h5': {
       display: "flex",
       width: "50%",
@@ -119,5 +106,12 @@ export default (theme) => ({
 
   smallWords: {
     fontSize: "10px"
+  },
+  grid: {
+    display: "grid",
+    gridTemplate: "repeat(5, 1fr) / repeat(5, 1fr)",
+    width: "90%",
+    height: "75%",
+    margin: "0 auto"
   }
 });

@@ -61,7 +61,12 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: "Roboto",
     fontWeight: "bold",
     backgroundColor: "white",
-    color: "#000000"
+    color: "#000000",
+    "&>.MuiToolbar-root": {
+      display: "flex",
+      flexWrap: "wrap",
+      justifyContent: "space-between"
+    }
   },
   red: {
     color: "#FA8072",

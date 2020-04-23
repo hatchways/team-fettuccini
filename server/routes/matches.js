@@ -116,7 +116,7 @@ router.post("/:matchid/nextmove",
 			} else if (position === "_CHAT") {
 				gameState = MatchManager.spyCommand(matchID, userID, 1, move, turnId, name, role)
 			} else {
-				gameState = MatchManager.getMatchInfo(matchID)
+				gameState = MatchManager.getMatchInfo(matchID, userID);
 			}
 			console.log("bye");
 

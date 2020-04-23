@@ -1,8 +1,12 @@
 import React from "react";
-import { Typography, Grid, Card, Zoom } from "@material-ui/core";
+import json2mq from 'json2mq';
+import { Typography, Grid, Card, Zoom, useMediaQuery } from "@material-ui/core";
 
-export default ({ words, classes, clickWord }) => {
-
+export default ({ words, factions, classes, clickWord, spyView }) => {
+  const screenSize = useMediaQuery(json2mq({
+    maxWidth: "1000px",
+  }),
+  );
   return words.length === 0 ? null : (
     Array(5)
       .fill([])
@@ -12,6 +16,18 @@ export default ({ words, classes, clickWord }) => {
             const chosen = word[0] === "_"
             const currIndex = i + 5 * index
 
+            let wordsVal = (<p>{chosen ? word.slice(2) : word}</p>)
+            if (screenSize) wordsVal = (<p className={classes.smallWords}>{chosen ? word.slice(2) : word}</p>);
+
+            let cardStyle = `chosen${word.slice(1, 2)}`;
+
+            if (!chosen) {
+              if (spyView()) {
+                cardStyle = "buttonSpy" + factions[currIndex].slice(0, 1)
+              } else {
+                cardStyle = "button";
+              }
+            }
             return (
               <Zoom key={`word-${currIndex}-${chosen}`} direction="up" in="true" mountOnEnter unmountOnExit>
                 <Grid item xs={2} key={`word-${currIndex}`} className={classes.flexRow}>
@@ -19,10 +35,10 @@ export default ({ words, classes, clickWord }) => {
                     disabled={chosen}
                     data-tag={i + 5 * index}
                     variant="contained"
-                    className={chosen ? `chosen${word.slice(1, 2)}` : "button"}
+                    className={cardStyle}
                     onClick={clickWord}>
                     <Typography variant="h5">
-                      <p>{chosen ? word.slice(2) : word}</p>
+                      {wordsVal}
                     </Typography>
                   </Card>
                 </Grid>

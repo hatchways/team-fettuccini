@@ -1,6 +1,7 @@
 const Board = require("./Board.js");
 const GameWord = require("./GameWord.js");
 const WordStates = require("./WordStates.js");
+const fs = require("fs");
 
 var gameState = {
 	BLUE_WON: "Blue won",
@@ -22,6 +23,9 @@ class Game {
 		this.spyHint = "";
 		this.madeGuess = false;
 		this.hostID = "";
+		var text = fs.readFileSync("engine/engmix.txt");
+		const dictArr = text.toString().split("\n");
+		this.dict = new Set(dictArr);
 		this.turnInterval = null;
 		this.redSpy = {};
 		this.blueSpy = {};
@@ -35,9 +39,6 @@ class Game {
 		this.hostID = "";
 	}
 
-	getnumGuess() {
-		return this.numGuessesLeft;
-	}
 	getHost() {
 		return this.hostID;
 	}
@@ -93,9 +94,10 @@ class Game {
 	}
 
 	//Function to get state of the board to be sent to front end.
-	getBoardInfo() {
+	getBoardInfo(spyView) {
 		const words = this.board.getWords();
 		let boardValues = new Array(25);
+		let factionValues = new Array(25);
 		for (var i = 0; i < 25; i++) {
 			var gWord = words[i];
 			if (gWord.getChosen()) {
@@ -112,8 +114,11 @@ class Game {
 			} else {
 				boardValues[i] = gWord.getVal();
 			}
+			if (spyView) factionValues[i] = gWord.getPerson();
 		}
-		return boardValues;
+		if (!spyView) return { board: boardValues };
+		else return { board: boardValues, factions: factionValues };
+		//return boardValues;
 	}
 
 	getNumGuess() {
@@ -288,6 +293,21 @@ class Game {
 		}
 	}
 
+	validWord(word) {
+		const words = this.board.getWords();
+		for (let i = 0; i < words.length; i++) {
+			const val = words[i].getVal();
+			if (val.includes(word)) {
+				console.log("Hint can not be a substring of word that exists on board");
+				return false;
+			} else if (word.includes(val) || val == word) {
+				console.log("Hint can not be a superstring of word that exists on board");
+				return false;
+			}
+		}
+		return true;
+	}
+
 	//Function for processing a spies hint. Takes in number of words that are related and the word hint itself as parameters.
 	nextSpyHint(guesses, word, name) {
 		if (this.isGameOver()) return;
@@ -295,6 +315,7 @@ class Game {
 			console.log("It is the spy masters turn.");
 			return;
 		}
+
 		console.log("New Spy Hint is " + word + " for " + guesses);
 		this.chatHistory.push({
 			role: this.state === gameState.RED_SPY ? "RS" : "BS",
@@ -302,10 +323,10 @@ class Game {
 			text: `${guesses} - ${word}`
 		})
 		this.spyHint = word;
-		this.numGuessesLeft = guesses;
+		this.numGuessesLeft = parseInt(guesses) + 1;
 		let n = this.nextTurn();
 		console.log(n);
-		return this.getBoardInfo();
+		return this.getBoardInfo(true);
 	}
 
 	agentChat(role, name, text) {

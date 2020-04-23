@@ -42,6 +42,30 @@ export default (theme) => ({
       '&>.button:hover': {
         transform: "scale(1.3)"
       },
+      '&>.buttonSpyA': {
+        color: "#000000",
+        backgroundColor: '#ffffff',
+        width: '100%',
+        height: '100%',
+      },
+      '&>.buttonSpyB': {
+        color: "#00008b",
+        backgroundColor: '#ffffff',
+        width: '100%',
+        height: '100%',
+      },
+      '&>.buttonSpyR': {
+        color: "#8b0000",
+        backgroundColor: '#ffffff',
+        width: '100%',
+        height: '100%',
+      },
+      '&>.buttonSpyC': {
+        color: "#ffcc99",
+        backgroundColor: '#ffffff',
+        width: '100%',
+        height: '100%',
+      },
       "&>.chosenB": {
         backgroundColor: buttonColors.blue,
         color: '#ffffff',
@@ -91,5 +115,9 @@ export default (theme) => ({
   },
   ".Mui-disabled": {
     backgroundColor: '#B319EB'
+  },
+
+  smallWords: {
+    fontSize: "10px"
   }
 });

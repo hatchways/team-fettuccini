@@ -26,6 +26,7 @@ class Match extends Component {
     this.state = {
       isOver: false,
       matchId: '',
+      factions: [],
       myRole: '',
       userId: '',
       positionState: "",
@@ -34,9 +35,12 @@ class Match extends Component {
       secondsLeft: 60,
       Host: "",
       guessesLeft: 0,
+      isOver: false,
+      winner: "blue",
       words: [],
       chatHistory: [],
-      roles: {}
+      roles: {},
+      Host: ""
     }
     this.submitHint = this.submitHint.bind(this);
     this.ping = this.ping.bind(this);
@@ -54,8 +58,9 @@ class Match extends Component {
         ...this.state,
         userId: auth.getUserInfo().id,
         matchId: matchId,
-        words: matchState.info,
+        words: matchState.info.board,
         positionState: matchState.state,
+        factions: matchState.info.factions,
         roles: { ...positions },
       })
     }
@@ -103,6 +108,7 @@ class Match extends Component {
       console.log('error @ PING .json() \n', error)
     }
 
+    console.log('res ping ', res)
     if (res.info === "") {
       this.props.history.push("/welcome")
     }
@@ -131,9 +137,9 @@ class Match extends Component {
     })
 
     for (let i = 0; i < words.length; i++) {
-      if (words[i].slice(0, 2) !== res.info[i].slice(0, 2)) {
+      if (words[i].slice(0, 2) !== res.info.board[i].slice(0, 2)) {
         updateState = true
-        words[i] = res.info[i].slice(0, 2) + words[i]
+        words[i] = res.info.board[i].slice(0, 2) + words[i]
       }
     }
 
@@ -154,7 +160,8 @@ class Match extends Component {
         isOver: res.isOver,
         winner: res.winner,
         secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
-        turnId: res.turnId
+        turnId: res.turnId,
+        factions: res.info.factions
       })
     }
   }
@@ -163,7 +170,7 @@ class Match extends Component {
     if (!this.isMyTurn() || this.amISpy()) {
       return
     } else {
-      let { matchId, positionState, words, userId, myRole, secondsLeft, turnId } = this.state
+      let { matchId, positionState, words, userId, myRole, secondsLeft, turnId, factions } = this.state
       let index = e.currentTarget.dataset.tag
       let res
 
@@ -182,7 +189,8 @@ class Match extends Component {
         console.log('error @ API /matches/:matchId/nextmove')
       }
 
-      words[index] = res.info.info[index] !== words[index] ? res.info.info[index].slice(0, 2) + words[index] : words[index]
+      words[index] = res.info.info.board[index] !== words[index] ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
+      if (factions != undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
 
       this.props.setBlueScore(res.blueScore);
       this.props.setRedScore(res.redScore);
@@ -196,7 +204,8 @@ class Match extends Component {
         isOver: res.isOver,
         winner: res.winner,
         secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
-        turnId: res.turnId
+        turnId: res.turnId,
+        factions
       })
     }
   }
@@ -234,7 +243,8 @@ class Match extends Component {
         guessesLeft: 0,
         message: "",
         secondsLeft: 60,
-        turnId: res.turnId
+        turnId: res.turnId,
+        factions: res.info.factions
       })
     }
   }
@@ -290,9 +300,13 @@ class Match extends Component {
       redScore
     } = this.props;
 
-    const { words, positionState, chatHistory, matchId, userId, guessesLeft, message, myRole, isOver, winner, secondsLeft } = this.state;
-    document.body.style.overflow = "noscroll";
+    const { words, factions, positionState, matchId, userId, guessesLeft, message, isOver, winner, chatHistory, myRole, secondsLeft } = this.state;
 
+    let guessText;
+    if (guessesLeft >= 0) guessText = (guessesLeft - 1) + " +1 guesses left";
+    else guessText = "0 guesses left";
+    document.body.style.overflow = "noscroll";
+    const spy = (this.state.RS == this.state.userId || this.state.BS == this.state.userId);
     return (<div className={classes.matchStyle}>
       <ChatBox
         submitHint={this.submitHint}
@@ -305,11 +319,11 @@ class Match extends Component {
       {this.isMyTurn() ? "(You)" : null}
         </Typography>
         <ServerPing ping={this.ping} />
-        <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? `${guessesLeft} guesses left` : <>&nbsp;</>}</p>
+        <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</p>
         {message !== "" ? <p>{message}</p> : null}
         <p style={{ fontFamily: "Roboto", fontSize: "20px" }}>Time remaining: {secondsLeft}</p>
         <Grid container item xs={12} className={classes.standardFlex}>
-          <MappedWords classes={classes} words={words} clickWord={this.clickWord} />
+          <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
         </Grid>
         <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
       </Paper>

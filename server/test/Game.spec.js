@@ -108,7 +108,7 @@ describe('Game', () => {
 	const g = infoObj.g;
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.RED_FIELD);
-	equal(g.numGuessesLeft,1);
+	equal(g.numGuessesLeft,2);
 	equal(g.spyHint, "hi");
   });
 
@@ -118,7 +118,7 @@ describe('Game', () => {
 	g.state = gameState.BLUE_SPY;
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.BLUE_FIELD);
-	equal(g.numGuessesLeft,1);
+	equal(g.numGuessesLeft,2);
 	equal(g.spyHint, "hi");
   });
 
@@ -256,7 +256,7 @@ describe('Game', () => {
 
 	words[infoObj.assi].choose();
 
-	const boardValues = g.getBoardInfo();
+	const boardValues = g.getBoardInfo(true).board;
 
 	let redI = 0;
 	let blueI = 0;
@@ -294,7 +294,7 @@ describe('Game', () => {
 	g.blueLeft = 0;
 	g.numGuessesLeft = 1;
 	g.spyHint = "hi";
-	const temp = g.getBoardInfo();
+	const temp = g.getBoardInfo(false);
 	g.reset();
 
 	equal(g.state, gameState.RED_SPY);
@@ -303,11 +303,11 @@ describe('Game', () => {
 	equal(g.blueLeft, 8);
 	equal(g.numGuessesLeft, 0);
 	equal(g.spyHint, "");
-	const temp2 = g.getBoardInfo();
+	const temp2 = g.getBoardInfo(false);
 
 	let eq = true;
-	for (var i = 0;i<temp.length;i++) {
-		if (temp[i] != temp2[i]) {
+	for (var i = 0;i<temp.board.length;i++) {
+		if (temp.board[i] != temp2.board[i]) {
 			eq = false;
 			break;
 		}
@@ -360,6 +360,7 @@ describe('Game', () => {
 	g.numGuessesLeft = 2;
 	g.nextWordGuess(infoObj.ri[0]);
 	equal(g.getState(), gameState.RED_FIELD);
+	equal(g.numGuessesLeft,1);
 	equal(g.redLeft, temp-1);
   });
 
@@ -458,10 +459,12 @@ describe('Game', () => {
 	g.nextSpyHint(1, "hi");
 	equal(g.getState(), gameState.RED_FIELD, "State should be RED FIELD AGENT's turn");
 	g.nextWordGuess(infoObj.ri[0]);
+	g.nextWordGuess(infoObj.ri[1]);
 	equal(g.getState(), gameState.BLUE_SPY);
 	g.nextSpyHint(1,"bye");
 	equal(g.getState(), gameState.BLUE_FIELD);
 	g.nextWordGuess(infoObj.bi[0]);
+	g.nextWordGuess(infoObj.bi[1]);
 	equal(g.getState(), gameState.RED_SPY);
   });
 });

@@ -59,31 +59,37 @@ class WaitingRoom
     updateState = (matchState.state !== res.state && res.state != undefined);
 
     for (let pos in waitingRoomDictionary) {
-      if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
-        if (positions.hasOwnProperty(pos)) {
-          delete positions[pos]
-          updateState = true
-        }
-      } else { // if role is filled
-        if (positions.hasOwnProperty(pos)) {
-          if (positions[pos].userId !== res[pos].id) {
+      if (res.hasOwnProperty(pos)) {
+        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
+          if (positions.hasOwnProperty(pos)) {
+            delete positions[pos]
+            updateState = true
+          }
+        } else { // if role is filled
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId !== res[pos].id) {
+              positions[pos] = {
+                userId: res[pos].id,
+                name: res[pos].name
+              }
+              updateState = true
+            }
+          } else {
             positions[pos] = {
+              role: waitingRoomDictionary[pos],
               userId: res[pos].id,
               name: res[pos].name
             }
             updateState = true
           }
-        } else {
-          positions[pos] = {
-            role: waitingRoomDictionary[pos],
-            userId: res[pos].id,
-            name: res[pos].name
-          }
+        }
+      } else {
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
           updateState = true
         }
       }
     }
-
     if (updateState) {
       this.setState({
         ...this.state,
@@ -147,25 +153,32 @@ class WaitingRoom
 
     res = res.info
 
+
     for (let pos in waitingRoomDictionary) {
-      if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
-        if (positions.hasOwnProperty(pos)) {
-          delete positions[pos]
-        }
-      } else { // if role is filled
-        if (positions.hasOwnProperty(pos)) {
-          if (positions[pos].userId !== res[pos].id) {
+      if (res.hasOwnProperty(pos)) {
+        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
+          if (positions.hasOwnProperty(pos)) {
+            delete positions[pos]
+          }
+        } else { // if role is filled
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId !== res[pos].id) {
+              positions[pos] = {
+                userId: res[pos].id,
+                name: res[pos].name
+              }
+            }
+          } else {
             positions[pos] = {
+              role: waitingRoomDictionary[pos],
               userId: res[pos].id,
               name: res[pos].name
             }
           }
-        } else {
-          positions[pos] = {
-            role: waitingRoomDictionary[pos],
-            userId: res[pos].id,
-            name: res[pos].name
-          }
+        }
+      } else {
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
         }
       }
     }

@@ -35,23 +35,26 @@ class MatchManager {
 		}
 		this.numberInMatch.set(matchID, 1);
 		console.log("Created game " + matchID);
-		console.log(this.getMatchInfo(matchID));
+		console.log(this.getMatchInfo(matchID, hostID));
 		return { matchID: matchID };
 	}
 
 	//Match info
-	getMatchInfo(matchID) {
+	getMatchInfo(matchID, userID) {
 		const game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
-		const info = game.getBoardInfo();
 		const state = game.getState();
 		const RS = game.getRedSpy();
 		const RF = game.getRedField();
 		const BS = game.getBlueSpy();
 		const BF = game.getBlueField();
 		const Host = game.getHost();
-		const numGuess = game.getnumGuess()
+		const numGuess = game.getNumGuess();
 		const chatHistory = game.getChatHistory()
+		let info;
+		if (userID == RS.id || userID == BS.id) info = game.getBoardInfo(true);
+		else info = game.getBoardInfo(false);
+		console.log("num guess in match manager " + numGuess);
 		return { info, RS, RF, BS, BF, Host, state, numGuess, chatHistory };
 	}
 
@@ -75,6 +78,14 @@ class MatchManager {
 		return { matchID: game };
 	}
 
+	playerInGame(game, userID) {
+		if (game.getBlueField().id == userID || game.getBlueSpy().id == userID
+			|| game.getRedField().id == userID || game.getRedSpy().id == userID) {
+			return true;
+		}
+		return false;
+	}
+
 	//Join the user to the match and set the user to the given position.
 	joinMatch(matchID, userID, position, name) {
 		let mess = "Space is occupied";
@@ -88,6 +99,8 @@ class MatchManager {
 		}
 		console.log("hello " + game);
 		if (game != undefined && game != null) {
+			console.log("Player in game ", this.playerInGame(game, userID));
+			if (this.playerInGame(game, userID)) return { gamestart: false, info: this.getMatchInfo(matchID, userID), message: "This player has already selected a role." };
 			console.log(position);
 			if (position == "BF") {
 				console.log("here" + game.getBlueField().id);
@@ -120,10 +133,10 @@ class MatchManager {
 		}
 
 		if (game.getRedField().id != "" && game.getRedSpy().id != "" && game.getBlueSpy().id != "" && game.getBlueField().id != "") {
-			return { gamestart: true, info: this.getMatchInfo(matchID), message: mess };
+			return { gamestart: true, info: this.getMatchInfo(matchID, userID), message: mess };
 		}
-		return { gamestart: false, info: this.getMatchInfo(matchID), message: mess }
 
+		return { gamestart: false, info: this.getMatchInfo(matchID, userID), message: mess }
 	}
 
 	//End the match.
@@ -149,37 +162,48 @@ class MatchManager {
 		} else if (game.getRedSpy().id == userID && position == "RS") {
 			game.setRedSpy("", "");
 		}
-		console.log(this.getMatchInfo(matchID));
-		return { info: this.getMatchInfo(matchID), message: "Left Match" };
+		console.log(this.getMatchInfo(matchID, userID));
+		return { info: this.getMatchInfo(matchID, userID), message: "Left Match" };
 	}
 
 	//Reset the match.
-	resetMatch(matchID) {
+	resetMatch(matchID, userID) {
 		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = game.resetMatch();
 		console.log(mess);
-		return { info: this.getMatchInfo(matchID), message: mess };
+		return { info: this.getMatchInfo(matchID, userID), message: mess };
 	}
 
 	//Spy turn.
 	spyCommand(matchID, userID, numGuesses, word, turnId, name = "", role = "") {
 		let game = this.getGame(matchID);
+		console.log("numGuess in spy command " + numGuesses);
 		if (game == undefined || game == null) return matchNotFound;
 		if (game.turnId != turnId) return turnExpired;
 
 		let mess = "Move failed";
-		if ((
-			userID == game.getBlueSpy().id &&
-			game.getState() == gameState.BLUE_SPY) ||
-			(
-				userID == game.getRedSpy().id &&
-				game.getState() == gameState.RED_SPY)) {
-			mess = game.nextSpyHint(numGuesses, word, name);
-		} else if (!["BS", "RS"].includes(role)) {
-			mess = game.agentChat(role, name, word)
+
+		console.log("HELLLOOOOOO!!!!!!!!");
+		if (!game.dict.has(word)) {
+			console.log(word + " is not a real word");
+		} else if (!game.validWord(word)) {
+			console.log(word + " is a substring or superstring of a word that exists on board.");
 		}
-		return this.getMatchInfo(matchID);
+		else {
+			if ((
+				userID == game.getBlueSpy().id &&
+				game.getState() == gameState.BLUE_SPY) ||
+				(
+					userID == game.getRedSpy().id &&
+					game.getState() == gameState.RED_SPY)) {
+				mess = game.nextSpyHint(numGuesses, word, name);
+			} else if (!["BS", "RS"].includes(role)) {
+				mess = game.agentChat(role, name, word)
+			}
+			// TODO does this return go outside of this else?
+			return this.getMatchInfo(matchID, userID);
+		}
 	}
 
 	//Field agent turn.
@@ -202,7 +226,7 @@ class MatchManager {
 			}
 		}
 		console.log(mess);
-		return { info: this.getMatchInfo(matchID), message: mess };
+		return { info: this.getMatchInfo(matchID, userID), message: mess };
 	}
 
 	//End turn of field agent.
@@ -222,7 +246,7 @@ class MatchManager {
 			mess = game.endTurn();
 		}
 		console.log(mess);
-		return { info: this.getMatchInfo(matchID), message: mess };
+		return { info: this.getMatchInfo(matchID, userID), message: mess };
 	}
 
 	async saveMatch(matchID) {

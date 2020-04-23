@@ -176,14 +176,24 @@ class MatchManager {
 		console.log("numGuess in spy command "+numGuesses);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "Move failed";
-		if ((
-			userID == game.getBlueSpy() &&
-			game.getState() == gameState.BLUE_SPY) ||
-			(
-				userID == game.getRedSpy() &&
-				game.getState() == gameState.RED_SPY)) {
-			mess = game.nextSpyHint(numGuesses, word);
+
+		console.log("HELLLOOOOOO!!!!!!!!");
+		if (!game.dict.has(word)) {
+			console.log(word+" is not a real word");
+		} else if (!game.validWord(word)) {
+			console.log(word+" is a substring or superstring of a word that exists on board.");
 		}
+		else {
+			if ((
+				userID == game.getBlueSpy() &&
+				game.getState() == gameState.BLUE_SPY) ||
+				(
+					userID == game.getRedSpy() &&
+					game.getState() == gameState.RED_SPY)) {
+				mess = game.nextSpyHint(numGuesses, word);
+			}
+		}
+		
 		return this.getMatchInfo(matchID, userID);
 	}
 

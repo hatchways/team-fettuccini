@@ -1,6 +1,7 @@
 const Board = require("./Board.js");
 const GameWord = require("./GameWord.js");
 const WordStates = require("./WordStates.js");
+const fs = require("fs");
 
 var gameState = {
 	BLUE_WON: "Blue won",
@@ -26,6 +27,10 @@ class Game {
 		this.blueSpy = "";
 		this.redField = "";
 		this.blueField = "";
+		var text = fs.readFileSync("engine/engmix.txt");
+		const dictArr = text.toString().split("\n") ;
+		this.dict = new Set(dictArr);
+
 		this.reset();
 	}
 
@@ -242,6 +247,21 @@ class Game {
 		}
 	}
 
+	validWord(word) {
+		const words = this.board.getWords();
+		for (let i = 0;i<words.length;i++) {
+			const val = words[i].getVal();
+			if (val.includes(word)) {
+				console.log("Hint can not be a substring of word that exists on board");
+				return false;
+			} else if (word.includes(val) || val==word) {
+				console.log("Hint can not be a superstring of word that exists on board");
+				return false;
+			}
+		}
+		return true;
+	}
+
 	//Function for processing a spies hint. Takes in number of words that are related and the word hint itself as parameters.
 	nextSpyHint(guesses, word) {
 		if (this.isGameOver()) return;
@@ -249,6 +269,7 @@ class Game {
 			console.log("It is the spy masters turn.");
 			return;
 		}
+
 		console.log("New Spy Hint is " + word + " for " + guesses);
 		this.spyHint = word;
 		this.numGuessesLeft = parseInt(guesses)+1;

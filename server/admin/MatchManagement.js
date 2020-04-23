@@ -2,6 +2,7 @@
 /* eslint-disable max-statements */
 const { Game, gameState } = require("../engine/Game.js");
 const matchNotFound = { info: "", RS: "", RF: "", BS: "", BF: "", message: "Match not found" };
+const turnExpired = { info: "", RS: "", RF: "", BS: "", BF: "", message: "Turn expired" };
 const Match = require("../models/match");
 const User = require("../models/user");
 const mongoose = require('mongoose');
@@ -162,9 +163,11 @@ class MatchManager {
 	}
 
 	//Spy turn.
-	spyCommand(matchID, userID, numGuesses, word, name = "", role = "") {
+	spyCommand(matchID, userID, numGuesses, word, turnId, name = "", role = "") {
 		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
+		if (game.turnId != turnId) return turnExpired;
+
 		let mess = "Move failed";
 		if ((
 			userID == game.getBlueSpy().id &&
@@ -180,9 +183,11 @@ class MatchManager {
 	}
 
 	//Field agent turn.
-	fieldGuess(matchID, userID, guess) {
+	fieldGuess(matchID, userID, guess, turnId) {
 		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
+		if (game.turnId != turnId) return turnExpired;
+
 		let mess = "";
 		if ((
 			userID == game.getBlueField().id &&
@@ -201,9 +206,11 @@ class MatchManager {
 	}
 
 	//End turn of field agent.
-	endTurn(matchID, userID) {
+	endTurn(matchID, userID, turnId) {
 		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
+		if (game.turnId != turnId) return turnExpired;
+
 		let mess = "";
 		if ((
 			userID == game.getBlueField().id &&

@@ -98,7 +98,7 @@ router.post("/:matchid/nextmove",
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const { userID, position, move, name, role } = req.body;
+		const { userID, position, move, name, role, turnId } = req.body;
 		const matchID = req.params.matchid;
 		try {
 			let gameState = {};
@@ -106,15 +106,15 @@ router.post("/:matchid/nextmove",
 			if (position == "RF" || position == "BF") {
 				if (move == "_END") {
 					console.log("calling end turn in match manager");
-					gameState = MatchManager.endTurn(matchID, userID);
-				} else gameState = MatchManager.fieldGuess(matchID, userID, move);
+					gameState = MatchManager.endTurn(matchID, userID, turnId);
+				} else gameState = MatchManager.fieldGuess(matchID, userID, move, turnId);
 			} else if (position == "BS" || position == "RS") {
 				let num = move.substr(0, move.indexOf(' '));
 				let word = move.substr(move.indexOf(' ') + 1);
 				console.log("calling spycommand in match manager");
-				gameState = MatchManager.spyCommand(matchID, userID, num, word, name);
+				gameState = MatchManager.spyCommand(matchID, userID, num, word, turnId, name);
 			} else if (position === "_CHAT") {
-				gameState = MatchManager.spyCommand(matchID, userID, 1, move, name, role)
+				gameState = MatchManager.spyCommand(matchID, userID, 1, move, turnId, name, role)
 			} else {
 				gameState = MatchManager.getMatchInfo(matchID)
 			}
@@ -126,6 +126,7 @@ router.post("/:matchid/nextmove",
 			gameState.redScore = 9 - match.redLeft;
 			gameState.isOver = match.isGameOver();
 			gameState.winner = match.getWinner();
+			gameState.turnId = match.turnId;
 
 			console.log(gameState);
 			res.json(gameState);

@@ -1,3 +1,9 @@
+export const buttonColors = {
+  blue: '#00008b',
+  red: '#8b0000',
+  civilian: '#ffcc99'
+}
+
 export default (theme) => ({
   centerText: {
     textAlign: 'center',
@@ -61,13 +67,13 @@ export default (theme) => ({
         height: '100%',
       },
       "&>.chosenB": {
-        backgroundColor: '#00008b',
+        backgroundColor: buttonColors.blue,
         color: '#ffffff',
         width: '100%',
         height: '100%',
       },
       "&>.chosenR": {
-        backgroundColor: '#8b0000',
+        backgroundColor: buttonColors.red,
         color: '#ffffff',
         width: '100%',
         height: '100%',
@@ -80,7 +86,7 @@ export default (theme) => ({
       },
 
       "&>.chosenC": {
-        backgroundColor: '#ffcc99',
+        backgroundColor: buttonColors.civilian,
         color: '#000000',
         width: '100%',
         height: '100%',

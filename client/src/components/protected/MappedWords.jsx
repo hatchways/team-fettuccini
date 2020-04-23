@@ -3,9 +3,9 @@ import json2mq from 'json2mq';
 import { Typography, Grid, Card, Zoom, useMediaQuery } from "@material-ui/core";
 
 export default ({ words, factions, classes, clickWord, spyView }) => {
-    const screenSize = useMediaQuery(json2mq({
-      maxWidth: "1000px",
-    }),
+  const screenSize = useMediaQuery(json2mq({
+    maxWidth: "1000px",
+  }),
   );
   return words.length === 0 ? null : (
     Array(5)
@@ -17,13 +17,13 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
             const currIndex = i + 5 * index
 
             let wordsVal = (<p>{chosen ? word.slice(2) : word}</p>)
-            if (screenSize) wordsVal=(<p className={classes.smallWords}>{chosen ? word.slice(2) : word}</p>);
+            if (screenSize) wordsVal = (<p className={classes.smallWords}>{chosen ? word.slice(2) : word}</p>);
 
             let cardStyle = `chosen${word.slice(1, 2)}`;
-            
+
             if (!chosen) {
-              if (spyView) {
-                cardStyle = "buttonSpy"+factions[currIndex].slice(0,1) 
+              if (spyView()) {
+                cardStyle = "buttonSpy" + factions[currIndex].slice(0, 1)
               } else {
                 cardStyle = "button";
               }

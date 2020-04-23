@@ -7,7 +7,6 @@ import { withRouter } from "react-router-dom";
 class GameOutcome extends Component {
   render() {
     const { isOver, winner, blueScore, redScore } = this.props;
-    const winningTeamName = winner.charAt(0).toUpperCase() + winner.slice(1);
 
     const styles = {
       blue: {
@@ -22,31 +21,56 @@ class GameOutcome extends Component {
         fontWeight: "600",
         fontFamily: "Roboto",
       },
+
       sides: {
         flexGrow: "1",
       },
-      title: { fontSize: "30px", margin: "0px", fontFamily: "Roboto" },
+      title: {
+        fontSize: "30px",
+        margin: "0px",
+        fontFamily: "Roboto",
+        textAlign: "center",
+        padding: "20px 16px 0px 16px"
+      },
       newGame: { padding: "0 30px" },
+      wins: {
+        padding: "8px 0px 0px 74px",
+        margin: "0"
+      },
+      score: {
+        margin: "0px 0px 0px 0px",
+        padding: "0px 98px"
+      },
+      img: {
+        padding: "10px 0px 0px 40px"
+      }
     };
 
     const getTeamColor = () => {
-      if (winner == "blue") {
+      if (winner == "Blue") {
         return styles.blue;
       } else {
         return styles.red;
       }
     };
 
+    const getGameoutcomePicture = () => {
+      return "/dialog_icon.jpg"
+
+    };
+
     return (
       <Dialog aria-labelledby="dialog-title" open={isOver}>
-        <div>
-          <p>Icon</p>
+        <div className={styles.img}>
+          <img alt="icon" src={getGameoutcomePicture()} style={styles.img}></img>
         </div>
         <DialogTitle id="dialog-title">
           <p style={styles.title}>Game over!</p>
         </DialogTitle>
-        <div>
-          <p style={getTeamColor()}>{winningTeamName} wins</p>
+        <div style={styles.wins}>
+          <p style={getTeamColor()}>{winner} wins</p>
+        </div>
+        <div style={styles.score}>
           <p>
             <span style={styles.blue}>{blueScore} </span> :{" "}
             <span style={styles.red}> {redScore}</span>

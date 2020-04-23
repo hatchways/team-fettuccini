@@ -6,6 +6,7 @@ export default ({ ping }) => {
   // return <Button variant="outlined" onClick={ping}>ping</Button>;
 
   //comment this for testing individual pings
+
   useEffect(() => {
     const interval = setInterval(async () => {
       ping()
@@ -13,5 +14,6 @@ export default ({ ping }) => {
     return () => clearInterval(interval);
   }, []);
   return null;
+
 
 };

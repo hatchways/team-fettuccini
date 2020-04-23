@@ -1,32 +1,51 @@
 import React, { Fragment } from "react";
 import { useHistory } from "react-router-dom";
-import { Typography, Button, Box } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import PersonIcon from "@material-ui/icons/Person";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import ListItem from "@material-ui/core/ListItem";
 import Grid from "@material-ui/core/Grid";
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
 
 import auth from "./auth/auth";
 
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   blue: {
     color: "#1E90FF",
-    fontSize: "20px",
+    fontSize: "25px",
     fontWeight: "600",
     fontFamily: "Roboto",
   },
-  header: {
+  waitingroomHeader: {
     display: "flex",
     flexWrap: "wrap-reverse",
     justifyContent: "space-between",
     backgroundColor: "white",
     textAlign: "center",
-    position: "sticky",
-    top: 0,
+    fontSize: "30px",
+  },
+  basicHeader: {
+    display: "flex",
+    flexWrap: "wrap-reverse",
+    justifyContent: "space-between",
+    textAlign: "center",
+    marginLeft: "auto",
+    marginRight: 'auto',
+    fontSize: "30px",
+  },
+  gameHeader: {
+    display: "flex",
+    flexWrap: "wrap-reverse",
+    justifyContent: "space-between",
+    textAlign: "center",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    width: '150px'
   },
   invisible: {
     opacity: "0",
@@ -38,20 +57,29 @@ const useStyles = makeStyles({
     flexGrow: "1",
   },
   navMain: {
-    flexGrow: "12",
+    flexGrow: "1",
+    fontFamily: "Roboto",
+    fontWeight: "bold",
+    backgroundColor: "white",
+    color: "#000000"
   },
   red: {
     color: "#FA8072",
-    fontSize: "20px",
+    fontSize: "25px",
     fontWeight: "600",
     fontFamily: "Roboto",
   },
   bar: {
-    fontSize: "20px",
+    fontSize: "25px",
     fontWeight: "bold",
   },
-
-});
+  typography: {
+    fontSize: "25px"
+  },
+  myprofile: {
+    marginLeft: theme.spacing(40)
+  }
+}));
 
 export default function NavBar(props) {
   let history = useHistory();
@@ -65,39 +93,46 @@ export default function NavBar(props) {
     setAnchorEl(false);
   };
 
+  const titleStyle = auth.isAuthenticated() && props.isMatchInProgres ? classes.typography : classes.basicHeader;
+
   return (
-    <Box className={classes.header}>
-      <Grid container direction="row" alignItems="center">
-        <Grid item xs>
-          <Typography variant="h4" className={classes.navMain}>
-            CLUEWORDS
-          </Typography>
-        </Grid>
+
+    <AppBar position="sticky" className={classes.navMain}>
+      <Toolbar  >
+
+        <Typography variant="typography" className={titleStyle}>
+          CLUEWORDS
+        </Typography>
+
         {auth.isAuthenticated() ? (
           <Fragment>
             {props.isMatchInProgres ? (
               <Fragment>
-                <Grid item xs={2}>
-                  <span className={classes.blue}>
-                    {props.blueScore}
-                    <br />
-                    Blue Team
-                  </span>
+                <Grid container direction="row" className={classes.gameHeader}>
+                  <Grid item direction="column" className={classes.waitingroomHeader}>
+                    <Grid item>
+                      <span className={classes.blue}>{props.blueScore}</span>
+                    </Grid>
+                    <Grid item>
+                      <span className={classes.blue} style={{ fontSize: "10px" }}>Blue Team</span>
+                    </Grid>
+                  </Grid>
+
+                  <Grid item className={classes.waitingroomHeader}>
+                    -
+                  </Grid>
+
+                  <Grid item direction="column" className={classes.waitingroomHeader}>
+                    <Grid item>
+                      <span className={classes.red}>{props.redScore}</span>
+                    </Grid>
+                    <Grid item>
+                      <span className={classes.red} style={{ fontSize: "10px" }}>Red Team</span>
+                    </Grid>
+                  </Grid>
                 </Grid>
 
-                <Grid item xs={1}>
-                  <span className={classes.bar}>-</span>
-                </Grid>
-
-                <Grid item xs={2}>
-                  <span className={classes.red}>
-                    {props.redScore}
-                    <br />
-                    Red Team
-                  </span>
-                </Grid>
-
-                <Grid item xs>
+                <div>
                   <Button
                     className={classes.navSides}
                     variant="contained"
@@ -109,40 +144,41 @@ export default function NavBar(props) {
                   >
                     New game
                   </Button>
-                </Grid>
+                </div>
               </Fragment>
             ) : null}
-
-            <Grid item xs alignContent="flex-end">
+            <div>
               <ListItem>
-                <Avatar>
-                  <PersonIcon />
+                <Avatar alt="demo_picture" src="/profile_icon.jpg">
                 </Avatar>
-                <Button onClick={handleOpenMenu}>My profile</Button>
+                <Button onClick={handleOpenMenu} style={{ fontFamily: "Roboto" }}>My profile</Button>
               </ListItem>
-              <Menu
-                id="menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
+            </div>
+            <Menu
+              id="menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleCloseMenu}
+            >
+              <MenuItem
+                style={{ fontFamily: "Roboto" }}
+                onClick={() => {
+                  auth.signout(() => {
+                    history.push("/");
+                    setAnchorEl(false);
+                    props.setIsMatchInProgres(false);
+                  });
+                }}
               >
-                <MenuItem
-                  onClick={() => {
-                    auth.signout(() => {
-                      history.push("/");
-                      setAnchorEl(false);
-                      props.setIsMatchInProgres(false);
-                    });
-                  }}
-                >
-                  Signout
+                Signout
                 </MenuItem>
-              </Menu>
-            </Grid>
+            </Menu>
+
           </Fragment>
         ) : null}
-      </Grid>
-    </Box>
+      </Toolbar>
+    </AppBar >
+
   );
 }

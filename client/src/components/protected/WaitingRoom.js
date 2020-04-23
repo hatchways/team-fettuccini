@@ -26,6 +26,7 @@ class WaitingRoom
     super(props)
     this.state = {
       userId: '',
+      name: '',
       matchId: '',
       positions: {},
       matchState: {},
@@ -53,32 +54,42 @@ class WaitingRoom
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
-    console.log(matchState.state+" "+res.state + " " +(res.state != undefined));
+    console.log('res ping ', res)
+
     updateState = (matchState.state !== res.state && res.state != undefined);
+
     for (let pos in waitingRoomDictionary) {
-      console.log(res[pos]);
-      if (res[pos] === "" || res[pos]==undefined) { // if role is empty
+      if (res.hasOwnProperty(pos)) {
+        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
+          if (positions.hasOwnProperty(pos)) {
+            delete positions[pos]
+            updateState = true
+          }
+        } else { // if role is filled
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId !== res[pos].id) {
+              positions[pos] = {
+                userId: res[pos].id,
+                name: res[pos].name
+              }
+              updateState = true
+            }
+          } else {
+            positions[pos] = {
+              role: waitingRoomDictionary[pos],
+              userId: res[pos].id,
+              name: res[pos].name
+            }
+            updateState = true
+          }
+        }
+      } else {
         if (positions.hasOwnProperty(pos)) {
           delete positions[pos]
           updateState = true
         }
-      } else { // if role is filled
-        if (positions.hasOwnProperty(pos)) {
-          if (positions[pos].userId !== res[pos]) {
-            positions[pos].userId = res[pos]
-            updateState = true
-          }
-        } else {
-          positions[pos] = {
-            role: waitingRoomDictionary[pos],
-            userId: res[pos]
-          }
-          updateState = true
-        }
       }
     }
-    console.log(updateState);
-    console.log(res);
     if (updateState) {
       this.setState({
         ...this.state,
@@ -90,11 +101,13 @@ class WaitingRoom
 
   componentDidMount = async () => {
     const userId = auth.getUserInfo().id
+    const name = auth.getUserInfo().name
     const { matchId } = this.props.match.params
 
     this.setState({
       ...this.state,
       matchId,
+      name,
       userId,
     })
   }
@@ -106,15 +119,17 @@ class WaitingRoom
   }
 
   startMatch = () => {
-    const { matchId, matchState } = this.state
+    const { matchId, matchState, positions } = this.state
+
     this.props.history.push({
       pathname: `/match/${matchId}`,
-      state: { matchId, matchState }
+      state: { matchId, matchState, positions }
     })
+
   }
 
   async changePosition(e) {
-    const { userId, matchId, positions } = this.state
+    const { userId, matchId, positions, name } = this.state
     let res
 
     const position = e.currentTarget.dataset.id.slice(0, 2)
@@ -127,6 +142,7 @@ class WaitingRoom
         method: "POST",
         body: {
           userID: userId,
+          name,
           position
         }
       })
@@ -137,18 +153,35 @@ class WaitingRoom
 
     res = res.info
 
-    Object.keys(waitingRoomDictionary).forEach(pos => {
-      if (res[pos] === "") {
+
+    for (let pos in waitingRoomDictionary) {
+      if (res.hasOwnProperty(pos)) {
+        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
+          if (positions.hasOwnProperty(pos)) {
+            delete positions[pos]
+          }
+        } else { // if role is filled
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId !== res[pos].id) {
+              positions[pos] = {
+                userId: res[pos].id,
+                name: res[pos].name
+              }
+            }
+          } else {
+            positions[pos] = {
+              role: waitingRoomDictionary[pos],
+              userId: res[pos].id,
+              name: res[pos].name
+            }
+          }
+        }
+      } else {
         if (positions.hasOwnProperty(pos)) {
           delete positions[pos]
         }
-      } else {
-        positions[pos] = {
-          role: waitingRoomDictionary[pos],
-          userId: res[pos]
-        }
       }
-    })
+    }
 
     this.setState({
       ...this.state,
@@ -159,7 +192,6 @@ class WaitingRoom
   render() {
     const { positions, userId } = this.state
     const { classes } = this.props;
-
 
     if (Object.keys(positions).length === 4) {
       this.startMatch()
@@ -180,7 +212,10 @@ class WaitingRoom
         <ListItem key={`invite${idx}`} className={classes.verticalAlign}>
           <CheckIcon className={classes.mainFill} />
           <Typography variant="body1">
-            {positions[pos].role} {positions[pos].userId === userId ? '(You)' : null} &nbsp;&nbsp;</Typography>
+            {positions[pos].name} -&nbsp;
+            {positions[pos].role}
+            {positions[pos].userId === userId ? ' (You)' : null} &nbsp;&nbsp;
+          </Typography>
           <CancelIcon className={classes.iconHover} data-id={`${pos}leavematch`} onClick={this.changePosition} />
         </ListItem>))
 
@@ -211,7 +246,7 @@ class WaitingRoom
           </Grid>
         </Grid>
         <div>
-          <Button variant="contained" color="primary" onClick={this.startMatch}>Start Match</Button>
+          <Button variant="contained" disabled={Object.keys(positions).length !== 4} color="primary" onClick={this.startMatch}>Start Match</Button>
         </div>
       </Paper>
     </Fragment>

@@ -3,9 +3,9 @@ export default (theme) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-  },
-  removeMarginRight: {
-    marginRight: 0
+    "&>button": {
+      margin: "5% auto"
+    }
   },
   availableRoles: {
     maxWidth: "160px",

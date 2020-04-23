@@ -37,9 +37,10 @@ class ChatBox extends React.Component {
 
   sendCurrentMsg = () => {
     const { num, word } = this.state
-    if (num === '' || word === '' || !this.props.isMyTurn() || !this.props.isSpyTurn()) {
+    if (num === '' || word === '') {
       return
     }
+
     this.props.submitHint({ num, word })
 
     this.setState({ num: '1', word: '' })
@@ -50,8 +51,8 @@ class ChatBox extends React.Component {
     const { classes } = this.props;
 
     const text = this.props.chatHistory.map((msg, index) => (
-      <ListItem className={`${classes.listItem} ${classes['listItem' + spyDictionary[msg.player]]}`} key={`msg-${index}`}>
-        <Typography variant="subtitle2">{spyDictionary[msg.player]}:</Typography>
+      <ListItem className={`${classes.listItem} ${classes['listItem' + spyDictionary[msg.role]]}`} key={`msg-${index}`}>
+        <Typography variant="subtitle2">{msg.name} ({msg.role}):</Typography>
         <Typography variant="subtitle1">
           {msg.text}
         </Typography>
@@ -65,7 +66,7 @@ class ChatBox extends React.Component {
         <Grid container item className={classes.inputStyle}>
           <Input className={classes.inputBox} name="word" value={word} onChange={this.handleChange} />
           <Typography variant="h5">
-            <Button disabled={this.state.num <= 1 ? true : false} className={"MuiPaper-elevation1 "} onClick={this.decrement}>-</Button>
+            <Button disabled={this.state.num <= 1 ? true : false} className={"MuiPaper-elevation1"} onClick={this.decrement}>-</Button>
             {num}
             <Button disabled={this.state.num >= 9 ? true : false} className={"MuiPaper-elevation1"} onClick={this.increment}>+</Button>
           </Typography>

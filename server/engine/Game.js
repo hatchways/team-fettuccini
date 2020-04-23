@@ -246,7 +246,7 @@ class Game {
 	}
 
 	//Function for processing a spies hint. Takes in number of words that are related and the word hint itself as parameters.
-	nextSpyHint(guesses, word) {
+	nextSpyHint(guesses, word, name) {
 		if (this.isGameOver()) return;
 		if (this.state == gameState.RED_FIELD || this.state == gameState.BLUE_FIELD) {
 			console.log("It is the spy masters turn.");
@@ -254,13 +254,19 @@ class Game {
 		}
 		console.log("New Spy Hint is " + word + " for " + guesses);
 		this.chatHistory.push({
-			player: this.state === gameState.RED_SPY ? "RS" : "BS",
+			role: this.state === gameState.RED_SPY ? "RS" : "BS",
+			name,
 			text: `${guesses} - ${word}`
 		})
 		this.spyHint = word;
 		this.numGuessesLeft = guesses;
 		let n = this.nextTurn();
 		console.log(n);
+		return this.getBoardInfo();
+	}
+
+	agentChat(role, name, text) {
+		this.chatHistory.push({ role, name, text })
 		return this.getBoardInfo();
 	}
 

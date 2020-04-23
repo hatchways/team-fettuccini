@@ -113,11 +113,11 @@ class WaitingRoom
   }
 
   startMatch = () => {
-    const { matchId, matchState } = this.state
+    const { matchId, matchState, positions } = this.state
 
     this.props.history.push({
       pathname: `/match/${matchId}`,
-      state: { matchId, matchState }
+      state: { matchId, matchState, positions }
     })
 
   }
@@ -201,7 +201,7 @@ class WaitingRoom
           <Typography variant="body1">
             {positions[pos].name} -&nbsp;
             {positions[pos].role}
-            {positions[pos].userId === userId ? '(You)' : null} &nbsp;&nbsp;
+            {positions[pos].userId === userId ? ' (You)' : null} &nbsp;&nbsp;
           </Typography>
           <CancelIcon className={classes.iconHover} data-id={`${pos}leavematch`} onClick={this.changePosition} />
         </ListItem>))

@@ -98,7 +98,7 @@ router.post("/:matchid/nextmove",
 			return res.status(400).json({ errors: errors.array() });
 		}
 
-		const { userID, position, move } = req.body;
+		const { userID, position, move, name, role } = req.body;
 		const matchID = req.params.matchid;
 		try {
 			let gameState = {};
@@ -112,7 +112,9 @@ router.post("/:matchid/nextmove",
 				let num = move.substr(0, move.indexOf(' '));
 				let word = move.substr(move.indexOf(' ') + 1);
 				console.log("calling spycommand in match manager");
-				gameState = MatchManager.spyCommand(matchID, userID, num, word);
+				gameState = MatchManager.spyCommand(matchID, userID, num, word, name);
+			} else if (position === "_CHAT") {
+				gameState = MatchManager.spyCommand(matchID, userID, 1, move, name, role)
 			} else {
 				gameState = MatchManager.getMatchInfo(matchID)
 			}

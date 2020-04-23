@@ -160,7 +160,7 @@ class MatchManager {
 	}
 
 	//Spy turn.
-	spyCommand(matchID, userID, numGuesses, word) {
+	spyCommand(matchID, userID, numGuesses, word, name = "", role = "") {
 		let game = this.getGame(matchID);
 		if (game == undefined || game == null) return matchNotFound;
 		let mess = "Move failed";
@@ -170,7 +170,9 @@ class MatchManager {
 			(
 				userID == game.getRedSpy().id &&
 				game.getState() == gameState.RED_SPY)) {
-			mess = game.nextSpyHint(numGuesses, word);
+			mess = game.nextSpyHint(numGuesses, word, name);
+		} else if (!["BS", "RS"].includes(role)) {
+			mess = game.agentChat(role, name, word)
 		}
 		return this.getMatchInfo(matchID);
 	}

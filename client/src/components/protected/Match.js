@@ -251,7 +251,7 @@ class Match extends Component {
 
   async submitHint(move) {
 
-    const { myRole, matchId, userId, turnId } = this.state
+    const { myRole, matchId, userId, turnId, secondsLeft, positionState, guessesLeft } = this.state
 
 
     let res, reqMove, reqPosition
@@ -286,9 +286,14 @@ class Match extends Component {
       console.log('error @ submitHint API')
     }
 
-    let positionState = res.state
-
-    this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "", secondsLeft: 60, turnId: res.turnId })
+    this.setState({
+      ...this.state,
+      positionState: res.state ? res.state : positionState,
+      guessesLeft: res.numGuess != undefined ? Number(res.numGuess) : guessesLeft,
+      message: "",
+      secondsLeft: (res.turnId && turnId != res.turnId) ? 60 : secondsLeft,
+      turnId: res.turnId ? res.turnId : turnId
+    })
   }
 
   render() {

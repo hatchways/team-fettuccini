@@ -132,7 +132,8 @@ class MatchManager {
 			return { message: matchNotFound };
 		}
 
-		if (game.getRedField().id != "" && game.getRedSpy().id != "" && game.getBlueSpy().id != "" && game.getBlueField().id != "") {
+		if (game.getRedField().id && game.getRedSpy().id && game.getBlueSpy().id && game.getBlueField().id) {
+			game.reset();
 			return { gamestart: true, info: this.getMatchInfo(matchID, userID), message: mess };
 		}
 

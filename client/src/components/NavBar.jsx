@@ -14,9 +14,11 @@ import auth from "./auth/auth";
 
 import { makeStyles } from "@material-ui/core/styles";
 
+import { buttonColors } from './protected/styleMatch'
+
 const useStyles = makeStyles((theme) => ({
   blue: {
-    color: "#1E90FF",
+    color: buttonColors.blue,
     fontSize: "25px",
     fontWeight: "600",
     fontFamily: "Roboto",
@@ -71,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   red: {
-    color: "#FA8072",
+    color: buttonColors.red,
     fontSize: "25px",
     fontWeight: "600",
     fontFamily: "Roboto",

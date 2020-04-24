@@ -177,6 +177,7 @@ class Match extends Component {
     if (!this.isMyTurn() || this.amISpy() || words[index][0] === "_") {
       return
     }
+
     try {
       res = await fetchUtil({
         url: `/matches/${matchId}/nextmove`,
@@ -192,7 +193,7 @@ class Match extends Component {
       console.log('error @ API /matches/:matchId/nextmove')
     }
 
-    words[index] = res.info.info.board[index] !== words[index] ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
+    words[index] = res.info.info.board[index].slice(0, 2) !== words[index].slice(0, 2) ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
     if (factions != undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
 
     this.props.setBlueScore(res.blueScore);
@@ -326,10 +327,8 @@ class Match extends Component {
         <div>
           <Typography variant="body1">Time remaining: {secondsLeft}</Typography>
         </div>
-        {/* <Grid container item xs={12}> */}
         <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
-        {/* </Grid> */}
-        <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
+        {this.amISpy() ? null : <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>}
       </div>
       {isOver ? (
         <GameOutcome

@@ -37,7 +37,8 @@ class ChatBox extends React.Component {
     this.setState({ num: parseInt(this.state.num) - 1 });
   }
 
-  sendCurrentMsg = () => {
+  sendCurrentMsg = (e) => {
+    e.preventDefault()
     const { num, word } = this.state
     if (num === '' || word === '') {
       return

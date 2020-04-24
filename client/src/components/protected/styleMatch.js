@@ -1,7 +1,6 @@
 export const buttonColors = {
-  blue: '#00008b',
-  red: '#8b0000',
-  civilian: '#ffcc99'
+  blue: '#1E90FF',
+  red: '#FA8072'
 }
 
 export default (theme) => ({
@@ -21,15 +20,15 @@ export default (theme) => ({
     backgroundColor: '#ffffff'
   },
   buttonSpyB: {
-    color: "#00008b",
+    color: buttonColors.blue,
     backgroundColor: '#ffffff'
   },
   buttonSpyR: {
-    color: "#8b0000",
+    color: buttonColors.red,
     backgroundColor: '#ffffff'
   },
   buttonSpyC: {
-    color: "#ffcc99",
+    color: theme.palette.common.darkGray,
     backgroundColor: '#ffffff'
   },
   chosenB: {
@@ -45,8 +44,8 @@ export default (theme) => ({
     color: '#ffffff'
   },
   chosenC: {
-    backgroundColor: buttonColors.civilian,
-    color: '#000000'
+    backgroundColor: theme.palette.common.gray,
+    color: theme.palette.common.darkGray
   },
   noHover: {
     "&:hover": {
@@ -120,7 +119,7 @@ export default (theme) => ({
     display: "flex",
     alignItems: "center",
     margin: "7px",
-    borderRadius: "5%",
+    borderRadius: "7px",
     cursor: "pointer",
     wordWrap: "break-word",
     justifyContent: "space-evenly"

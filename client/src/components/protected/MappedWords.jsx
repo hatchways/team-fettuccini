@@ -18,7 +18,6 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
         return (
           <Card
             key={`word-${i}-${chosen}`}
-            disabled="true"
             data-tag={i}
             variant="contained"
             className={`${classes[cardStyle]} ${classes.gridElement} ${chosen ? classes.noHover : null}`}

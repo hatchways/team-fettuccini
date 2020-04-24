@@ -55,7 +55,7 @@ export default (theme) => ({
   },
   chatBox: {
     width: "25vw",
-    height: "88vh",
+    // height: "88vh",
     height: "100%",
     justifyContent: "center",
     alignContent: "center",

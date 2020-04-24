@@ -308,7 +308,7 @@ class Match extends Component {
     if (guessesLeft >= 0) guessText = (guessesLeft - 1) + " +1 guesses left";
     else guessText = "0 guesses left";
     document.body.style.overflow = "noscroll";
-    const spy = (this.state.RS == this.state.userId || this.state.BS == this.state.userId);
+
     return (<div className={classes.matchStyle}>
       <ChatBox
         submitHint={this.submitHint}
@@ -321,12 +321,14 @@ class Match extends Component {
       {this.isMyTurn() ? "(You)" : null}
         </Typography>
         <ServerPing ping={this.ping} />
-        <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</p>
+        <Typography variant="body1">{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</Typography>
         {message !== "" ? <p>{message}</p> : null}
-        <p style={{ fontFamily: "Roboto", fontSize: "20px" }}>Time remaining: {secondsLeft}</p>
-        <Grid container item xs={12}>
-          <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
-        </Grid>
+        <div>
+          <Typography variant="body1">Time remaining: {secondsLeft}</Typography>
+        </div>
+        {/* <Grid container item xs={12}> */}
+        <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
+        {/* </Grid> */}
         <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
       </div>
       {isOver ? (

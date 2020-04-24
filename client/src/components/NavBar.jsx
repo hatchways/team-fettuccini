@@ -64,8 +64,10 @@ const useStyles = makeStyles((theme) => ({
     color: "#000000",
     "&>.MuiToolbar-root": {
       display: "flex",
-      flexWrap: "wrap",
-      justifyContent: "space-between"
+      justifyContent: "space-between",
+      [theme.breakpoints.down('xs')]: {
+        flexWrap: "wrap"
+      }
     }
   },
   red: {
@@ -179,7 +181,6 @@ export default function NavBar(props) {
                 Signout
                 </MenuItem>
             </Menu>
-
           </Fragment>
         ) : null}
       </Toolbar>

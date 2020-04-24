@@ -48,6 +48,11 @@ export default (theme) => ({
     backgroundColor: buttonColors.civilian,
     color: '#000000'
   },
+  noHover: {
+    "&:hover": {
+      cursor: 'initial'
+    }
+  },
   centerText: {
     textAlign: 'center',
     marginBottom: "0.5em"
@@ -60,12 +65,6 @@ export default (theme) => ({
     justifyContent: "space-around",
     margin: "10px auto"
   },
-  gridElement: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    margin: "5px"
-  },
   standardFlex: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -73,21 +72,11 @@ export default (theme) => ({
   matchStyle: {
     display: "flex",
     flexDirection: "row",
-    minHeight: "100vh",
-    maxHeight: "100vh",
-    justifyContent: 'left',
+    maxHeight: "80vh",
   },
   flexRow: {
     margin: "10px",
     justifyContent: 'space-evenly',
-    '&>.MuiTypography-h5': {
-      display: "flex",
-      width: "50%",
-      height: "200px",
-      margin: "auto",
-      borderRadius: "10px",
-      border: "3px dashed #1c87c9",
-    },
   },
 
   p: {
@@ -96,22 +85,44 @@ export default (theme) => ({
   },
 
   paper: {
-    padding: "20px",
-    width: '80vw',
-    height: '90vh'
+    width: "80%",
+    paddingTop: "5vh",
+    height: "80vh",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    display: "flex",
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: "2vh",
+      height: "75vh",
+    }
   },
   ".Mui-disabled": {
     backgroundColor: '#B319EB'
   },
-
   smallWords: {
-    fontSize: "10px"
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "0.8rem"
+    },
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "0.7rem"
+    },
   },
   grid: {
     display: "grid",
     gridTemplate: "repeat(5, 1fr) / repeat(5, 1fr)",
     width: "90%",
-    height: "75%",
-    margin: "0 auto"
+    height: "100%",
+    maxHeight: "55vh",
+    margin: "0 auto",
+  },
+  gridElement: {
+    display: "flex",
+    alignItems: "center",
+    margin: "7px",
+    borderRadius: "5%",
+    cursor: "pointer",
+    wordWrap: "break-word",
+    justifyContent: "space-evenly"
   }
 });

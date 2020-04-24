@@ -1,9 +1,7 @@
 import React from "react";
-import json2mq from 'json2mq';
-import { Typography, Grid, Card, Zoom, useMediaQuery } from "@material-ui/core";
+import { Typography, Card } from "@material-ui/core";
 
 export default ({ words, factions, classes, clickWord, spyView }) => {
-  const screenSize = useMediaQuery(json2mq({ maxWidth: "1000px" }));
 
   return words.length === 0 ? null : (
     <div container className={classes.grid}>
@@ -23,11 +21,11 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
             disabled="true"
             data-tag={i}
             variant="contained"
-            className={`${classes[cardStyle]} ${classes.gridElement}`}
+            className={`${classes[cardStyle]} ${classes.gridElement} ${chosen ? classes.noHover : null}`}
             onClick={clickWord}
           >
-            <Typography variant="h5">
-              <p className={screenSize ? classes.smallWords : ""}>{wordsVal}</p>
+            <Typography variant="h5" className={classes.smallWords}>
+              {wordsVal}
             </Typography>
           </Card>
         );

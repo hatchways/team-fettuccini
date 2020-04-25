@@ -53,16 +53,31 @@ class Match extends Component {
       this.props.history.push(`/waitingroom/${this.props.match.params.matchId}`);
     } else {
       const { matchId, matchState, positions } = this.props.location.state
-
+      console.log("In game positions ");
+      console.log(positions);
+      const thisUser = auth.getUserInfo().id;
+      let myRole;
+      if (positions.RS.userId == thisUser) {
+    	  myRole="RS";
+      } else if (positions.RF.userId == thisUser) {
+    	  myRole="RF";
+      } else if (positions.BS.userId == thisUser) {
+    	  myRole="BS";
+      } else if (positions.BF.userId == thisUser) {
+    	  myRole="BF";
+      }
+      console.log("Match State ");
+      console.log(matchState);
       this.setState({
         ...this.state,
         userId: auth.getUserInfo().id,
         matchId: matchId,
-        words: matchState.info.board,
-        positionState: matchState.state,
-        factions: matchState.info.factions,
+        words: matchState.info.info.board,
+        positionState: matchState.info.state,
+        factions: matchState.info.info.factions,
         roles: { ...positions },
-      })
+        myRole: myRole
+      }, () => {this.ping()})
     }
 
     setInterval(() => {
@@ -72,6 +87,7 @@ class Match extends Component {
         });
       }
     }, 1000);
+    this.ping();
   }
 
   isMyTurn() {
@@ -82,7 +98,8 @@ class Match extends Component {
     return matchDictionary[this.state.positionState] === this.state.myRole
   }
   amISpy() {
-    return ["RS", "BS"].includes(this.state.myRole)
+	console.log("My role is " + this.state.myRole);
+	return ["RS", "BS"].includes(this.state.myRole)
   }
 
   async ping() {
@@ -306,7 +323,7 @@ class Match extends Component {
     if (guessesLeft >= 0) guessText = (guessesLeft - 1) + " +1 guesses left";
     else guessText = "0 guesses left";
     document.body.style.overflow = "noscroll";
-    const spy = (this.state.RS == this.state.userId || this.state.BS == this.state.userId);
+    const spy = this.amISpy();
     return (<div className={classes.matchStyle}>
       <ChatBox
         submitHint={this.submitHint}
@@ -318,12 +335,12 @@ class Match extends Component {
           {positionState} &nbsp;
       {this.isMyTurn() ? "(You)" : null}
         </Typography>
-        <ServerPing ping={this.ping} />
+   
         <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</p>
         {message !== "" ? <p>{message}</p> : null}
         <p style={{ fontFamily: "Roboto", fontSize: "20px" }}>Time remaining: {secondsLeft}</p>
         <Grid container item xs={12} className={classes.standardFlex}>
-          <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
+          <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={spy} />
         </Grid>
         <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
       </Paper>

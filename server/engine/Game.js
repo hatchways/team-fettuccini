@@ -115,9 +115,9 @@ class Game {
 				boardValues[i] = gWord.getVal();
 			}
 			if (spyView) factionValues[i] = gWord.getPerson();
+			else factionValues[i] = "UNKNOWN";
 		}
-		if (!spyView) return { board: boardValues };
-		else return { board: boardValues, factions: factionValues };
+		return { board: boardValues, factions: factionValues };
 		//return boardValues;
 	}
 

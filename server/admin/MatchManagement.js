@@ -54,7 +54,6 @@ class MatchManager {
 		let info;
 		if (userID == RS.id || userID == BS.id) info = game.getBoardInfo(true);
 		else info = game.getBoardInfo(false);
-		console.log("num guess in match manager " + numGuess);
 		return { info, RS, RF, BS, BF, Host, state, numGuess, chatHistory };
 	}
 

@@ -20,9 +20,9 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
             if (screenSize) wordsVal = (<p className={classes.smallWords}>{chosen ? word.slice(2) : word}</p>);
 
             let cardStyle = `chosen${word.slice(1, 2)}`;
-
+			
             if (!chosen) {
-              if (spyView()) {
+              if (spyView && factions[i]!="UNKNOWN") {
                 cardStyle = "buttonSpy" + factions[currIndex].slice(0, 1)
               } else {
                 cardStyle = "button";

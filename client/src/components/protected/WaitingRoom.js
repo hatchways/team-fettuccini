@@ -1,4 +1,6 @@
 import React, { Fragment } from "react";
+import socketIOClient from "socket.io-client";
+
 import { Typography, Paper, Button, FormLabel, Grid, List, ListItem } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
@@ -33,6 +35,7 @@ class WaitingRoom
     }
     this.ping = this.ping.bind(this)
     this.changePosition = this.changePosition.bind(this)
+    this.socket = socketIOClient("http://localhost:3001");
   }
 
   async ping() {
@@ -103,13 +106,24 @@ class WaitingRoom
     const userId = auth.getUserInfo().id
     const name = auth.getUserInfo().name
     const { matchId } = this.props.match.params
-
+    
     this.setState({
       ...this.state,
       matchId,
       name,
       userId,
+    }, ()=>{
+        this.socket.on('changePosition', this.updatePositions)
+        
+        this.socket.emit('changePosition', {
+      	  matchID: this.state.matchId,
+      	  userID: this.state.userId,
+      	  name: this.state.name,
+      	  position: "",
+      	  action: "joinmatch"
+        });
     })
+    
   }
 
   copyLink = () => {
@@ -120,7 +134,6 @@ class WaitingRoom
 
   startMatch = () => {
     const { matchId, matchState, positions } = this.state
-
     this.props.history.push({
       pathname: `/match/${matchId}`,
       state: { matchId, matchState, positions }
@@ -128,16 +141,53 @@ class WaitingRoom
 
   }
 
+  updatePositions = (data) => {
+	  let res = data.info;
+      const { userId, matchId, positions, name } = this.state
+  		for (let pos in waitingRoomDictionary) {
+	      if (res.hasOwnProperty(pos)) {
+	        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
+	          if (positions.hasOwnProperty(pos)) {
+	            delete positions[pos]
+	          }
+	        } else { // if role is filled
+	          if (positions.hasOwnProperty(pos)) {
+	            if (positions[pos].userId !== res[pos].id) {
+	              positions[pos] = {
+	                userId: res[pos].id,
+	                name: res[pos].name
+	              }
+	            }
+	          } else {
+	            positions[pos] = {
+	              role: waitingRoomDictionary[pos],
+	              userId: res[pos].id,
+	              name: res[pos].name
+	            }
+	          }
+	        }
+	      } else {
+	        if (positions.hasOwnProperty(pos)) {
+	          delete positions[pos]
+	        }
+	      }
+	    }
+      console.log(positions);
+      this.setState({
+          ...this.state,
+          positions,
+          matchState: data
+        });
+  }
+  
   async changePosition(e) {
     const { userId, matchId, positions, name } = this.state
     let res
-
     const position = e.currentTarget.dataset.id.slice(0, 2)
     const action = e.currentTarget.dataset.id.slice(2)
 
-    try {
 
-      res = await fetchUtil({
+      /*res = await fetchUtil({
         url: `/matches/${matchId}/${action}`,
         method: "POST",
         body: {
@@ -145,13 +195,20 @@ class WaitingRoom
           name,
           position
         }
-      })
+      })*/
+    	
+    
+    	
+      this.socket.emit('changePosition', {
+    	  matchID: matchId,
+    	  userID: userId,
+    	  name: name,
+    	  position: position,
+    	  action: action
+      });
 
-    } catch (error) {
-      console.log('error @ PING .json() \n', error)
-    }
 
-    res = res.info
+   /* res = res.info
 
 
     for (let pos in waitingRoomDictionary) {
@@ -186,7 +243,7 @@ class WaitingRoom
     this.setState({
       ...this.state,
       positions
-    })
+    })*/
   }
 
   render() {
@@ -227,8 +284,6 @@ class WaitingRoom
           ref={(textarea) => this.textArea = textarea}
           className={classes.hiddenText}
           value={this.state.matchId} />}
-
-        <ServerPing ping={this.ping} />
 
         <List className={classes.availableRoles}>
           <Typography variant="h5">Available roles</Typography>

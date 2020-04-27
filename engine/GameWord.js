@@ -1,4 +1,4 @@
-const WordStates = require("./WordStates.js");
+const WordStates = require("./WordStates.js.js");
 
 class GameWord {
 	constructor(word, side) {

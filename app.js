@@ -26,7 +26,6 @@ app.use(cors());
 
 app.use(express.static(join(__dirname, "..", "client", "build")));
 app.get("/*", (req, res) => {
-  console.log("dirname ", __dirname)
   res.sendFile(path.join(__dirname, "..", "client", 'build', 'index.html'))
 });
 app.use("/users", usersRouter);

@@ -24,6 +24,7 @@ class MatchManager {
 
 	createMatch(hostID, pub) {
 		let game = new Game();
+		console.log('\n\nhost di ', hostID)
 		game.setHost(hostID);
 		let matchID = mongoose.Types.ObjectId().toString();
 

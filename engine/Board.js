@@ -1,5 +1,5 @@
-const GameWord = require("./GameWord.js.js");
-const WordStates = require("./WordStates.js.js");
+const GameWord = require("./GameWord.js");
+const WordStates = require("./WordStates.js");
 const Dictionary = require("./Dictionary");
 
 class Board {

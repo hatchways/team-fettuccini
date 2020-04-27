@@ -1,6 +1,6 @@
-const Board = require("./Board.js.js");
-const GameWord = require("./GameWord.js.js");
-const WordStates = require("./WordStates.js.js");
+const Board = require("./Board.js");
+const GameWord = require("./GameWord.js");
+const WordStates = require("./WordStates.js");
 const fs = require("fs");
 
 var gameState = {

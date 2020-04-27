@@ -18,12 +18,14 @@ const readline = require("readline");
 
 var app = express();
 app.use(express.json({ extended: false }));
-app.get("/", (req, res) => res.send("API Running"));
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'))
+});
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(join(__dirname, "public")));
+// app.use(express.static(join(__dirname, "public")));
 app.use(cors());
 
 app.use("/users", usersRouter);

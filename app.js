@@ -24,9 +24,9 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
-app.use(express.static(join(__dirname, "..", "client", "build")));
+app.use(express.static(join(__dirname, "client", "build")));
 app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "client", 'build', 'index.html'))
+  res.sendFile(path.join(__dirname, "client", 'build', 'index.html'))
 });
 app.use("/users", usersRouter);
 app.use("/ping", pingRouter);

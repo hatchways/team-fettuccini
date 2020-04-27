@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./server/app.js",
+    "start": "node ./server/bin/www",
     "dev": "nodemon ./bin/www",
     "debug": "nodemon  --inspect ./bin/www",
     "test": "./node_modules/.bin/cross-env NODE_ENV=test ./node_modules/.bin/mocha --exit --timeout 30000"

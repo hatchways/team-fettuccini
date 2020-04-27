@@ -18,16 +18,17 @@ const readline = require("readline");
 
 var app = express();
 app.use(express.json({ extended: false }));
-app.use(express.static(join(__dirname, "build")));
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'))
-});
 app.use(logger("dev"));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 
+app.use(express.static(join(__dirname, "..", "client", "build")));
+app.get("/*", (req, res) => {
+  console.log("dirname ", __dirname)
+  res.sendFile(path.join(__dirname, "..", "client", 'build', 'index.html'))
+});
 app.use("/users", usersRouter);
 app.use("/ping", pingRouter);
 app.use("/matches", require("./routes/matches"));

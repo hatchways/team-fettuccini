@@ -179,6 +179,8 @@ class MatchManager {
 		let game = this.getGame(matchID);
 		console.log("numGuess in spy command " + numGuesses);
 		if (game == undefined || game == null) return matchNotFound;
+		console.log("turnId comparison")
+		console.log(game.turnId + " "+turnId)
 		if (game.turnId != turnId) return turnExpired;
 
 		let mess = "Move failed";
@@ -200,9 +202,8 @@ class MatchManager {
 			} else if (!["BS", "RS"].includes(role)) {
 				mess = game.agentChat(role, name, word)
 			}
-			// TODO does this return go outside of this else?
-			return this.getMatchInfo(matchID, userID);
 		}
+		return {info: this.getMatchInfo(matchID, userID), message: "Spy command"};
 	}
 
 	//Field agent turn.

@@ -4,7 +4,6 @@ import { Typography, Paper, Button, Grid } from "@material-ui/core";
 
 import ChatBox from './ChatBox'
 import MappedWords from './MappedWords'
-import ServerPing from './ServerPing'
 
 import auth from '../auth/auth'
 import matchDictionary from './matchDictionary'
@@ -12,6 +11,7 @@ import matchDictionary from './matchDictionary'
 import { withStyles } from "@material-ui/styles";
 import styleMatch from "./styleMatch";
 import GameOutcome from "./GameOutcome";
+import socketIOClient from "socket.io-client";
 
 import fetchUtil from './fetchUtil'
 
@@ -24,7 +24,6 @@ class Match extends Component {
     this.props.setRedScore(0);
 
     this.state = {
-      isOver: false,
       matchId: '',
       factions: [],
       myRole: '',
@@ -43,9 +42,13 @@ class Match extends Component {
       Host: ""
     }
     this.submitHint = this.submitHint.bind(this);
+    this.clickWord = this.clickWord.bind(this);
+    this.endFieldTurn = this.endFieldTurn.bind(this);
+    this.updateStateRes = this.updateStateRes.bind(this);
     this.ping = this.ping.bind(this);
     this.isMyTurn = this.isMyTurn.bind(this);
     this.amISpy = this.amISpy.bind(this);
+    this.socket = undefined;
   }
 
   componentDidMount = () => {
@@ -77,7 +80,17 @@ class Match extends Component {
         factions: matchState.info.info.factions,
         roles: { ...positions },
         myRole: myRole
-      }, () => {this.ping()})
+      }, () => {
+    	  
+    	  this.socket = socketIOClient("http://localhost:3001/");
+    	  this.socket.on('updateState', this.updateStateRes)
+    	  this.socket.emit('updateState', {
+          	  matchID: this.state.matchId,
+          	  userID: this.state.userId,
+            });
+    	  
+    	  console.log(this.state);
+      })
     }
 
     setInterval(() => {
@@ -87,9 +100,122 @@ class Match extends Component {
         });
       }
     }, 1000);
-    this.ping();
+    
   }
 
+  /*submitHintRes = (res) => {
+	  this.updateStateRes(res.info)
+	  let positionState = res.state
+	  this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "", secondsLeft: 60, turnId: res.turnId })
+	   
+  }
+  
+  endTurnRes = (res) => {
+	    this.updateStateRes(res.info)
+	    if (res.message === "Have to make at least one guess for a turn") {
+	      this.setState({ ...this.state, message: res.message })
+	    } else {
+	      let positionState = res.info.state
+	      this.setState({
+	        ...this.state,
+	        positionState,
+	        guessesLeft: 0,
+	        message: "",
+	        secondsLeft: 60,
+	        turnId: res.turnId,
+	        factions: res.info.factions
+	      })
+	    }
+  }
+  
+  clickWordRes = (res) => {
+	  this.updateStateRes(res.info)
+	  let { matchId, positionState, words, userId, myRole, secondsLeft, turnId, factions } = this.state
+      let index = res.index
+	  words[index] = res.info.info.board[index] !== words[index] ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
+      if (factions != undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
+
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
+
+      this.setState({
+        ...this.state,
+        words,
+        guessesLeft: Number(res.info.numGuess),
+        positionState: res.info.state,
+        message: "",
+        isOver: res.isOver,
+        winner: res.winner,
+        secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
+        turnId: res.turnId,
+        factions
+      })
+  }*/
+  
+  updateStateRes = (res) => {
+	console.log('res ping ', res)
+	let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
+    let resInfo = res.info
+    /*if (res.info === "") {
+      this.props.history.push("/welcome")
+    }*/
+
+    let updateState = (resInfo.state !== positionState)
+      || (Number(resInfo.numGuess) !== guessesLeft)
+      || chatHistory.length !== resInfo.chatHistory.length
+
+    Object.keys(roles).forEach(role => {
+      if (userId === resInfo[role].id) {
+        myRole = role
+      }
+
+      if (!roles.hasOwnProperty(role)) {
+        roles[role] = {
+          name: resInfo[role].name,
+          id: resInfo[role].id
+        }
+      } else if (roles[role].id !== resInfo[role].id) {
+        roles[role] = {
+          name: resInfo[role].name,
+          id: resInfo[role].id
+        }
+        updateState = true
+      }
+    })
+
+    console.log("update state")
+    console.log(this.state)
+    console.log(res)
+    for (let i = 0; i < words.length; i++) {
+      if (words[i].slice(0, 2) !== resInfo.info.board[i].slice(0, 2)) {
+        updateState = true
+        words[i] = resInfo.info.board[i].slice(0, 2) + words[i]
+      }
+    }
+
+    if (updateState) {
+      this.props.setBlueScore(res.blueScore);
+      this.props.setRedScore(res.redScore);
+
+      this.setState({
+        ...this.state,
+        words,
+        positionState: resInfo.state,
+        guessesLeft: Number(resInfo.numGuess),
+        message: "",
+        roles,
+        myRole,
+        Host: resInfo.Host,
+        chatHistory: resInfo.chatHistory,
+        isOver: res.isOver,
+        winner: res.winner,
+        secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
+        turnId: res.turnId,
+        factions: resInfo.info.factions
+      })
+    }
+  }
+  
   isMyTurn() {
     if (!this.state.roles.hasOwnProperty(this.state.myRole)) {
       return false
@@ -103,7 +229,7 @@ class Match extends Component {
   }
 
   async ping() {
-    let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
+    /*let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
     if (words.length === 0 || isOver) {
       return;
     }
@@ -124,8 +250,8 @@ class Match extends Component {
     } catch (error) {
       console.log('error @ PING .json() \n', error)
     }
-
-    console.log('res ping ', res)
+    this.updateStateRes(res);*/
+    /*console.log('res ping ', res)
     if (res.info === "") {
       this.props.history.push("/welcome")
     }
@@ -180,7 +306,7 @@ class Match extends Component {
         turnId: res.turnId,
         factions: res.info.factions
       })
-    }
+    }*/
   }
 
   clickWord = async (e) => {
@@ -191,7 +317,14 @@ class Match extends Component {
       let index = e.currentTarget.dataset.tag
       let res
 
-      try {
+      this.socket.emit('nextMove', {
+      	  matchID: this.state.matchId,
+      	  userID: this.state.userId,
+      	  position: myRole,
+      	  move: index,
+      	  turnId: turnId
+        });
+      /*try {
         res = await fetchUtil({
           url: `/matches/${matchId}/nextmove`,
           method: "POST",
@@ -223,7 +356,7 @@ class Match extends Component {
         secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
         turnId: res.turnId,
         factions
-      })
+      })*/
     }
   }
 
@@ -231,11 +364,19 @@ class Match extends Component {
     if (!this.isMyTurn() || this.amISpy()) {
       return
     }
-    const { myRole } = this.state
+    const { myRole, turnId } = this.state
 
     let res
 
-    try {
+    this.socket.emit('nextMove', {
+    	  matchID: this.state.matchId,
+    	  userID: this.state.userId,
+    	  position: myRole,
+    	  move: "_END",
+    	  turnId: turnId
+      });
+    
+    /*try {
       res = await fetchUtil({
         url: `/matches/${this.state.matchId}/nextmove`,
         method: "POST",
@@ -251,7 +392,7 @@ class Match extends Component {
     }
 
     if (res.message === "Have to make at least one guess for a turn") {
-      this.setState({ ...this.state, message: res.message })
+      this.setState({ ...this.state, message: res.message }, ()=>{this.ping()})
     } else {
       let positionState = res.info.state
       this.setState({
@@ -262,12 +403,13 @@ class Match extends Component {
         secondsLeft: 60,
         turnId: res.turnId,
         factions: res.info.factions
-      })
-    }
+      }, ()=>{this.ping()})
+    }*/
   }
 
   async submitHint(move) {
-
+	  console.log("submit hint");
+	  console.log(this.state);
     const { myRole, matchId, userId, turnId } = this.state
 
 
@@ -285,7 +427,16 @@ class Match extends Component {
       reqPosition = "_CHAT"
     }
 
-    try {
+    this.socket.emit('nextMove', {
+    	matchID: matchId,
+    	userID: userId,
+    	position: reqPosition,
+    	move: reqMove,
+    	name: auth.getUserInfo().name,
+    	role: myRole,
+    	turnId: turnId
+    })
+    /*try {
       res = await fetchUtil({
         url: `/matches/${matchId}/nextmove`,
         method: "POST",
@@ -305,7 +456,8 @@ class Match extends Component {
 
     let positionState = res.state
 
-    this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "", secondsLeft: 60, turnId: res.turnId })
+    this.setState({ ...this.state, positionState, guessesLeft: Number(res.numGuess), message: "", secondsLeft: 60, turnId: res.turnId }, ()=>{this.ping()})
+    */
   }
 
   render() {

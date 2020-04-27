@@ -113,6 +113,54 @@ io.on('connection', function(socket) {
 		}
 	})
 	
+	socket.on('updateState', function(data) {
+		const matchID = data.matchID
+		const userID = data.userID
+		
+		const gameState = {info: MatchManager.getMatchInfo(matchID, userID), mess: "update"}
+		let match = MatchManager.getGame(matchID);
+		gameState.blueScore = 8 - match.blueLeft;
+		gameState.redScore = 9 - match.redLeft;
+		gameState.isOver = match.isGameOver();
+		gameState.winner = match.getWinner();
+		gameState.turnId = match.turnId;
+		io.sockets.emit('updateState', gameState);
+	})
+	
+	socket.on('nextMove', function(data) {
+		
+		const { userID, position, move, name, role, turnId, matchID } = data;
+		
+		let gameState = {};
+		//Check who is sending the move (spy master or field agent) and call appropriate method.
+		if (position == "RF" || position == "BF") {
+			if (move == "_END") {
+				//console.log("calling end turn in match manager");
+				gameState = MatchManager.endTurn(matchID, userID, turnId);
+			} else gameState = MatchManager.fieldGuess(matchID, userID, move, turnId);
+		} else if (position == "BS" || position == "RS") {
+			let num = move.substr(0, move.indexOf(' '));
+			let word = move.substr(move.indexOf(' ') + 1);
+			//console.log("calling spycommand in match manager");
+			gameState = MatchManager.spyCommand(matchID, userID, num, word, turnId, name);
+		} else if (position === "_CHAT") {
+			gameState = MatchManager.spyCommand(matchID, userID, 1, move, turnId, name, role)
+		} else {
+			gameState = MatchManager.getMatchInfo(matchID, userID);
+		}
+		console.log("bye");
+
+		//add properties to gameState
+		let match = MatchManager.getGame(matchID);
+		gameState.blueScore = 8 - match.blueLeft;
+		gameState.redScore = 9 - match.redLeft;
+		gameState.isOver = match.isGameOver();
+		gameState.winner = match.getWinner();
+		gameState.turnId = match.turnId;
+		console.log("Game State");
+		console.log(gameState);
+		io.sockets.emit('updateState', gameState);
+	})
 	
 	
 });

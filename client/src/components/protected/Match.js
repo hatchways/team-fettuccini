@@ -50,6 +50,7 @@ class Match extends Component {
 
   componentDidMount = () => {
     if (this.props.location.state == null) {
+      this.props.setIsMatchInProgres(false);
       this.props.history.push(`/waitingroom/${this.props.match.params.matchId}`);
     } else {
       const { matchId, matchState, positions } = this.props.location.state
@@ -109,105 +110,107 @@ class Match extends Component {
     }
 
     console.log('res ping ', res)
-    if (res.info === "") {
+    if (res.hasOwnProperty('error')) {
+      this.props.setIsMatchInProgres(false);
       this.props.history.push("/welcome")
-    }
+    } else {
 
-    let updateState = (res.state !== positionState)
-      || (Number(res.numGuess) !== guessesLeft)
-      || chatHistory.length !== res.chatHistory.length
+      let updateState = (res.state !== positionState)
+        || (Number(res.numGuess) !== guessesLeft)
+        || chatHistory.length !== res.chatHistory.length
 
-    Object.keys(roles).forEach(role => {
-      if (userId === res[role].id) {
-        myRole = role
-      }
-
-      if (!roles.hasOwnProperty(role)) {
-        roles[role] = {
-          name: res[role].name,
-          id: res[role].id
+      Object.keys(roles).forEach(role => {
+        if (userId === res[role].id) { // what if res[role] is undefined? needs errorhandle
+          myRole = role
         }
-      } else if (roles[role].id !== res[role].id) {
-        roles[role] = {
-          name: res[role].name,
-          id: res[role].id
+
+        if (!roles.hasOwnProperty(role)) {
+          roles[role] = {
+            name: res[role].name,
+            id: res[role].id
+          }
+        } else if (roles[role].id !== res[role].id) {
+          roles[role] = {
+            name: res[role].name,
+            id: res[role].id
+          }
+          updateState = true
         }
-        updateState = true
-      }
-    })
-
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].slice(0, 2) !== res.info.board[i].slice(0, 2)) {
-        updateState = true
-        words[i] = res.info.board[i].slice(0, 2) + words[i]
-      }
-    }
-
-    if (updateState) {
-      this.props.setBlueScore(res.blueScore);
-      this.props.setRedScore(res.redScore);
-
-      this.setState({
-        ...this.state,
-        words,
-        positionState: res.state,
-        guessesLeft: Number(res.numGuess),
-        message: "",
-        roles,
-        myRole,
-        Host: res.Host,
-        chatHistory: res.chatHistory,
-        isOver: res.isOver,
-        winner: res.winner,
-        secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
-        turnId: res.turnId,
-        factions: res.info.factions
       })
+
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].slice(0, 2) !== res.info.board[i].slice(0, 2)) {
+          updateState = true
+          words[i] = res.info.board[i].slice(0, 2) + words[i]
+        }
+      }
+
+      if (updateState) {
+        this.props.setBlueScore(res.blueScore);
+        this.props.setRedScore(res.redScore);
+
+        this.setState({
+          ...this.state,
+          words,
+          positionState: res.state,
+          guessesLeft: Number(res.numGuess),
+          message: "",
+          roles,
+          myRole,
+          Host: res.Host,
+          chatHistory: res.chatHistory,
+          isOver: res.isOver,
+          winner: res.winner,
+          secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
+          turnId: res.turnId,
+          factions: res.info.factions
+        })
+      }
     }
   }
 
   clickWord = async (e) => {
-    if (!this.isMyTurn() || this.amISpy()) {
+    let { matchId, positionState, words, userId, myRole, secondsLeft, turnId, factions } = this.state
+    let index = e.currentTarget.dataset.tag
+    let res
+
+    if (!this.isMyTurn() || this.amISpy() || words[index][0] === "_") {
       return
-    } else {
-      let { matchId, positionState, words, userId, myRole, secondsLeft, turnId, factions } = this.state
-      let index = e.currentTarget.dataset.tag
-      let res
-
-      try {
-        res = await fetchUtil({
-          url: `/matches/${matchId}/nextmove`,
-          method: "POST",
-          body: {
-            userID: userId,
-            position: myRole,
-            move: index,
-            turnId: turnId
-          }
-        })
-      } catch (error) {
-        console.log('error @ API /matches/:matchId/nextmove')
-      }
-
-      words[index] = res.info.info.board[index] !== words[index] ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
-      if (factions != undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
-
-      this.props.setBlueScore(res.blueScore);
-      this.props.setRedScore(res.redScore);
-
-      this.setState({
-        ...this.state,
-        words,
-        guessesLeft: Number(res.info.numGuess),
-        positionState: res.info.state,
-        message: "",
-        isOver: res.isOver,
-        winner: res.winner,
-        secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
-        turnId: res.turnId,
-        factions
-      })
     }
+
+    try {
+      res = await fetchUtil({
+        url: `/matches/${matchId}/nextmove`,
+        method: "POST",
+        body: {
+          userID: userId,
+          position: myRole,
+          move: index,
+          turnId: turnId
+        }
+      })
+    } catch (error) {
+      console.log('error @ API /matches/:matchId/nextmove')
+    }
+
+    words[index] = res.info.info.board[index].slice(0, 2) !== words[index].slice(0, 2) ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
+    if (factions != undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
+
+    this.props.setBlueScore(res.blueScore);
+    this.props.setRedScore(res.redScore);
+
+    this.setState({
+      ...this.state,
+      words,
+      guessesLeft: Number(res.info.numGuess),
+      positionState: res.info.state,
+      message: "",
+      isOver: res.isOver,
+      winner: res.winner,
+      secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
+      turnId: res.turnId,
+      factions
+    })
   }
 
   endFieldTurn = async () => {
@@ -311,27 +314,27 @@ class Match extends Component {
     if (guessesLeft >= 0) guessText = (guessesLeft - 1) + " +1 guesses left";
     else guessText = "0 guesses left";
     document.body.style.overflow = "noscroll";
-    const spy = (this.state.RS == this.state.userId || this.state.BS == this.state.userId);
+
     return (<div className={classes.matchStyle}>
       <ChatBox
         submitHint={this.submitHint}
         chatHistory={chatHistory}
       />
 
-      <Paper className={`${classes.paper} ${classes.centerText}`}>
+      <div className={`${classes.paper} ${classes.centerText}`}>
         <Typography variant="h4">
           {positionState} &nbsp;
       {this.isMyTurn() ? "(You)" : null}
         </Typography>
         <ServerPing ping={this.ping} />
-        <p>{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</p>
+        <Typography variant="body1">{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</Typography>
         {message !== "" ? <p>{message}</p> : null}
-        <p style={{ fontFamily: "Roboto", fontSize: "20px" }}>Time remaining: {secondsLeft}</p>
-        <Grid container item xs={12} className={classes.standardFlex}>
-          <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
-        </Grid>
-        <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>
-      </Paper>
+        <div>
+          <Typography variant="body1">Time remaining: {secondsLeft}</Typography>
+        </div>
+        <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={this.amISpy} />
+        {this.amISpy() ? null : <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>}
+      </div>
       {isOver ? (
         <GameOutcome
           isOver={isOver}

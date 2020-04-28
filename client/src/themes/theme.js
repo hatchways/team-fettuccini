@@ -51,12 +51,10 @@ export const theme = createMuiTheme({
     },
     MuiCard: {
       root: {
-        padding: "0.5em",
-
+        padding: "10% 5%",
         "&:hover": {
           cursor: "pointer"
         }
-
       }
     },
     MuiCheck: {

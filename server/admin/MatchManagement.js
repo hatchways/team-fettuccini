@@ -186,25 +186,21 @@ class MatchManager {
 		let mess = "Move failed";
 
 		console.log("HELLLOOOOOO!!!!!!!!");
-		if (!game.dict.has(word)) {
-			console.log(word + " is not a real word");
-		} else if (!game.validWord(word)) {
-			console.log(word + " is a substring or superstring of a word that exists on board.");
-		}
-		else {
-			if ((
-				userID == game.getBlueSpy().id &&
-				game.getState() == gameState.BLUE_SPY) ||
-				(
-					userID == game.getRedSpy().id &&
-					game.getState() == gameState.RED_SPY)) {
+
+
+		if ((userID == game.getBlueSpy().id && game.getState() == gameState.BLUE_SPY) ||
+			(userID == game.getRedSpy().id && game.getState() == gameState.RED_SPY)) {
+			if (!game.dict.has(word)) {
+				console.log(word + " is not a real word");
+			} else if (!game.validWord(word)) {
+				console.log(word + " is a substring or superstring of a word that exists on board.");
+			} else {
 				mess = game.nextSpyHint(numGuesses, word, name);
-			} else if (!["BS", "RS"].includes(role)) {
-				mess = game.agentChat(role, name, word)
 			}
-			// TODO does this return go outside of this else?
-			return this.getMatchInfo(matchID, userID);
+		} else if (!["BS", "RS"].includes(role)) {
+			mess = game.agentChat(role, name, word)
 		}
+		return this.getMatchInfo(matchID, userID);
 	}
 
 	//Field agent turn.

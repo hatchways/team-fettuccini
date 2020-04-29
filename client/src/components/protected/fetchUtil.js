@@ -11,6 +11,7 @@ export default async ({ url, method, body }) => {
     if (res.status !== 200) {
       res = await res.text()
       console.error('failed request :: ', res)
+      return { error: res }
     }
   } catch (error) {
     console.log(`error @ ${url} raw \n`, error)

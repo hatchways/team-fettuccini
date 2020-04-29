@@ -1,12 +1,14 @@
 import React from "react";
 
-import { Paper, Button, List, ListItem, Input, Typography, Grid } from "@material-ui/core";
+import { Paper, InputBase, Button, List, ListItem, Input, Typography, Grid } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
 import styleChatBox from "./styleChatBox.js";
 
 const spyDictionary = {
   RS: "red",
+  RF: "redfield",
   BS: "blue",
+  BF: "bluefield",
 }
 
 class ChatBox extends React.Component {
@@ -35,7 +37,8 @@ class ChatBox extends React.Component {
     this.setState({ num: parseInt(this.state.num) - 1 });
   }
 
-  sendCurrentMsg = () => {
+  sendCurrentMsg = (e) => {
+    e.preventDefault()
     const { num, word } = this.state
     if (num === '' || word === '') {
       return
@@ -63,17 +66,34 @@ class ChatBox extends React.Component {
         <List className={classes.chatList}>
           {text}
         </List>
-        <Grid container item className={classes.inputStyle}>
-          <Input className={classes.inputBox} name="word" value={word} onChange={this.handleChange} />
-          <Typography variant="h5">
-            <Button disabled={this.state.num <= 1 ? true : false} className={"MuiPaper-elevation1"} onClick={this.decrement}>-</Button>
-            {num}
-            <Button disabled={this.state.num >= 9 ? true : false} className={"MuiPaper-elevation1"} onClick={this.increment}>+</Button>
-          </Typography>
-        </Grid>
-        <Button onClick={() => this.sendCurrentMsg()} color='primary' variant='contained'>
-          Submit Hint
+        <form onSubmit={this.sendCurrentMsg} className={classes.chatForm}>
+          <div className={classes.inputStyle}>
+            <InputBase
+              className={classes.inputBox}
+              name="word"
+              value={word}
+              onChange={this.handleChange}
+              inputProps={{ 'aria-label': 'naked' }}
+              placeholder="Type here..." />
+
+            <div className={classes.inlineGrid} >
+              <Button
+                disabled={this.state.num <= 1 ? true : false}
+                className={`${classes.plusMinus} MuiPaper-elevation1`}
+                onClick={this.decrement}>-</Button>
+              <Typography className={classes.numInput} variant="h5">
+                {num}
+              </Typography>
+              <Button
+                disabled={this.state.num >= 9 ? true : false}
+                className={`${classes.plusMinus} MuiPaper-elevation1`}
+                onClick={this.increment}>+</Button>
+            </div>
+          </div>
+          <Button onClick={this.sendCurrentMsg} type='submit' color='primary' variant='contained'>
+            Done
           </Button>
+        </form>
       </Paper>
 
 

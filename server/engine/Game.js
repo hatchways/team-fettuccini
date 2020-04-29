@@ -32,7 +32,7 @@ class Game {
 		this.redField = {};
 		this.blueField = {};
 		this.chatHistory = [];
-		this.reset();
+		this.board = new Board();
 	}
 
 	setHost(id) {
@@ -81,7 +81,6 @@ class Game {
 	//Function to restart game.
 	reset() {
 		this.state = gameState.RED_SPY;
-		this.board = new Board();
 		this.redLeft = 9;
 		this.blueLeft = 8;
 		this.numGuessesLeft = 0;

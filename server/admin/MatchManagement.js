@@ -131,7 +131,8 @@ class MatchManager {
 			return { message: matchNotFound };
 		}
 
-		if (game.getRedField().id != "" && game.getRedSpy().id != "" && game.getBlueSpy().id != "" && game.getBlueField().id != "") {
+		if (game.getRedField().id && game.getRedSpy().id && game.getBlueSpy().id && game.getBlueField().id) {
+			game.reset();
 			return { gamestart: true, info: this.getMatchInfo(matchID, userID), message: mess };
 		}
 
@@ -186,22 +187,19 @@ class MatchManager {
 		let mess = "Move failed";
 
 		console.log("HELLLOOOOOO!!!!!!!!");
-		if (!game.dict.has(word)) {
-			console.log(word + " is not a real word");
-		} else if (!game.validWord(word)) {
-			console.log(word + " is a substring or superstring of a word that exists on board.");
-		}
-		else {
-			if ((
-				userID == game.getBlueSpy().id &&
-				game.getState() == gameState.BLUE_SPY) ||
-				(
-					userID == game.getRedSpy().id &&
-					game.getState() == gameState.RED_SPY)) {
+
+
+		if ((userID == game.getBlueSpy().id && game.getState() == gameState.BLUE_SPY) ||
+			(userID == game.getRedSpy().id && game.getState() == gameState.RED_SPY)) {
+			if (!game.dict.has(word)) {
+				console.log(word + " is not a real word");
+			} else if (!game.validWord(word)) {
+				console.log(word + " is a substring or superstring of a word that exists on board.");
+			} else {
 				mess = game.nextSpyHint(numGuesses, word, name);
-			} else if (!["BS", "RS"].includes(role)) {
-				mess = game.agentChat(role, name, word)
 			}
+		} else if (!["BS", "RS"].includes(role)) {
+			mess = game.agentChat(role, name, word)
 		}
 		return {info: this.getMatchInfo(matchID, userID), message: "Spy command"};
 	}

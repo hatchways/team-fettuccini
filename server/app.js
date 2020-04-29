@@ -157,8 +157,8 @@ io.on('connection', function(socket) {
 		let gameStateSpy = {};
 		let gameStateField = {}
 		let g = MatchManager.getGame(matchID)
-		const spyUser = g.getRedSpy();
-		const fieldUser = g.getRedField(); 
+		const spyUser = g.getRedSpy().id;
+		const fieldUser = g.getRedField().id; 
 		//Check who is sending the move (spy master or field agent) and call appropriate method.
 		if (position == "RF" || position == "BF") {
 			if (move == "_END") {
@@ -196,8 +196,10 @@ io.on('connection', function(socket) {
 		gameStateField.isOver = match.isGameOver();
 		gameStateField.winner = match.getWinner();
 		gameStateField.turnId = match.turnId;
-		console.log(gameStateField);
-		console.log(gameStateSpy);
+		console.log("Field response");
+		console.log(gameStateField.info.info.factions);
+		console.log("Spy response");
+		console.log(gameStateSpy.info.info.factions);
 		io.in(matchID+"_"+"FieldAgent").emit('updateState', gameStateField);
 		io.in(matchID+"_"+"SpyMaster").emit('updateState', gameStateSpy);
 	})
@@ -263,12 +265,6 @@ function onListening() {
 
   console.log("Listening on " + bind);
 }
-
-
-
-
-
-
 
 
 module.exports = app;

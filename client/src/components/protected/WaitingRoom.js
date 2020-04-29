@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import socketIOClient from "socket.io-client";
+import io from "socket.io-client";
 
 import { Typography, Paper, Button, FormLabel, Grid, List, ListItem } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
@@ -35,7 +35,7 @@ class WaitingRoom
     }
     this.ping = this.ping.bind(this)
     this.changePosition = this.changePosition.bind(this)
-    this.socket = socketIOClient("http://localhost:3001");
+    this.socket = io("http://localhost:3001");
   }
 
   async ping() {
@@ -102,7 +102,11 @@ class WaitingRoom
     }
   }
 
-  componentDidMount = async () => {
+  componentWillUnmount = async () => {
+	  this.socket.disconnect(true);
+  }
+  
+  componentDidMount = () => {
     const userId = auth.getUserInfo().id
     const name = auth.getUserInfo().name
     const { matchId } = this.props.match.params
@@ -142,6 +146,8 @@ class WaitingRoom
   }
 
   updatePositions = (data) => {
+	  console.log("in update positions")
+	  console.log(data);
 	  let res = data.info;
       const { userId, matchId, positions, name } = this.state
   		for (let pos in waitingRoomDictionary) {

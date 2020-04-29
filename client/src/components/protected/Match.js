@@ -51,6 +51,10 @@ class Match extends Component {
     this.socket = undefined;
   }
 
+  componentDidUnmount = async () => {
+	  this.socket.disconnect(true);
+  }
+  
   componentDidMount = () => {
     if (this.props.location.state == null) {
       this.props.history.push(`/waitingroom/${this.props.match.params.matchId}`);
@@ -89,7 +93,7 @@ class Match extends Component {
           	  userID: this.state.userId,
             });
     	  
-    	  console.log(this.state);
+    	  console.log("After emit "+this.state);
       })
     }
 
@@ -152,7 +156,9 @@ class Match extends Component {
       })
   }*/
   
-  updateStateRes = (res) => {
+  updateStateRes = (data) => {
+	console.log("in updateStateRes");
+	let res = data;
 	console.log('res ping ', res)
 	let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
     let resInfo = res.info

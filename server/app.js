@@ -79,19 +79,15 @@ server.on("listening", onListening);
 
 var socket = require("socket.io");
 var io = socket(server);
+
 io.on('connection', function(socket) {
 	console.log("made socket connection "+ socket.id);
 	
+	socket.on('disconnect', (data) => {
+		console.log("Disconnect ")
+		console.log(socket.id)
+	})
 	socket.on('changePosition', function(data) {
-		/*res = await fetchUtil({
-	        url: `/matches/${matchId}/${action}`,
-	        method: "POST",
-	        body: {
-	          userID: userId,
-	          name,
-	          position
-	        }
-	      })*/
 		console.log("HELLO");
 		const matchID = data.matchID;
 		const userID = data.userID;
@@ -101,13 +97,21 @@ io.on('connection', function(socket) {
 		
 		//Put the player in the match at the given position.
 		try {
-			console.log("In socket func");
+			console.log("adding to position "+position);
 			let payload;
-			if (action=="joinmatch") payload = MatchManager.joinMatch(matchID, userID, position, name);
-			else payload = MatchManager.leaveMatch(matchID, userID, position);
-			console.log("Called MatchManager In socket func");
-			io.sockets.emit('changePosition', payload);
+			socket.join(matchID);
+			let posType = "FieldAgent";
 			
+			if (position == "RS" || position == "BS") posType = "SpyMaster";
+			if (action=="joinmatch") {
+				payload = MatchManager.joinMatch(matchID, userID, position, name);
+				socket.join(matchID+"_"+posType);
+			} else {
+				payload = MatchManager.leaveMatch(matchID, userID, position);
+				socket.leave(matchID+"_"+posType);
+			}
+			console.log("Called MatchManager In socket func");
+			io.in(matchID).emit('changePosition', payload);
 		} catch (err) {
 			console.error(err.message);
 		}
@@ -116,50 +120,86 @@ io.on('connection', function(socket) {
 	socket.on('updateState', function(data) {
 		const matchID = data.matchID
 		const userID = data.userID
-		
-		const gameState = {info: MatchManager.getMatchInfo(matchID, userID), mess: "update"}
+		console.log("in update state");
+		let g = MatchManager.getGame(matchID)
+		if (g==undefined) return;
+		const spyUser = g.getRedSpy().id;
+		const blueSpy = g.getBlueSpy().id;
+		const fieldUser = g.getRedField().id; 
+		const blueField = g.getBlueField().id;
+		if (userID == spyUser || userID == blueSpy) socket.join(matchID+"_SpyMaster");
+		else socket.join(matchID+"_FieldAgent");
+		const gameStateSpy = {info: MatchManager.getMatchInfo(matchID, spyUser), mess: "update"}
+		const gameStateField = {info: MatchManager.getMatchInfo(matchID, fieldUser), mess: "update"}
 		let match = MatchManager.getGame(matchID);
-		gameState.blueScore = 8 - match.blueLeft;
-		gameState.redScore = 9 - match.redLeft;
-		gameState.isOver = match.isGameOver();
-		gameState.winner = match.getWinner();
-		gameState.turnId = match.turnId;
-		io.sockets.emit('updateState', gameState);
+		gameStateSpy.blueScore = 8 - match.blueLeft;
+		gameStateSpy.redScore = 9 - match.redLeft;
+		gameStateSpy.isOver = match.isGameOver();
+		gameStateSpy.winner = match.getWinner();
+		gameStateSpy.turnId = match.turnId;
+		gameStateField.blueScore = 8 - match.blueLeft;
+		gameStateField.redScore = 9 - match.redLeft;
+		gameStateField.isOver = match.isGameOver();
+		gameStateField.winner = match.getWinner();
+		gameStateField.turnId = match.turnId;
+		console.log("Emitting from update state");
+		console.log(spyUser+" "+userID);
+		console.log(spyUser==userID);
+		io.in(matchID+"_FieldAgent").emit('updateState', gameStateField);
+		io.in(matchID+"_SpyMaster").emit('updateState', gameStateSpy);
+		console.log("Emitted from update state");
 	})
 	
 	socket.on('nextMove', function(data) {
 		
 		const { userID, position, move, name, role, turnId, matchID } = data;
 		
-		let gameState = {};
+		let gameStateSpy = {};
+		let gameStateField = {}
+		let g = MatchManager.getGame(matchID)
+		const spyUser = g.getRedSpy();
+		const fieldUser = g.getRedField(); 
 		//Check who is sending the move (spy master or field agent) and call appropriate method.
 		if (position == "RF" || position == "BF") {
 			if (move == "_END") {
 				//console.log("calling end turn in match manager");
-				gameState = MatchManager.endTurn(matchID, userID, turnId);
-			} else gameState = MatchManager.fieldGuess(matchID, userID, move, turnId);
+				gameStateField = MatchManager.endTurn(matchID, userID, turnId);
+				gameStateSpy = {info: MatchManager.getMatchInfo(matchID, spyUser), message: "Updated spy view"}
+			} else {
+				gameStateField = MatchManager.fieldGuess(matchID, userID, move, turnId);
+				gameStateSpy = {info: MatchManager.getMatchInfo(matchID, spyUser), message: "Updated spy view"}
+			}
 		} else if (position == "BS" || position == "RS") {
 			let num = move.substr(0, move.indexOf(' '));
 			let word = move.substr(move.indexOf(' ') + 1);
-			//console.log("calling spycommand in match manager");
-			gameState = MatchManager.spyCommand(matchID, userID, num, word, turnId, name);
+			console.log("calling spycommand in match manager");
+			gameStateSpy = MatchManager.spyCommand(matchID, userID, num, word, turnId, name);
+			gameStateField = {info: MatchManager.getMatchInfo(matchID, fieldUser), message: "Update Field view"}
 		} else if (position === "_CHAT") {
-			gameState = MatchManager.spyCommand(matchID, userID, 1, move, turnId, name, role)
+			gameStateField = MatchManager.spyCommand(matchID, userID, 1, move, turnId, name, role)
+			gameStateSpy = {info: MatchManager.getMatchInfo(matchID, spyUser), message: "Update Spy view"}
 		} else {
-			gameState = MatchManager.getMatchInfo(matchID, userID);
+			gameStateField = {info: MatchManager.getMatchInfo(matchID, fieldUser), message: "Update Field view"};
+			gameStateSpy = {info: MatchManager.getMatchInfo(matchID, spyUser), message: "Update Spy view"};
 		}
 		console.log("bye");
 
 		//add properties to gameState
 		let match = MatchManager.getGame(matchID);
-		gameState.blueScore = 8 - match.blueLeft;
-		gameState.redScore = 9 - match.redLeft;
-		gameState.isOver = match.isGameOver();
-		gameState.winner = match.getWinner();
-		gameState.turnId = match.turnId;
-		console.log("Game State");
-		console.log(gameState);
-		io.sockets.emit('updateState', gameState);
+		gameStateSpy.blueScore = 8 - match.blueLeft;
+		gameStateSpy.redScore = 9 - match.redLeft;
+		gameStateSpy.isOver = match.isGameOver();
+		gameStateSpy.winner = match.getWinner();
+		gameStateSpy.turnId = match.turnId;
+		gameStateField.blueScore = 8 - match.blueLeft;
+		gameStateField.redScore = 9 - match.redLeft;
+		gameStateField.isOver = match.isGameOver();
+		gameStateField.winner = match.getWinner();
+		gameStateField.turnId = match.turnId;
+		console.log(gameStateField);
+		console.log(gameStateSpy);
+		io.in(matchID+"_"+"FieldAgent").emit('updateState', gameStateField);
+		io.in(matchID+"_"+"SpyMaster").emit('updateState', gameStateSpy);
 	})
 	
 	

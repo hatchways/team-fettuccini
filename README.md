@@ -1,15 +1,16 @@
 # CODEWORDS
-  - See our [Live Heroku deployment](https://be-codewords.herokuapp.com/)
-  - Tech Stack
+  - See our [**live deployment here**](https://be-codewords.herokuapp.com/)
+  - **Tech Stack**
     - Frontend: React, Material UI
     - Backend: Node, Express, MongoDB, JWT
-  - Team
+  - **Team**
+    - [Aecio Cavalcanti](https://github.com/aeciorc) (Team Lead)
     - [Haruka Izumichi](https://github.com/haruka-izm)
     - [Bhargava Guntoori](https://github.com/Flaagrah)
     - [Pavel Machuca](https://github.com/pavel6767/)
-  - About the game
+  - **About the game**
     - Check the rules at this [wikipedia article](<https://en.wikipedia.org/wiki/Codenames_(board_game)>)
-  - Install locally
+  - **Install locally**
     - Both frontend and backend are in this repository, and have to be running
     - From root folder
       - Frontend:
@@ -18,7 +19,7 @@
       - Backend:
         - `cd server`
         - `npm install`
-  - Running locally
+  - **Running locally**
     - Run the frontend client:
       - `npm run start`
     - Run the server:

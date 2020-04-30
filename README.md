@@ -42,9 +42,45 @@
 ![waiting room](https://res.cloudinary.com/a-node/image/upload/v1588201201/codingwords/cw-waiting_room.png?raw=true "Optional Title")
 
 **Once 4 roles are picked, everyone is lead to the game view**
+  - Field agents can chat in the chatbox, their messages are in grey
 
 ![field view](https://res.cloudinary.com/a-node/image/upload/v1588201201/codingwords/cw-gameplay.png?raw=true "Optional Title")
 
-**If you're a spy, then you can see the values that eac card holds**
+**Spies can see the values that each card holds**
+  - They can enter their clue in the chatbox
 
 ![spy view](https://res.cloudinary.com/a-node/image/upload/v1588201535/codingwords/cw-spy_view.png "Optional Title")
+
+**Once settled, the match outcome is saved to the database**
+```
+{
+  "_id": {match.id},
+  "date": {date},
+  "blueScore": {match.blueScore},
+  "redScore": {match.redScore},
+  "winner": {match.winner},
+  "participants": [
+    {
+      "_id": {internal.id},
+      "user": {user.id},
+      "role": {match.RedSpy}
+    },
+    {
+      "_id": {internal.id},
+      "user": {user.id},
+      "role": {match.RedFieldAgent}
+    },
+    {
+      "_id": {internal.id},
+      "user": {user.id},
+      "role": {match.BlueSpy}
+    },
+    {
+      "_id": {internal.id},
+      "user": {user.id},
+      "role": {match.BlueFieldAgent}
+    }
+  ],
+  "__v": 0
+}
+```

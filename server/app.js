@@ -267,4 +267,4 @@ function onListening() {
 }
 
 
-module.exports = app;
+module.exports = {app, io};

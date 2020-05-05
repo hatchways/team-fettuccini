@@ -2,6 +2,7 @@ const Board = require("./Board.js");
 const GameWord = require("./GameWord.js");
 const WordStates = require("./WordStates.js");
 const fs = require("fs");
+const {app, io} = require("../app.js");
 
 var gameState = {
 	BLUE_WON: "Blue won",
@@ -89,9 +90,16 @@ class Game {
 		this.turnId = (new Date()).toUTCString();
 		this.turnInterval = setInterval(async () => {
 			this.nextTurn(true);
+			this.timeOut();
 		}, 60 * 1000);
 	}
 
+	timeOut() {
+		console.log("in Timeout");
+		io.in(matchID+"_FieldAgent").emit('needToUpdate', gameStateField);
+		io.in(matchID+"_SpyMaster").emit('needToUpdate', gameStateSpy);
+	}
+	
 	//Function to get state of the board to be sent to front end.
 	getBoardInfo(spyView) {
 		const words = this.board.getWords();
@@ -191,6 +199,7 @@ class Game {
 		clearInterval(this.turnInterval);
 		this.turnInterval = setInterval(async () => {
 			this.nextTurn(true);
+			this.timeOut();
 		}, 60 * 1000);
 
 		return this.state;

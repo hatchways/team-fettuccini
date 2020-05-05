@@ -88,6 +88,13 @@ class Match extends Component {
 
         this.socket = socketIOClient("http://localhost:3001/");
         this.socket.on('updateState', this.updateStateRes)
+        this.socket.on('needToUpdate', ()=>{
+        	this.socket.emit('updateState', {
+                matchID: this.state.matchId,
+                userID: this.state.userId,
+              });
+        });
+        
         this.socket.emit('updateState', {
           matchID: this.state.matchId,
           userID: this.state.userId,

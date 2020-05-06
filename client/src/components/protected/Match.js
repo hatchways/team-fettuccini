@@ -92,12 +92,14 @@ class Match extends Component {
         	this.socket.emit('updateState', {
                 matchID: this.state.matchId,
                 userID: this.state.userId,
+                updateToEveryone: false
               });
         });
         
         this.socket.emit('updateState', {
           matchID: this.state.matchId,
           userID: this.state.userId,
+          updateToEveryone: true
         });
 
         console.log("After emit " + this.state);

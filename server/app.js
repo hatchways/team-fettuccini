@@ -6,53 +6,13 @@ const logger = require("morgan");
 const connectDB = require("./db");
 const cors = require("cors");
 
-const indexRouter = require("./routes/index");
-const pingRouter = require("./routes/ping");
-const usersRouter = require("./routes/users");
-const matchHistoryRouter = require("./routes/matchHistory");
-const MatchManager = require("./admin/MatchManagement");
+
 
 const { json, urlencoded } = express;
 
-const { Game, gameState } = require("./engine/Game.js");
 const readline = require("readline");
 
 var app = express();
-app.use(express.json({ extended: false }));
-app.get("/", (req, res) => res.send("API Running"));
-app.use(logger("dev"));
-app.use(json());
-app.use(urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(join(__dirname, "public")));
-app.use(cors());
-
-app.use("/users", usersRouter);
-app.use("/ping", pingRouter);
-app.use("/matches", require("./routes/matches"));
-app.use(usersRouter);
-app.use("/matchHistory", matchHistoryRouter);
-// catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  next(createError(404));
-});
-
-// error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.json({ error: err });
-});
-
-connectDB();
-
-
-
-
 
 var http = require("http");
 
@@ -79,6 +39,8 @@ server.on("listening", onListening);
 
 var socket = require("socket.io");
 var io = socket(server);
+module.exports = {app, io};
+const MatchManager = require("./admin/MatchManagement");
 
 io.on('connection', function(socket) {
 	console.log("made socket connection "+ socket.id);
@@ -104,7 +66,7 @@ io.on('connection', function(socket) {
 			
 			if (position == "RS" || position == "BS") posType = "SpyMaster";
 			if (action=="joinmatch") {
-				payload = MatchManager.joinMatch(matchID, userID, position, name);
+				payload = MatchManager.joinMatch(matchID, userID, position, name, socket.id);
 				socket.join(matchID+"_"+posType);
 			} else {
 				payload = MatchManager.leaveMatch(matchID, userID, position);
@@ -120,6 +82,7 @@ io.on('connection', function(socket) {
 	socket.on('updateState', function(data) {
 		const matchID = data.matchID
 		const userID = data.userID
+		const updateToEveryone = data.updateToEveryone
 		console.log("in update state");
 		let g = MatchManager.getGame(matchID)
 		if (g==undefined) return;
@@ -145,8 +108,24 @@ io.on('connection', function(socket) {
 		console.log("Emitting from update state");
 		console.log(spyUser+" "+userID);
 		console.log(spyUser==userID);
-		io.in(matchID+"_FieldAgent").emit('updateState', gameStateField);
-		io.in(matchID+"_SpyMaster").emit('updateState', gameStateSpy);
+		if (updateToEveryone) {
+			io.in(matchID+"_FieldAgent").emit('updateState', gameStateField);
+			io.in(matchID+"_SpyMaster").emit('updateState', gameStateSpy);
+		} else {
+			const sock = g.getSocket(userID);
+			console.log("socket id "+sock);
+			console.log("userID " + userID);
+			
+			if (spyUser==userID || blueSpy==userID) {
+				console.log("Sending to spy");
+				socket.emit('updateState', gameStateSpy);
+			}
+			if (fieldUser==userID || blueField==userID) {
+				console.log("Sending to field");
+				socket.emit('updateState', gameStateField);
+			}
+		}
+		
 		console.log("Emitted from update state");
 	})
 	
@@ -203,10 +182,44 @@ io.on('connection', function(socket) {
 		io.in(matchID+"_"+"FieldAgent").emit('updateState', gameStateField);
 		io.in(matchID+"_"+"SpyMaster").emit('updateState', gameStateSpy);
 	})
-	
-	
 });
 
+const indexRouter = require("./routes/index");
+const pingRouter = require("./routes/ping");
+const usersRouter = require("./routes/users");
+const matchHistoryRouter = require("./routes/matchHistory");
+
+app.use(express.json({ extended: false }));
+app.get("/", (req, res) => res.send("API Running"));
+app.use(logger("dev"));
+app.use(json());
+app.use(urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(join(__dirname, "public")));
+app.use(cors());
+
+app.use("/users", usersRouter);
+app.use("/ping", pingRouter);
+app.use("/matches", require("./routes/matches"));
+app.use(usersRouter);
+app.use("/matchHistory", matchHistoryRouter);
+// catch 404 and forward to error handler
+app.use(function (req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.json({ error: err });
+});
+
+connectDB();
 
 
 /**
@@ -266,5 +279,3 @@ function onListening() {
   console.log("Listening on " + bind);
 }
 
-
-module.exports = {app, io};

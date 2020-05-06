@@ -15,7 +15,9 @@ var gameState = {
 
 class Game {
 
-	constructor() {
+	constructor(matchID) {
+		this.matchID = matchID;
+		this.sockets = new Map();
 		this.state = gameState.RED_SPY;
 		this.board = null;
 		this.redLeft = 0;
@@ -47,38 +49,46 @@ class Game {
 		return this.chatHistory
 	}
 
-	setRedSpy(id, name) {
+	setRedSpy(id, name, socketID) {
 		this.redSpy = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getRedSpy() {
 		return this.redSpy;
 	}
 
-	setRedField(id, name) {
+	setRedField(id, name, socketID) {
 		this.redField = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getRedField() {
 		return this.redField;
 	}
 
-	setBlueSpy(id, name) {
+	setBlueSpy(id, name, socketID) {
 		this.blueSpy = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getBlueSpy() {
 		return this.blueSpy;
 	}
 
-	setBlueField(id, name) {
+	setBlueField(id, name, socketID) {
 		this.blueField = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getBlueField() {
 		return this.blueField;
 	}
 
+	getSocket(userID) {
+		return this.sockets.get(userID);
+	}
+	
 	//Function to restart game.
 	reset() {
 		this.state = gameState.RED_SPY;
@@ -96,8 +106,8 @@ class Game {
 
 	timeOut() {
 		console.log("in Timeout");
-		io.in(matchID+"_FieldAgent").emit('needToUpdate', gameStateField);
-		io.in(matchID+"_SpyMaster").emit('needToUpdate', gameStateSpy);
+		io.in(this.matchID+"_FieldAgent").emit('needToUpdate', {});
+		io.in(this.matchID+"_SpyMaster").emit('needToUpdate', {});
 	}
 	
 	//Function to get state of the board to be sent to front end.

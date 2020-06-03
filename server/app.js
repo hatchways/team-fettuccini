@@ -1,6 +1,8 @@
 const createError = require("http-errors");
 const express = require("express");
 const { join } = require("path");
+const cookie = require('cookie');
+const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const connectDB = require("./db");
@@ -44,7 +46,25 @@ const MatchManager = require("./admin/MatchManagement");
 
 io.on('connection', function(socket) {
 	console.log("made socket connection "+ socket.id);
-	
+	console.log("cookie: "+socket.handshake.headers.cookie);
+	console.log("socket: "+socket.handshake.headers);
+	console.log("Cookie");
+    
+	try {
+		const cookies = cookie.parse(socket.handshake.headers.cookie);
+	    const token = cookies.token;
+	    if (token) {
+	    	jwt.verify(token, process.env.JWT_KEY);
+	    } else {
+	        console.log("Unable to authenticate the client for socket connection");
+	        socket.disconnect();
+	    }
+		
+	} catch (err) {
+		console.log("Invalid token for socket connection");
+		socket.disconnect();
+	}
+      
 	socket.on('disconnect', (data) => {
 		console.log("Disconnect ")
 		console.log(socket.id)

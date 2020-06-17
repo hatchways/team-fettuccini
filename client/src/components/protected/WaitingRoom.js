@@ -1,18 +1,18 @@
 import React, { Fragment } from "react";
+import io from "socket.io-client";
+
 import { Typography, Paper, Button, FormLabel, Grid, List, ListItem } from "@material-ui/core";
 import LinkIcon from '@material-ui/icons/Link';
 import CheckIcon from '@material-ui/icons/Check';
 import CancelIcon from '@material-ui/icons/Cancel';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 
-import ServerPing from './ServerPing'
-
 import { withStyles } from "@material-ui/core/styles";
 import style from "./styleWaitingNewGame"
 import auth from '../auth/auth'
 
 import fetchUtil from './fetchUtil'
-// TODO make this into a file
+
 const waitingRoomDictionary = {
   RS: "Red Spy Master",
   RF: "Red Field Agent",
@@ -33,6 +33,7 @@ class WaitingRoom
     }
     this.ping = this.ping.bind(this)
     this.changePosition = this.changePosition.bind(this)
+    this.socket = io("http://localhost:3001");
   }
 
   async ping() {
@@ -99,7 +100,11 @@ class WaitingRoom
     }
   }
 
-  componentDidMount = async () => {
+  componentWillUnmount = async () => {
+    this.socket.disconnect(true);
+  }
+
+  componentDidMount = () => {
     const userId = auth.getUserInfo().id
     const name = auth.getUserInfo().name
     const { matchId } = this.props.match.params
@@ -109,7 +114,18 @@ class WaitingRoom
       matchId,
       name,
       userId,
+    }, () => {
+      this.socket.on('changePosition', this.updatePositions)
+
+      this.socket.emit('changePosition', {
+        matchID: this.state.matchId,
+        userID: this.state.userId,
+        name: this.state.name,
+        position: "",
+        action: "joinmatch"
+      });
     })
+
   }
 
   copyLink = () => {
@@ -120,7 +136,6 @@ class WaitingRoom
 
   startMatch = () => {
     const { matchId, matchState, positions } = this.state
-
     this.props.history.push({
       pathname: `/match/${matchId}`,
       state: { matchId, matchState, positions }
@@ -128,32 +143,11 @@ class WaitingRoom
 
   }
 
-  async changePosition(e) {
+  updatePositions = (data) => {
+    console.log("in update positions")
+    console.log(data);
+    let res = data.info;
     const { userId, matchId, positions, name } = this.state
-    let res
-
-    const position = e.currentTarget.dataset.id.slice(0, 2)
-    const action = e.currentTarget.dataset.id.slice(2)
-
-    try {
-
-      res = await fetchUtil({
-        url: `/matches/${matchId}/${action}`,
-        method: "POST",
-        body: {
-          userID: userId,
-          name,
-          position
-        }
-      })
-
-    } catch (error) {
-      console.log('error @ PING .json() \n', error)
-    }
-
-    res = res.info
-
-
     for (let pos in waitingRoomDictionary) {
       if (res.hasOwnProperty(pos)) {
         if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
@@ -182,11 +176,27 @@ class WaitingRoom
         }
       }
     }
-
+    console.log(positions);
     this.setState({
       ...this.state,
-      positions
-    })
+      positions,
+      matchState: data
+    });
+  }
+
+  async changePosition(e) {
+    const { userId, matchId, positions, name } = this.state
+    let res
+    const position = e.currentTarget.dataset.id.slice(0, 2)
+    const action = e.currentTarget.dataset.id.slice(2)
+
+    this.socket.emit('changePosition', {
+      matchID: matchId,
+      userID: userId,
+      name: name,
+      position: position,
+      action: action
+    });
   }
 
   render() {
@@ -227,8 +237,6 @@ class WaitingRoom
           ref={(textarea) => this.textArea = textarea}
           className={classes.hiddenText}
           value={this.state.matchId} />}
-
-        <ServerPing ping={this.ping} />
 
         <List className={classes.availableRoles}>
           <Typography variant="h5">Available roles</Typography>

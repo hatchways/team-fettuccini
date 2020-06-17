@@ -2,6 +2,7 @@ const Board = require("./Board.js");
 const GameWord = require("./GameWord.js");
 const WordStates = require("./WordStates.js");
 const fs = require("fs");
+const {app, io} = require("../app.js");
 
 var gameState = {
 	BLUE_WON: "Blue won",
@@ -14,7 +15,9 @@ var gameState = {
 
 class Game {
 
-	constructor() {
+	constructor(matchID) {
+		this.matchID = matchID;
+		this.sockets = new Map();
 		this.state = gameState.RED_SPY;
 		this.board = null;
 		this.redLeft = 0;
@@ -46,38 +49,46 @@ class Game {
 		return this.chatHistory
 	}
 
-	setRedSpy(id, name) {
+	setRedSpy(id, name, socketID) {
 		this.redSpy = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getRedSpy() {
 		return this.redSpy;
 	}
 
-	setRedField(id, name) {
+	setRedField(id, name, socketID) {
 		this.redField = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getRedField() {
 		return this.redField;
 	}
 
-	setBlueSpy(id, name) {
+	setBlueSpy(id, name, socketID) {
 		this.blueSpy = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getBlueSpy() {
 		return this.blueSpy;
 	}
 
-	setBlueField(id, name) {
+	setBlueField(id, name, socketID) {
 		this.blueField = { id, name };
+		if (socketID != undefined) this.sockets.set(id, socketID);
 	}
 
 	getBlueField() {
 		return this.blueField;
 	}
 
+	getSocket(userID) {
+		return this.sockets.get(userID);
+	}
+	
 	//Function to restart game.
 	reset() {
 		this.state = gameState.RED_SPY;
@@ -89,9 +100,16 @@ class Game {
 		this.turnId = (new Date()).toUTCString();
 		this.turnInterval = setInterval(async () => {
 			this.nextTurn(true);
+			this.timeOut();
 		}, 60 * 1000);
 	}
 
+	timeOut() {
+		console.log("in Timeout");
+		io.in(this.matchID+"_FieldAgent").emit('needToUpdate', {});
+		io.in(this.matchID+"_SpyMaster").emit('needToUpdate', {});
+	}
+	
 	//Function to get state of the board to be sent to front end.
 	getBoardInfo(spyView) {
 		const words = this.board.getWords();
@@ -114,9 +132,9 @@ class Game {
 				boardValues[i] = gWord.getVal();
 			}
 			if (spyView) factionValues[i] = gWord.getPerson();
+			else factionValues[i] = "UNKNOWN";
 		}
-		if (!spyView) return { board: boardValues };
-		else return { board: boardValues, factions: factionValues };
+		return { board: boardValues, factions: factionValues };
 		//return boardValues;
 	}
 
@@ -191,6 +209,7 @@ class Game {
 		clearInterval(this.turnInterval);
 		this.turnInterval = setInterval(async () => {
 			this.nextTurn(true);
+			this.timeOut();
 		}, 60 * 1000);
 
 		return this.state;

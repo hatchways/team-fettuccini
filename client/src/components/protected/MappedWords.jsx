@@ -12,7 +12,11 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
         let cardStyle = `chosen${word.slice(1, 2)}`;
 
         if (!chosen) {
-          cardStyle = spyView() ? "buttonSpy" + factions[i].slice(0, 1) : "button"
+          if (spyView && factions[i] != "UNKNOWN") {
+            cardStyle = "buttonSpy" + factions[i].slice(0, 1)
+          } else {
+            cardStyle = "button";
+          }
         }
 
         return (

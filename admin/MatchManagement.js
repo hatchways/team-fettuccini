@@ -23,11 +23,9 @@ class MatchManager {
 	}
 
 	createMatch(hostID, pub) {
-		let game = new Game();
-		console.log('\n\nhost di ', hostID)
-		game.setHost(hostID);
 		let matchID = mongoose.Types.ObjectId().toString();
-
+		let game = new Game(matchID);
+		game.setHost(hostID);
 		if (pub == "true") {
 			console.log("Creating public match");
 			this.publicMatches.set(matchID, game);
@@ -55,7 +53,6 @@ class MatchManager {
 		let info;
 		if (userID == RS.id || userID == BS.id) info = game.getBoardInfo(true);
 		else info = game.getBoardInfo(false);
-		console.log("num guess in match manager " + numGuess);
 		return { info, RS, RF, BS, BF, Host, state, numGuess, chatHistory };
 	}
 
@@ -88,7 +85,7 @@ class MatchManager {
 	}
 
 	//Join the user to the match and set the user to the given position.
-	joinMatch(matchID, userID, position, name) {
+	joinMatch(matchID, userID, position, name, socketID) {
 		let mess = "Space is occupied";
 		console.log("Looking for " + matchID);
 		console.log("Setting user " + userID);
@@ -106,26 +103,26 @@ class MatchManager {
 			if (position == "BF") {
 				console.log("here" + game.getBlueField().id);
 				if (game.getBlueField().id == "" || Object.keys(game.getBlueField()).length === 0) {
-					game.setBlueField(userID, name);
+					game.setBlueField(userID, name, socketID);
 					mess = "You are the Blue Field Agent";
 				}
 			} else if (position == "BS") {
 				console.log("here" + game.getBlueSpy().id);
 				if (game.getBlueSpy().id == "" || Object.keys(game.getBlueSpy()).length === 0) {
-					game.setBlueSpy(userID, name);
+					game.setBlueSpy(userID, name, socketID);
 					mess = "You are the Blue Spy Master";
 				}
 			} else if (position == "RS") {
 				console.log("here" + game.getRedSpy().id);
 				if (game.getRedSpy().id == "" || Object.keys(game.getRedSpy()).length === 0) {
 					console.log("hello");
-					game.setRedSpy(userID, name);
+					game.setRedSpy(userID, name, socketID);
 					mess = "You are the Red Spy Master";
 				}
 			} else if (position == "RF") {
 				console.log("here" + game.getRedField().id);
 				if (game.getRedField().id == "" || Object.keys(game.getRedField()).length === 0) {
-					game.setRedField(userID, name);
+					game.setRedField(userID, name, socketID);
 					mess = "You are the Red Field Agent";
 				}
 			}
@@ -164,6 +161,7 @@ class MatchManager {
 		} else if (game.getRedSpy().id == userID && position == "RS") {
 			game.setRedSpy("", "");
 		}
+		game.sockets.remove(userID);
 		console.log(this.getMatchInfo(matchID, userID));
 		return { info: this.getMatchInfo(matchID, userID), message: "Left Match" };
 	}
@@ -182,6 +180,8 @@ class MatchManager {
 		let game = this.getGame(matchID);
 		console.log("numGuess in spy command " + numGuesses);
 		if (game == undefined || game == null) return matchNotFound;
+		console.log("turnId comparison")
+		console.log(game.turnId + " " + turnId)
 		if (game.turnId != turnId) return turnExpired;
 
 		let mess = "Move failed";
@@ -201,7 +201,7 @@ class MatchManager {
 		} else if (!["BS", "RS"].includes(role)) {
 			mess = game.agentChat(role, name, word)
 		}
-		return this.getMatchInfo(matchID, userID);
+		return { info: this.getMatchInfo(matchID, userID), message: "Spy command" };
 	}
 
 	//Field agent turn.

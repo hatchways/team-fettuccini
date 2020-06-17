@@ -12,7 +12,6 @@ import Match from "./components/protected/Match";
 
 import { theme } from "./themes/theme";
 import "./index.css";
-
 function App() {
   const [isMatchInProgres, setIsMatchInProgres] = useState(false);
   const [blueScore, setBlueScore] = useState(0);

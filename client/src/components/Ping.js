@@ -7,7 +7,6 @@ function Ping(props) {
   const [answer, setAnswer] = useState("");
   useEffect(() => {
     props.incrementStep();
-    // eslint-disable-next-line
   }, []);
 
   const submitAnswer = () => {

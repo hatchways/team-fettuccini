@@ -7,14 +7,12 @@ import CheckIcon from '@material-ui/icons/Check';
 import CancelIcon from '@material-ui/icons/Cancel';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 
-import ServerPing from './ServerPing'
-
 import { withStyles } from "@material-ui/core/styles";
 import style from "./styleWaitingNewGame"
 import auth from '../auth/auth'
 
 import fetchUtil from './fetchUtil'
-// TODO make this into a file
+
 const waitingRoomDictionary = {
   RS: "Red Spy Master",
   RF: "Red Field Agent",
@@ -103,31 +101,31 @@ class WaitingRoom
   }
 
   componentWillUnmount = async () => {
-	  this.socket.disconnect(true);
+    this.socket.disconnect(true);
   }
-  
+
   componentDidMount = () => {
     const userId = auth.getUserInfo().id
     const name = auth.getUserInfo().name
     const { matchId } = this.props.match.params
-    
+
     this.setState({
       ...this.state,
       matchId,
       name,
       userId,
-    }, ()=>{
-        this.socket.on('changePosition', this.updatePositions)
-        
-        this.socket.emit('changePosition', {
-      	  matchID: this.state.matchId,
-      	  userID: this.state.userId,
-      	  name: this.state.name,
-      	  position: "",
-      	  action: "joinmatch"
-        });
+    }, () => {
+      this.socket.on('changePosition', this.updatePositions)
+
+      this.socket.emit('changePosition', {
+        matchID: this.state.matchId,
+        userID: this.state.userId,
+        name: this.state.name,
+        position: "",
+        action: "joinmatch"
+      });
     })
-    
+
   }
 
   copyLink = () => {
@@ -146,59 +144,59 @@ class WaitingRoom
   }
 
   updatePositions = (data) => {
-	  console.log("in update positions")
-	  console.log(data);
-	  let res = data.info;
-      const { userId, matchId, positions, name } = this.state
-  		for (let pos in waitingRoomDictionary) {
-	      if (res.hasOwnProperty(pos)) {
-	        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
-	          if (positions.hasOwnProperty(pos)) {
-	            delete positions[pos]
-	          }
-	        } else { // if role is filled
-	          if (positions.hasOwnProperty(pos)) {
-	            if (positions[pos].userId !== res[pos].id) {
-	              positions[pos] = {
-	                userId: res[pos].id,
-	                name: res[pos].name
-	              }
-	            }
-	          } else {
-	            positions[pos] = {
-	              role: waitingRoomDictionary[pos],
-	              userId: res[pos].id,
-	              name: res[pos].name
-	            }
-	          }
-	        }
-	      } else {
-	        if (positions.hasOwnProperty(pos)) {
-	          delete positions[pos]
-	        }
-	      }
-	    }
-      console.log(positions);
-      this.setState({
-          ...this.state,
-          positions,
-          matchState: data
-        });
+    console.log("in update positions")
+    console.log(data);
+    let res = data.info;
+    const { userId, matchId, positions, name } = this.state
+    for (let pos in waitingRoomDictionary) {
+      if (res.hasOwnProperty(pos)) {
+        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
+          if (positions.hasOwnProperty(pos)) {
+            delete positions[pos]
+          }
+        } else { // if role is filled
+          if (positions.hasOwnProperty(pos)) {
+            if (positions[pos].userId !== res[pos].id) {
+              positions[pos] = {
+                userId: res[pos].id,
+                name: res[pos].name
+              }
+            }
+          } else {
+            positions[pos] = {
+              role: waitingRoomDictionary[pos],
+              userId: res[pos].id,
+              name: res[pos].name
+            }
+          }
+        }
+      } else {
+        if (positions.hasOwnProperty(pos)) {
+          delete positions[pos]
+        }
+      }
+    }
+    console.log(positions);
+    this.setState({
+      ...this.state,
+      positions,
+      matchState: data
+    });
   }
-  
+
   async changePosition(e) {
     const { userId, matchId, positions, name } = this.state
     let res
     const position = e.currentTarget.dataset.id.slice(0, 2)
     const action = e.currentTarget.dataset.id.slice(2)
-    	
-      this.socket.emit('changePosition', {
-    	  matchID: matchId,
-    	  userID: userId,
-    	  name: name,
-    	  position: position,
-    	  action: action
-      });
+
+    this.socket.emit('changePosition', {
+      matchID: matchId,
+      userID: userId,
+      name: name,
+      position: position,
+      action: action
+    });
   }
 
   render() {

@@ -88,14 +88,14 @@ class Match extends Component {
 
         this.socket = socketIOClient("http://localhost:3001/");
         this.socket.on('updateState', this.updateStateRes)
-        this.socket.on('needToUpdate', ()=>{
-        	this.socket.emit('updateState', {
-                matchID: this.state.matchId,
-                userID: this.state.userId,
-                updateToEveryone: false
-              });
+        this.socket.on('needToUpdate', () => {
+          this.socket.emit('updateState', {
+            matchID: this.state.matchId,
+            userID: this.state.userId,
+            updateToEveryone: false
+          });
         });
-        
+
         this.socket.emit('updateState', {
           matchID: this.state.matchId,
           userID: this.state.userId,
@@ -199,7 +199,6 @@ class Match extends Component {
   }
 
   clickWord = async (e) => {
-    // let res
 
     if (!this.isMyTurn() || this.amISpy()) {
       return
@@ -215,25 +214,6 @@ class Match extends Component {
         turnId: turnId
       });
     }
-
-    // words[index] = res.info.info.board[index].slice(0, 2) !== words[index].slice(0, 2) ? res.info.info.board[index].slice(0, 2) + words[index] : words[index]
-    // if (factions != undefined) factions[index] = res.info.info.factions[index].slice(0, 2);
-
-    // this.props.setBlueScore(res.blueScore);
-    // this.props.setRedScore(res.redScore);
-
-    // this.setState({
-    //   ...this.state,
-    //   words,
-    //   guessesLeft: Number(res.info.numGuess),
-    //   positionState: res.info.state,
-    //   message: "",
-    //   isOver: res.isOver,
-    //   winner: res.winner,
-    //   secondsLeft: (turnId != res.turnId) ? 60 : secondsLeft,
-    //   turnId: res.turnId,
-    //   factions
-    // })
   }
 
   endFieldTurn = async () => {

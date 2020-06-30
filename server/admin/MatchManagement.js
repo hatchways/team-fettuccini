@@ -248,15 +248,17 @@ class MatchManager {
 	}
 
 	async saveMatch(matchID) {
+		console.log("in save match");
 		const redBasePoints = 9;
 		const blueBasePoints = 8;
 		const matchInfo = this.getGame(matchID);
 		const winner = matchInfo.getWinner();
+		console.log(matchInfo.redSpy);
 		const participants = [
-			{ user: matchInfo.redSpy && matchInfo.redSpy != "" ? mongoose.Types.ObjectId(matchInfo.redSpy) : mongoose.Types.ObjectId(), role: "Red spy" },
-			{ user: matchInfo.redField && matchInfo.redField != "" ? mongoose.Types.ObjectId(matchInfo.redField) : mongoose.Types.ObjectId(), role: "Red field" },
-			{ user: matchInfo.blueSpy && matchInfo.blueSpy != "" ? mongoose.Types.ObjectId(matchInfo.blueSpy) : mongoose.Types.ObjectId(), role: "Blue spy" },
-			{ user: matchInfo.blueField && matchInfo.blueField != "" ? mongoose.Types.ObjectId(matchInfo.blueField) : mongoose.Types.ObjectId(), role: "Blue field" }
+			{ user: matchInfo.redSpy && matchInfo.redSpy.id ? mongoose.Types.ObjectId(matchInfo.redSpy.id) : mongoose.Types.ObjectId(), role: "Red spy" },
+			{ user: matchInfo.redField && matchInfo.redField.id ? mongoose.Types.ObjectId(matchInfo.redField.id) : mongoose.Types.ObjectId(), role: "Red field" },
+			{ user: matchInfo.blueSpy && matchInfo.blueSpy.id ? mongoose.Types.ObjectId(matchInfo.blueSpy.id) : mongoose.Types.ObjectId(), role: "Blue spy" },
+			{ user: matchInfo.blueField && matchInfo.blueField.id ? mongoose.Types.ObjectId(matchInfo.blueField.id) : mongoose.Types.ObjectId(), role: "Blue field" }
 		];
 
 		// save the match info
@@ -272,6 +274,8 @@ class MatchManager {
 		match.save(function (error) {
 			if (error) {
 				console.log("saving data failed.", error);
+			} else {
+				console.log("saved match");
 			}
 		});
 

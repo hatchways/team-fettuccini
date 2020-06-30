@@ -58,4 +58,23 @@ router.get("/newgame", auth, async (req, res) => {
 })
 
 
+router.get("/profile", auth, async (req, res) => {
+	try {
+		const userID = req.user.id;
+		if (userID == null || userID == undefined) {
+			return res.send({error: "Invalid userID"});
+		}
+		const matches = await User.getMatches(userID);
+		
+		if (matches==null) {
+			return res.send({error: "User doesn't exist"});
+		}
+		
+		res.status(200).send({matchList: matches});
+	} catch (error) {
+		res.status(400).send(error);
+	}
+	
+})
+
 module.exports = router;

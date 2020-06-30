@@ -208,6 +208,7 @@ const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
 const usersRouter = require("./routes/users");
 const matchHistoryRouter = require("./routes/matchHistory");
+//const profileRouter = require("./routes/users");
 
 app.use(express.json({ extended: false }));
 app.get("/", (req, res) => res.send("API Running"));
@@ -223,6 +224,7 @@ app.use("/ping", pingRouter);
 app.use("/matches", require("./routes/matches"));
 app.use(usersRouter);
 app.use("/matchHistory", matchHistoryRouter);
+//app.use("/profile", profileRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

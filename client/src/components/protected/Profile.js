@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { GridList, GridListTile, Button } from '@material-ui/core';
+import { GridList, GridListTile, Button, Grid } from '@material-ui/core';
 import fetchUtil from './fetchUtil'
 import auth from '../auth/auth'
 import MatchBox from './MatchBox'
@@ -31,7 +31,6 @@ class Profile extends Component {
 	
 	render() {
 		const matchItems = []
-		const backColour = {backgroundColor: '#ffebcd'}
 		for (var i = 0;i<this.state.matches.length;i++) {
 			const match = this.state.matches[i];
 			const parts = match.participants;
@@ -39,6 +38,7 @@ class Profile extends Component {
 			let rf = "";
 			let bs = "";
 			let bf = "";
+
 			for (var j = 0;j<parts.length;j++) {
 				if (parts[j].role == "Red spy") {
 					rs = parts[j].user;
@@ -50,13 +50,16 @@ class Profile extends Component {
 					bf = parts[j].user;
 				}
 			}
-			const el = <MatchBox style={backColour} won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
+			const el = <MatchBox won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
 			matchItems.push(el);
 		}
 	    return (
-	    	<GridList cols="2">
-	    		{matchItems}
-	    	</GridList>
+	    	<Grid container>
+	    		<Grid item xs="6">{matchItems[0]}</Grid>
+	    		<Grid item xs="6">{matchItems[1]}</Grid>
+	    		<Grid item xs="6">{matchItems[2]}</Grid>
+	    		<Grid item xs="6">{matchItems[3]}</Grid>
+	    	</Grid>
 	    );
 	  }
 }

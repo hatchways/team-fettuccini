@@ -36,6 +36,7 @@ class Game {
 		this.blueField = {};
 		this.chatHistory = [];
 		this.board = new Board();
+		this.matchHistory = [];
 	}
 
 	setHost(id) {
@@ -106,6 +107,7 @@ class Game {
 
 	timeOut() {
 		console.log("in Timeout");
+		this.matchHistory.push("TIME");
 		io.in(this.matchID+"_FieldAgent").emit('needToUpdate', {});
 		io.in(this.matchID+"_SpyMaster").emit('needToUpdate', {});
 	}
@@ -225,6 +227,7 @@ class Game {
 			console.log("Have to make at least one guess for a turn");
 			return "Have to make at least one guess for a turn";
 		}
+		this.matchHistory("END");
 		this.madeGuess = false;
 		return this.nextTurn();
 	}
@@ -234,6 +237,7 @@ class Game {
 		const index = Math.floor(Math.random() * Math.floor(remainingWords.length));
 		remainingWords[index].choose();
 		this.processWordGuess(remainingWords[index].person);
+		this.matchHistory.push("GUESS_"+index);
 	}
 
 	processWordGuess(person) {
@@ -306,6 +310,7 @@ class Game {
 		//At least one guess has been made.
 		this.madeGuess = true;
 		const turnEnded = this.processWordGuess(person);
+		this.matchHistory.push("GUESS_"+wordNum);
 		if (turnEnded) {
 			return this.nextTurn();
 		}
@@ -340,6 +345,7 @@ class Game {
 			name,
 			text: `${guesses} - ${word}`
 		})
+		this.matchHistory.push("HINT_"+guesses+"_"+word);
 		this.spyHint = word;
 		this.numGuessesLeft = parseInt(guesses) + 1;
 		let n = this.nextTurn();
@@ -381,6 +387,10 @@ class Game {
 			return "Blue";
 		}
 		return "";
+	}
+	
+	getHistory() {
+		return this.matchHistory;
 	}
 }
 

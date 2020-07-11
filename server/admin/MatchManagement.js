@@ -253,6 +253,7 @@ class MatchManager {
 		const blueBasePoints = 8;
 		const matchInfo = this.getGame(matchID);
 		const winner = matchInfo.getWinner();
+		const matchHistory = matchInfo.getHistory();
 		console.log(matchInfo.redSpy);
 		const participants = [
 			{ user: matchInfo.redSpy && matchInfo.redSpy.id ? mongoose.Types.ObjectId(matchInfo.redSpy.id) : mongoose.Types.ObjectId(), role: "Red spy" },
@@ -269,7 +270,8 @@ class MatchManager {
 			blueScore: blueBasePoints - matchInfo.blueLeft,
 			redScore: redBasePoints - matchInfo.redLeft,
 			winner: winner,
-			participants: participants
+			participants: participants,
+			history: matchHistory
 		});
 		match.save(function (error) {
 			if (error) {

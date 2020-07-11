@@ -78,8 +78,6 @@ userSchema.statics.getMatches = async function (userId) {
   const user = await User.findById(userId);
   console.log(user);
   const ids = user.matchIds;
-  console.log("hello");
-  console.log(ids);
   const matchDescs = Match.find({"_id" : { $in: ids}});
   return matchDescs;
 };

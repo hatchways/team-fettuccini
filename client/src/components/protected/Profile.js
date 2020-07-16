@@ -10,6 +10,7 @@ class Profile extends Component {
 		this.state = {
 				matches: []
 		}
+		this.cardClick = this.cardClick.bind(this);
 	}
 	
 	componentDidMount = () => {
@@ -27,6 +28,16 @@ class Profile extends Component {
 			});
 	    })
 	    
+	}
+	
+	cardClick = (words, factions, history) => {
+		this.props.history.push({
+		      pathname: `/profile/matchhistory`,
+		      state: { words: words, factions: factions, history: history}
+		    })
+		this.setState({
+			...this.state
+		})
 	}
 	
 	render() {
@@ -50,7 +61,7 @@ class Profile extends Component {
 					bf = parts[j].user;
 				}
 			}
-			const el = <MatchBox won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
+			const el = <MatchBox cardClick={this.cardClick} words={match.words} factions={match.factions} history={match.history} won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
 			matchItems.push(el);
 		}
 	    return (

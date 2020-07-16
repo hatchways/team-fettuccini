@@ -6,7 +6,9 @@ const matchSchema = mongoose.Schema({
   redScore: Number,
   winner: String,
   participants: [{ user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, role: String }],
-  history: [String]
+  history: [String],
+  words: [String],
+  factions: [String]
 });
 
 matchSchema.methods.toJSON = function () {

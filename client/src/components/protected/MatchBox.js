@@ -13,13 +13,10 @@ class MatchBox extends Component {
 		this.blueSpy = this.props.blueSpy;
 		this.blueField = this.props.blueField;
 		this.won = this.props.won;
-		
-		this.cardClick = this.cardClick.bind(this);
-	}
-	
-	
-	cardClick = () => {
-		alert("here");
+		this.cardClick = this.props.cardClick;
+		this.words = this.props.words;
+		this.factions = this.props.factions;
+		this.history = this.props.history;
 	}
 	
 	render() {
@@ -32,7 +29,7 @@ class MatchBox extends Component {
 		//if (this.won == "Blue") cardStyle = {backgroundColor: 'BLUE'}
 		
 		return (
-				<Card align="top" justify="left" onClick={this.cardClick}>
+				<Card align="top" justify="left" onClick={() => {this.cardClick(this.words, this.factions, this.history)}}>
 					<CardContent style={redText1}> Red Spy: {this.redSpy}</CardContent>
 					<CardContent style={redText2}> Red Field: {this.redField}</CardContent>
 					<CardContent style={blueText1}> Blue Spy: {this.blueSpy}</CardContent>

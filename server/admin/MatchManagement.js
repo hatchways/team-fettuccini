@@ -252,6 +252,14 @@ class MatchManager {
 		const redBasePoints = 9;
 		const blueBasePoints = 8;
 		const matchInfo = this.getGame(matchID);
+		const words = matchInfo.board.getWords();
+		
+		const matchWords = [];
+		const matchFactions = [];
+		for (let i = 0;i<words.length;i++) {
+			matchWords.push(words[i].getVal());
+			matchFactions.push(words[i].getPerson());
+		}
 		const winner = matchInfo.getWinner();
 		const matchHistory = matchInfo.getHistory();
 		console.log(matchInfo.redSpy);
@@ -271,7 +279,9 @@ class MatchManager {
 			redScore: redBasePoints - matchInfo.redLeft,
 			winner: winner,
 			participants: participants,
-			history: matchHistory
+			history: matchHistory,
+			words: matchWords,
+			factions: matchFactions
 		});
 		match.save(function (error) {
 			if (error) {

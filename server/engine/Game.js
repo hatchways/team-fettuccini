@@ -39,6 +39,20 @@ class Game {
 		this.matchHistory = [];
 	}
 
+	addState() {
+		const board = this.getBoardInfo(true);
+		const st = {
+				turn: this.state,
+				redLeft: this.redLeft,
+				blueLeft: this.blueLeft,
+				numGuessesLeft: this.numGuessesLeft,
+				spyHint: this.spyHint,
+				words: board.board,
+				factions: board.factions
+		}
+		this.matchHistory.push(JSON.stringify(st));
+	}
+	
 	setHost(id) {
 		this.hostID = "";
 	}
@@ -107,7 +121,6 @@ class Game {
 
 	timeOut() {
 		console.log("in Timeout");
-		this.matchHistory.push("TIME");
 		io.in(this.matchID+"_FieldAgent").emit('needToUpdate', {});
 		io.in(this.matchID+"_SpyMaster").emit('needToUpdate', {});
 	}
@@ -213,7 +226,7 @@ class Game {
 			this.nextTurn(true);
 			this.timeOut();
 		}, 60 * 1000);
-
+		this.addState();
 		return this.state;
 	}
 
@@ -227,7 +240,6 @@ class Game {
 			console.log("Have to make at least one guess for a turn");
 			return "Have to make at least one guess for a turn";
 		}
-		this.matchHistory("END");
 		this.madeGuess = false;
 		return this.nextTurn();
 	}
@@ -237,7 +249,6 @@ class Game {
 		const index = Math.floor(Math.random() * Math.floor(remainingWords.length));
 		remainingWords[index].choose();
 		this.processWordGuess(remainingWords[index].person);
-		this.matchHistory.push("GUESS_"+index);
 	}
 
 	processWordGuess(person) {
@@ -310,7 +321,7 @@ class Game {
 		//At least one guess has been made.
 		this.madeGuess = true;
 		const turnEnded = this.processWordGuess(person);
-		this.matchHistory.push("GUESS_"+wordNum);
+		this.addState();
 		if (turnEnded) {
 			return this.nextTurn();
 		}
@@ -345,9 +356,9 @@ class Game {
 			name,
 			text: `${guesses} - ${word}`
 		})
-		this.matchHistory.push("HINT_"+guesses+"_"+word);
 		this.spyHint = word;
 		this.numGuessesLeft = parseInt(guesses) + 1;
+		this.addState();
 		let n = this.nextTurn();
 		console.log(n);
 		return this.getBoardInfo(true);

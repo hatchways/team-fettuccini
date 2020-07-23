@@ -49,27 +49,29 @@ class Profile extends Component {
 			let rf = "";
 			let bs = "";
 			let bf = "";
-
 			for (var j = 0;j<parts.length;j++) {
 				if (parts[j].role == "Red spy") {
-					rs = parts[j].user;
+					rs = parts[j].user.username;
 				} else if (parts[j].role == "Red field") {
-					rf = parts[j].user;
+					rf = parts[j].user.username;
 				} else if (parts[j].role == "Blue spy") {
-					bs = parts[j].user;
+					bs = parts[j].user.username;
 				} else {
-					bf = parts[j].user;
+					bf = parts[j].user.username;
 				}
 			}
-			const el = <MatchBox cardClick={this.cardClick} words={match.words} factions={match.factions} history={match.history} won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
+			const el = <MatchBox date={match.date} cardClick={this.cardClick} words={match.words} factions={match.factions} history={match.history} won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
 			matchItems.push(el);
 		}
 	    return (
 	    	<Grid container>
-	    		<Grid item xs="6">{matchItems[0]}</Grid>
-	    		<Grid item xs="6">{matchItems[1]}</Grid>
-	    		<Grid item xs="6">{matchItems[2]}</Grid>
-	    		<Grid item xs="6">{matchItems[3]}</Grid>
+	    	{matchItems.map(n => {
+	            return (
+	              <Grid item xs="3">
+	                {n}
+	              </Grid>
+	            );
+	          })}
 	    	</Grid>
 	    );
 	  }

@@ -78,7 +78,7 @@ userSchema.statics.getMatches = async function (userId) {
   const user = await User.findById(userId);
   console.log(user);
   const ids = user.matchIds;
-  const matchDescs = Match.find({"_id" : { $in: ids}});
+  const matchDescs = Match.find({"_id" : { $in: ids}}).sort({date: -1}).limit(4).populate("participants.user");
   return matchDescs;
 };
 

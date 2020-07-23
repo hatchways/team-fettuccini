@@ -64,12 +64,12 @@ router.get("/profile", auth, async (req, res) => {
 		if (userID == null || userID == undefined) {
 			return res.send({error: "Invalid userID"});
 		}
-		const matches = await User.getMatches(userID);
+		let matches = await User.getMatches(userID);
 		
 		if (matches==null) {
 			return res.send({error: "User doesn't exist"});
 		}
-		
+		console.log(matches[0]);
 		res.status(200).send({matchList: matches});
 	} catch (error) {
 		res.status(400).send(error);

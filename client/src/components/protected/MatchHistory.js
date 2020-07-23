@@ -54,14 +54,13 @@ class MatchHistory extends Component {
 		const factions = this.factions;
 		const classes = this.props.classes;
 		const positionState = history.turn;
-		const guessText = history.numGuessesLeft;
+		const guessText = "Guesses left: "+history.numGuessesLeft;
 		const words = history.words;
 		const spyHint = history.spyHint;
 		const redLeft = history.redLeft;
 		const blueLeft = history.blueLeft;
 		
 		const newWords = [];
-		alert(words);
 		for (var i = 0;i<words.length;i++) {
 			const w = words[i];
 			if (w.charAt(0)=='_') {
@@ -76,7 +75,7 @@ class MatchHistory extends Component {
 					<Typography variant="h4">
 			          {positionState}
 			        </Typography>
-			        <Typography variant="body1">{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</Typography>
+			        <Typography variant="body1">{["RF", "BF"].includes(matchDictionary[positionState]) ? "Hint:\t"+spyHint+" "+guessText : <>&nbsp;</>}</Typography>
 			        <MappedWords classes={classes} words={newWords} factions={factions} clickWord={this.clickWord} spyView={true} />
 			        <span>
 			        	<Button variant="contained" color="primary" onClick={this.onBack}>Back</Button>

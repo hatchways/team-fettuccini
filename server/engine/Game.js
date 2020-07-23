@@ -37,6 +37,7 @@ class Game {
 		this.chatHistory = [];
 		this.board = new Board();
 		this.matchHistory = [];
+		this.addState();
 	}
 
 	addState() {
@@ -117,6 +118,8 @@ class Game {
 			this.nextTurn(true);
 			this.timeOut();
 		}, 60 * 1000);
+		this.matchHistory = [];
+		this.addState();
 	}
 
 	timeOut() {
@@ -358,7 +361,6 @@ class Game {
 		})
 		this.spyHint = word;
 		this.numGuessesLeft = parseInt(guesses) + 1;
-		this.addState();
 		let n = this.nextTurn();
 		console.log(n);
 		return this.getBoardInfo(true);

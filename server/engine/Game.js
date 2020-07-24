@@ -19,9 +19,8 @@ class Game {
 		this.matchID = matchID;
 		this.sockets = new Map();
 		this.state = gameState.RED_SPY;
-		this.board = null;
-		this.redLeft = 0;
-		this.blueLeft = 0;
+		this.redLeft = 9;
+		this.blueLeft = 8;
 		this.numGuessesLeft = 0;
 		this.spyHint = "";
 		this.madeGuess = false;
@@ -119,6 +118,7 @@ class Game {
 			this.timeOut();
 		}, 60 * 1000);
 		this.matchHistory = [];
+		this.board = new Board();
 		this.addState();
 	}
 
@@ -176,7 +176,7 @@ class Game {
 	}
 
 	getGuessesLeft() {
-		return this.guesses;
+		return this.numGuessesLeft;
 	}
 
 	//Cycle through the turns
@@ -198,7 +198,7 @@ class Game {
 				if (!this.isGameOver()) {
 					console.log("Blue SpyMaster next")
 					this.spyHint = "";
-					this.guesses = 0;
+					this.numGuessesLeft = 0;
 					this.state = gameState.BLUE_SPY;
 				}
 				break;
@@ -216,7 +216,7 @@ class Game {
 				if (!this.isGameOver()) {
 					console.log("Red SpyMaster next");
 					this.spyHint = "";
-					this.guesses = 0;
+					this.numGuessesLeft = 0;
 					this.state = gameState.RED_SPY;
 				}
 				break;
@@ -267,7 +267,6 @@ class Game {
 			}
 		} else if (person == WordStates.BLUE) {
 			this.blueLeft--;
-			this.checkIfWon();
 			console.log("Blue Agent hit");
 			//Turn ends when red field agent hits blue target
 			if (this.state == gameState.RED_FIELD) {
@@ -280,9 +279,9 @@ class Game {
 				//Go to next turn if there are no guesses left.
 				if (this.numGuessesLeft == 0) return true;
 			}
+			this.checkIfWon();
 		} else if (person == WordStates.RED) {
 			this.redLeft--;
-			this.checkIfWon();
 			console.log("Red Agent hit");
 			//Turn ends when a blue field agent hits red target.
 			if (this.state == gameState.BLUE_FIELD) {
@@ -295,6 +294,7 @@ class Game {
 				//Go to next turn if there are no guesses left.
 				if (this.numGuessesLeft == 0) return true;
 			}
+			this.checkIfWon();
 		} else {
 			//Go to the next turn if a civilian is hit.
 			console.log("Civilian hit");

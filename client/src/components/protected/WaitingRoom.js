@@ -33,7 +33,6 @@ class WaitingRoom
     }
     this.ping = this.ping.bind(this)
     this.changePosition = this.changePosition.bind(this)
-    this.socket = io("http://localhost:3001");
   }
 
   async ping() {
@@ -115,6 +114,9 @@ class WaitingRoom
       name,
       userId,
     }, () => {
+      
+      this.socket = io("http://localhost:3001");
+    	
       this.socket.on('changePosition', this.updatePositions)
 
       this.socket.emit('changePosition', {

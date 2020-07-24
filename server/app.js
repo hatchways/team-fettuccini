@@ -44,10 +44,10 @@ var io = socket(server);
 module.exports = {app, io};
 const MatchManager = require("./admin/MatchManagement");
 
-io.on('connection', function(socket) {
+io.on('connect', function(socket) {
 	console.log("made socket connection "+ socket.id);
 	console.log("cookie: "+socket.handshake.headers.cookie);
-	console.log("socket: "+socket.handshake.headers);
+	console.log("socket: "+JSON.stringify(socket.handshake));
 	console.log("Cookie");
     
 	try {

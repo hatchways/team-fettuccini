@@ -30,6 +30,17 @@ const userSchema = mongoose.Schema({
   matchIds: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Match" }
   ],
+  opponentsHits: { type: Number, default: 0 },
+  civiliansHits: { type: Number, default: 0 },
+  assassinsHits: { type: Number, default: 0 },
+  correctHits: { type: Number, default: 0 },
+  opponentsAssists: { type: Number, default: 0 },
+  civiliansAssists: { type: Number, default: 0 },
+  assassinsAssists: { type: Number, default: 0 },
+  correctAssists: { type: Number, default: 0 },
+  numHints: { type: Number, default: 0 },
+  numWins: { type: Number, default: 0 },
+  numLosses: { type: Number, default: 0 }
 });
 
 // Hash the password before saving the user model

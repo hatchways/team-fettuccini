@@ -8,7 +8,17 @@ const matchSchema = mongoose.Schema({
   participants: [{ user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, role: String }],
   history: [String],
   words: [String],
-  factions: [String]
+  factions: [String],
+  RFGuessesCorrect: Number,
+  RFAssassinHit: Number,
+  RFCivilianHit: Number,
+  RFOpponentHit: Number,
+  BFGuessesCorrect: Number,
+  BFAssassinHit: Number,
+  BFCivilianHit: Number,
+  BFOpponentHit: Number,
+  RSHintsGiven: Number,
+  BSHintsGiven: Number
 });
 
 matchSchema.methods.toJSON = function () {

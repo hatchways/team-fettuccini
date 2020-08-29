@@ -25,6 +25,7 @@ class MatchManager {
 	createMatch(hostID, pub) {
 		let matchID = mongoose.Types.ObjectId().toString();
 		let game = new Game(matchID);
+		game.init();
 		game.setHost(hostID);
 		if (pub == "true") {
 			console.log("Creating public match");
@@ -263,11 +264,22 @@ class MatchManager {
 		const winner = matchInfo.getWinner();
 		const matchHistory = matchInfo.getHistory();
 		console.log(matchInfo.redSpy);
+		
+		const redSpy = mongoose.Types.ObjectId(matchInfo.redSpy.id);
+		const blueSpy = mongoose.Types.ObjectId(matchInfo.blueSpy.id);
+		const redField = mongoose.Types.ObjectId(matchInfo.redField.id);
+		const blueField = mongoose.Types.ObjectId(matchInfo.blueField.id);
+		
+		const redSpyRole = "Red spy";
+		const redFieldRole = "Red field";
+		const blueSpyRole = "Blue spy";
+		const blueFieldRole = "Blue field";
+		
 		const participants = [
-			{ user: matchInfo.redSpy && matchInfo.redSpy.id ? mongoose.Types.ObjectId(matchInfo.redSpy.id) : mongoose.Types.ObjectId(), role: "Red spy" },
-			{ user: matchInfo.redField && matchInfo.redField.id ? mongoose.Types.ObjectId(matchInfo.redField.id) : mongoose.Types.ObjectId(), role: "Red field" },
-			{ user: matchInfo.blueSpy && matchInfo.blueSpy.id ? mongoose.Types.ObjectId(matchInfo.blueSpy.id) : mongoose.Types.ObjectId(), role: "Blue spy" },
-			{ user: matchInfo.blueField && matchInfo.blueField.id ? mongoose.Types.ObjectId(matchInfo.blueField.id) : mongoose.Types.ObjectId(), role: "Blue field" }
+			{ user: matchInfo.redSpy && matchInfo.redSpy.id ? redSpy : mongoose.Types.ObjectId(), role: redSpyRole },
+			{ user: matchInfo.redField && matchInfo.redField.id ? redField : mongoose.Types.ObjectId(), role: redFieldRole },
+			{ user: matchInfo.blueSpy && matchInfo.blueSpy.id ? blueSpy : mongoose.Types.ObjectId(), role: blueSpyRole },
+			{ user: matchInfo.blueField && matchInfo.blueField.id ? blueField : mongoose.Types.ObjectId(), role: blueFieldRole }
 		];
 
 		// save the match info
@@ -281,7 +293,17 @@ class MatchManager {
 			participants: participants,
 			history: matchHistory,
 			words: matchWords,
-			factions: matchFactions
+			factions: matchFactions,
+			RFGuessesCorrect: matchInfo.RFGuessesCorrect,
+			RFAssassinHit: matchInfo.RFAssassinHit,
+			RFCivilianHit: matchInfo.RFCivilianHit,
+			RFOpponentHit: matchInfo.RFOpponentHit,
+			BFGuessesCorrect: matchInfo.BFGuessesCorrect,
+			BFAssassinHit: matchInfo.BFAssassinHit,
+			BFCivilianHit: matchInfo.BFCivilianHit,
+			BFOpponentHit: matchInfo.BFOpponentHit,
+			RSHintsGiven: matchInfo.RSHintsGiven,
+			BSHintsGiven: matchInfo.BSHintsGiven
 		});
 		match.save(function (error) {
 			if (error) {
@@ -290,10 +312,11 @@ class MatchManager {
 				console.log("saved match");
 			}
 		});
-
+		
 		// update the matchIds of each user
 		for (let i = 0; i < participants.length; i++) {
 			const userId = participants[i].user.toString();
+			const role = participants[i].role;
 			if (userId && userId != "") {
 				const user = await User.findById(userId);
 
@@ -301,11 +324,56 @@ class MatchManager {
 					if (!user.matchIds) {
 						user.matchIds = [];
 					}
+					
 					user.matchIds = user.matchIds.concat(mongoose.Types.ObjectId(matchID));
-
+					if (role == redSpyRole) {
+						user.numHints += matchInfo.RSHintsGiven;
+						user.assassinsAssists += matchInfo.RFAssassinHit;
+						user.civiliansAssists += matchInfo.RFCivilianHit;
+						user.opponentsAssists += matchInfo.RFOpponentHit;
+						user.correctAssists += matchInfo.RFGuessesCorrect;
+						if (winner=="Red") user.numWins += 1;
+						else user.numLosses += 1;
+					} else if (role == redFieldRole) {
+						user.assassinsHits += matchInfo.RFAssassinHit;
+						user.civiliansHits += matchInfo.RFCivilianHit;
+						user.opponentsHits += matchInfo.RFOpponentHit;
+						user.correctHits += matchInfo.RFGuessesCorrect;
+						if (winner=="Red") user.numWins += 1;
+						else user.numLosses += 1;
+					} else if (role == blueSpyRole) {
+						user.numHints += matchInfo.BSHintsGiven;
+						user.assassinsAssists += matchInfo.BFAssassinHit;
+						user.civiliansAssists += matchInfo.BFCivilianHit;
+						user.opponentsAssists += matchInfo.BFOpponentHit;
+						user.correctAssists += matchInfo.BFGuessesCorrect;
+						if (winner=="Blue") user.numWins += 1;
+						else user.numLosses += 1;
+					} else if (role == blueField) {
+						user.assassinsHits += matchInfo.BFAssassinHit;
+						user.civiliansHits += matchInfo.BFCivilianHit;
+						user.opponentsHits += matchInfo.BFOpponentHit;
+						user.correctHits += matchInfo.BFGuessesCorrect;
+						if (winner=="Blue") user.numWins += 1;
+						else user.numLosses += 1;
+					}
+					
 					User.findByIdAndUpdate(
 						{ _id: userId },
-						{ matchIds: user.matchIds },
+						{ 
+							matchIds: user.matchIds,
+							numHints: user.numHints,
+							assassinsAssists: user.assassinsAssists,
+							assassinHits: user.assassinsHits,
+							civilianAssists: user.civilianAssists,
+							civilianHits: user.civilianHits,
+							opponentsAssists: user.opponentsAssists,
+							opponentsHits: user.opponentsHits,
+							correctAssists: user.correctAssists,
+							correctHits: user.correctHits,
+							numWins: user.numWins,
+							numLosses: user.numLosses,
+						},
 						function (error) {
 							if (error) {
 								console.log("updating match id for the user failed.", userId, error);

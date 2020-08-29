@@ -208,6 +208,7 @@ const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
 const usersRouter = require("./routes/users");
 const matchHistoryRouter = require("./routes/matchHistory");
+const statisticsRouter = require("./routes/statistics");
 //const profileRouter = require("./routes/users");
 
 app.use(express.json({ extended: false }));
@@ -224,6 +225,7 @@ app.use("/ping", pingRouter);
 app.use("/matches", require("./routes/matches"));
 app.use(usersRouter);
 app.use("/matchHistory", matchHistoryRouter);
+app.use("/statistics", statisticsRouter);
 //app.use("/profile", profileRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

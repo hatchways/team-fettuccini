@@ -18,27 +18,87 @@ class Game {
 	constructor(matchID) {
 		this.matchID = matchID;
 		this.sockets = new Map();
-		this.state = gameState.RED_SPY;
+		this.hostID = "";
+		var text = fs.readFileSync("engine/engmix.txt");
+		const dictArr = text.toString().split("\n");
+		this.dict = new Set(dictArr);
+		this.redSpy = {};
+		this.blueSpy = {};
+		this.redField = {};
+		this.blueField = {};
+		
+		this.state;
+		this.redLeft;
+		this.blueLeft;
+		this.numGuessesLeft;
+		this.spyHint;
+		this.madeGuess;
+		this.turnId;
+		this.turnInterval;
+		this.matchHistory;
+		this.board;
+		
+		this.RFGuessesCorrect;
+		this.RFAssassinHit;
+		this.RFCivilianHit;
+		this.RFOpponentHit;
+		this.BFGuessesCorrect;
+		this.BFAssassinHit;
+		this.BFCivilianHit;
+		this.BFOpponentHit;
+		this.RSHintsGiven;
+		this.BSHintsGiven;
+	}
+
+	//Function to restart game.
+	reset() {
+		/*this.state = gameState.RED_SPY;
 		this.redLeft = 9;
 		this.blueLeft = 8;
 		this.numGuessesLeft = 0;
 		this.spyHint = "";
 		this.madeGuess = false;
-		this.hostID = "";
-		var text = fs.readFileSync("engine/engmix.txt");
-		const dictArr = text.toString().split("\n");
-		this.dict = new Set(dictArr);
-		this.turnInterval = null;
-		this.redSpy = {};
-		this.blueSpy = {};
-		this.redField = {};
-		this.blueField = {};
+		this.turnId = (new Date()).toUTCString();
+		this.turnInterval = setInterval(async () => {
+			this.nextTurn(true);
+			this.timeOut();
+		}, 60 * 1000);
+		this.matchHistory = [];
+		this.board = new Board();
+		this.addState();*/
+		this.init();
+	}
+	
+	init() {
+		this.state = gameState.RED_SPY;
+		this.redLeft = 9;
+		this.blueLeft = 8;
+		this.numGuessesLeft = 0;
+		
+		this.RFGuessesCorrect = 0;
+		this.RFAssassinHit = 0;
+		this.RFCivilianHit = 0;
+		this.RFOpponentHit = 0;
+		this.BFGuessesCorrect = 0;
+		this.BFAssassinHit = 0;
+		this.BFCivilianHit = 0;
+		this.BFOpponentHit = 0;
+		this.RSHintsGiven = 0;
+		this.BSHintsGiven = 0;
+		
+		this.spyHint = "";
+		this.madeGuess = false;
+		this.turnId = (new Date()).toUTCString();
+		this.turnInterval = setInterval(async () => {
+			this.nextTurn(true);
+			this.timeOut();
+		}, 60 * 1000);
 		this.chatHistory = [];
 		this.board = new Board();
 		this.matchHistory = [];
 		this.addState();
 	}
-
+	
 	addState() {
 		const board = this.getBoardInfo(true);
 		const st = {
@@ -102,24 +162,6 @@ class Game {
 
 	getSocket(userID) {
 		return this.sockets.get(userID);
-	}
-	
-	//Function to restart game.
-	reset() {
-		this.state = gameState.RED_SPY;
-		this.redLeft = 9;
-		this.blueLeft = 8;
-		this.numGuessesLeft = 0;
-		this.spyHint = "";
-		this.madeGuess = false;
-		this.turnId = (new Date()).toUTCString();
-		this.turnInterval = setInterval(async () => {
-			this.nextTurn(true);
-			this.timeOut();
-		}, 60 * 1000);
-		this.matchHistory = [];
-		this.board = new Board();
-		this.addState();
 	}
 
 	timeOut() {
@@ -251,18 +293,20 @@ class Game {
 		const remainingWords = this.board.getWords().filter(word => !word.chosen);
 		const index = Math.floor(Math.random() * Math.floor(remainingWords.length));
 		remainingWords[index].choose();
-		this.processWordGuess(remainingWords[index].person);
+		this.processWordGuess(remainingWords[index].person, true);
 	}
 
-	processWordGuess(person) {
+	processWordGuess(person, fromTimeout = false) {
 		if (person == WordStates.ASSASSIN) {
 			console.log("Assassin Hit");
 			//When a field agent hits an assassin, the other team wins.
 			if (this.state == gameState.RED_FIELD) {
 				this.state = gameState.BLUE_WON;
+				if (!fromTimeout) this.RFAssassinHit++;
 				console.log("Blue wins");
 			} else {
 				this.state = gameState.RED_WON;
+				if (!fromTimeout) this.BFAssassinHit++;
 				console.log("Red wins");
 			}
 		} else if (person == WordStates.BLUE) {
@@ -270,9 +314,11 @@ class Game {
 			console.log("Blue Agent hit");
 			//Turn ends when red field agent hits blue target
 			if (this.state == gameState.RED_FIELD) {
+				if (!fromTimeout) this.BFOpponentHit++;
 				return true;
 			} else if (this.state == gameState.BLUE_FIELD) {
 				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
+				if (!fromTimeout) this.BFGuessesCorrect++;
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
 				console.log(this.blueLeft + " blue left");
@@ -285,9 +331,11 @@ class Game {
 			console.log("Red Agent hit");
 			//Turn ends when a blue field agent hits red target.
 			if (this.state == gameState.BLUE_FIELD) {
+				if (!fromTimeout) this.RFOpponentHit++;
 				return true;
 			} else if (this.state == gameState.RED_FIELD) {
 				//If the blue agent hit the blue target, decrement the number of guesses left for blue field agent.
+				if (!fromTimeout) this.RFGuessesCorrect++;
 				this.numGuessesLeft--;
 				console.log(this.numGuessesLeft + " guesses left");
 				console.log(this.blueLeft + " red left");
@@ -297,6 +345,10 @@ class Game {
 			this.checkIfWon();
 		} else {
 			//Go to the next turn if a civilian is hit.
+			if (!fromTimeout) {
+				if (this.state == gameState.BLUE_FIELD) this.BFCivilianHit++;
+				else if (this.state == gameState.RED_FIELD) this.RFCivilianHit++;
+			}
 			console.log("Civilian hit");
 			return true;
 		}
@@ -361,6 +413,8 @@ class Game {
 		})
 		this.spyHint = word;
 		this.numGuessesLeft = parseInt(guesses) + 1;
+		if (this.state == gameState.RED_SPY) this.RSHintsGiven++;
+		else if (this.state == gameState.BLUE_SPY) this.BSHintsGiven++;
 		let n = this.nextTurn();
 		console.log(n);
 		return this.getBoardInfo(true);

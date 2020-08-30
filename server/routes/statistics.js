@@ -41,180 +41,111 @@ async function requestAndCache() {
 			console.log(resultsCached);
 		});
 		
-		console.log("Created first promise");
+		wins = [...allUsers];
+		wins.sort(function(x, y) { 
+			console.log("hello ", x);
+			console.log("numWins ", x.numWins);
+			const val1 = x.numWins;
+			const val2 = y.numWins;
+			return val2 - val1;
+		});
+
+		losses = [...allUsers];
+		losses.sort(function(x, y) {
+			const val1 = x.numLosses;
+			const val2 = y.numLosses;
+			return val1 - val2;
+		});
+
+		opponentsHits = [...allUsers];
+		opponentsHits.sort(function(x, y) {
+			const val1 = x.opponentsHits;
+			const val2 = y.opponentsHits;
+			return val1 - val2;
+		});
+
 		
-		new Promise(() => {
-				wins = [...allUsers];
-				wins.sort(function(x, y) { 
-					console.log("hello ", x);
-					console.log("numWins ", x.numWins);
-					const val1 = x.numWins;
-					const val2 = y.numWins;
-					return val2 - val1;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		correctHits = [...allUsers];
+		correctHits.sort(function(x, y) {
+			const val1 = x.correctHits;
+			const val2 = y.correctHits;
+			return val1 - val2;
+		});
+
 		
-		new Promise(() => {
-				losses = [...allUsers];
-				losses.sort(function(x, y) {
-					const val1 = x.numLosses;
-					const val2 = y.numLosses;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		civiliansHits = [...allUsers];
+		civiliansHits.sort(function(x, y) {
+			const val1 = x.civiliansHits;
+			const val2 = y.civiliansHits;
+			return val1 - val2;
+		});
+
 		
-		new Promise(() => {
-				opponentsHits = [...allUsers];
-				opponentsHits.sort(function(x, y) {
-					const val1 = x.opponentsHits;
-					const val2 = y.opponentsHits;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		assassinsHits = [...allUsers];
+		assassinsHits.sort(function(x, y) {
+			const val1 = x.assassinsHits;
+			const val2 = y.assassinsHits;
+			return val1 - val2;
+		});
+
 		
-		new Promise(() => {
-				correctHits = [...allUsers];
-				correctHits.sort(function(x, y) {
-					const val1 = x.correctHits;
-					const val2 = y.correctHits;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		opponentsAssists = [...allUsers];
+		opponentsAssists.sort(function(x, y) {
+			const val1 = x.opponentsAssists;
+			const val2 = y.opponentsAssists;
+			return val1 - val2;
+		});
+
 		
-		new Promise(() => {
-				civiliansHits = [...allUsers];
-				civiliansHits.sort(function(x, y) {
-					const val1 = x.civiliansHits;
-					const val2 = y.civiliansHits;
-					return val1 - val2;
-				});
-				resultsCached++;
-			}
-		)
+		correctAssists = [...allUsers];
+		correctAssists.sort(function(x, y) {
+			const val1 = x.correctAssists;
+			const val2 = y.correctAssists;
+			return val1 - val2;
+		});
 		
-		new Promise(() => {
-				assassinsHits = [...allUsers];
-				assassinsHits.sort(function(x, y) {
-					const val1 = x.assassinsHits;
-					const val2 = y.assassinsHits;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		civilianAssists = [...allUsers];
+		civiliansAssists.sort(function(x, y) {
+			const val1 = x.civiliansAssists;
+			const val2 = y.civiliansAssists;
+			return val1 - val2;
+		});
+
 		
-		new Promise(() => {
-				opponentsAssists = [...allUsers];
-				opponentsAssists.sort(function(x, y) {
-					const val1 = x.opponentsAssists;
-					const val2 = y.opponentsAssists;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		) 
+		assassinsAssists = [...allUsers];
+		assassinsAssists.sort(function(x, y) {
+			const val1 = x.assassinsAssists;
+			const val2 = y.assassinsAssists;
+			return val1 - val2;
+		});
 		
-		new Promise(() => {
-				correctAssists = [...allUsers];
-				correctAssists.sort(function(x, y) {
-					const val1 = x.correctAssists;
-					const val2 = y.correctAssists;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		) 
+		numHints = [...allUsers];
+		numHints.sort(function(x, y) {
+			const val1 = x.numHints;
+			const val2 = y.numHints;
+			return val1 - val2;
+		});
 		
-		new Promise(() => {
-				civilianAssists = [...allUsers];
-				civiliansAssists.sort(function(x, y) {
-					const val1 = x.civiliansAssists;
-					const val2 = y.civiliansAssists;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		correctGuessPercent = [...allUsers];
+		correctGuessPercent.sort(function(x, y) {
+			const val1 = Number.parseFloat(x.correctHits/(x.correctHits+x.assassinsHits+x.civiliansHits+x.opponentsHits)).toFixed(2);
+			const val2 = Number.parseFloat(y.correctHits/(y.correctHits+y.assassinsHits+y.civiliansHits+y.opponentsHits)).toFixed(2);
+			return val1 - val2;
+		});
 		
-		new Promise(() => {
-				assassinsAssists = [...allUsers];
-				assassinsAssists.sort(function(x, y) {
-					const val1 = x.assassinsAssists;
-					const val2 = y.assassinsAssists;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
+		correctAssistsPercent = [...allUsers]
+		correctAssistsPercent.sort(function(x, y) {
+			const val1 = Number.parseFloat(x.correctAssists/(x.correctAssists+x.assassinsAssists+x.civiliansAssists+x.opponentsAssists)).toFixed(2);
+			const val2 = Number.parseFloat(y.correctAssists/(y.correctAssists+y.assassinsAssists+y.civiliansAssists+y.opponentsAssists)).toFixed(2);
+			return val1 - val2;
+		});
 		
-		new Promise(() => {
-				numHints = [...allUsers];
-				numHints.sort(function(x, y) {
-					const val1 = x.numHints;
-					const val2 = y.numHints;
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
-		
-		new Promise(() => {
-				correctGuessPercent = [...allUsers];
-				correctGuessPercent.sort(function(x, y) {
-					const val1 = Number.parseFloat(x.correctHits/(x.correctHits+x.assassinsHits+x.civiliansHits+x.opponentsHits)).toFixed(2);
-					const val2 = Number.parseFloat(y.correctHits/(y.correctHits+y.assassinsHits+y.civiliansHits+y.opponentsHits)).toFixed(2);
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
-		
-		new Promise(() => {
-				correctAssistsPercent = [...allUsers]
-				correctAssistsPercent.sort(function(x, y) {
-					const val1 = Number.parseFloat(x.correctAssists/(x.correctAssists+x.assassinsAssists+x.civiliansAssists+x.opponentsAssists)).toFixed(2);
-					const val2 = Number.parseFloat(y.correctAssists/(y.correctAssists+y.assassinsAssists+y.civiliansAssists+y.opponentsAssists)).toFixed(2);
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
-		
-		new Promise(() => {
-				correctGuessesPerHint = [...allUsers];
-				correctGuessesPerHint.sort(function(x, y) {
-					const val1 = Number.parseFloat(x.correctAssists/(x.numHints)).toFixed(2);
-					const val2 = Number.parseFloat(y.correctAssists/(y.numHints)).toFixed(2);
-					return val1 - val2;
-				});
-				resultsCached++;
-				console.log(resultsCached);
-			}
-		)
-		
-		console.log("Created all promises");
-		while (resultsCached < 15) {
-		}
+		correctGuessesPerHint = [...allUsers];
+		correctGuessesPerHint.sort(function(x, y) {
+			const val1 = Number.parseFloat(x.correctAssists/(x.numHints)).toFixed(2);
+			const val2 = Number.parseFloat(y.correctAssists/(y.numHints)).toFixed(2);
+			return val1 - val2;
+		});
 		
 		requestCache.set("numWins", wins);
 		requestCache.set("numLosses", losses);
@@ -230,7 +161,6 @@ async function requestAndCache() {
 		requestCache.set("correctGuessPercent", correctGuessPercent);
 		requestCache.set("correctAssistsPercent", correctAssistsPercent);
 		requestCache.set("correctGuessesPerHint", correctGuessesPerHint);
-		console.log("finished all promises");
 	}).catch((err)=>{console.log("Error getting users from database", err)});
 	
 	
@@ -246,16 +176,12 @@ router.get("/byuser", async (req, res) => {
 			console.log("Refreshing cache");
 			await requestAndCache();
 		}
-		console.log("compare");
-		console.log(users.has(String(userId)), userId);
 		if (!users.has(String(userId))) {
 			const userObj = await User.findById(userId);
 			console.log("Getting user info from database");
-			console.log(userObj);
 			return res.status(200).send(userObj);
 		} else {
 			console.log("Getting user info from cache map");
-			console.log(users.get(userId));
 			return res.status(200).send(users.get(userId));
 		}		
 	} catch (error) {

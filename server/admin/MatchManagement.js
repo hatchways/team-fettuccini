@@ -349,7 +349,7 @@ class MatchManager {
 						user.correctAssists += matchInfo.BFGuessesCorrect;
 						if (winner=="Blue") user.numWins += 1;
 						else user.numLosses += 1;
-					} else if (role == blueField) {
+					} else if (role == blueFieldRole) {
 						user.assassinsHits += matchInfo.BFAssassinHit;
 						user.civiliansHits += matchInfo.BFCivilianHit;
 						user.opponentsHits += matchInfo.BFOpponentHit;

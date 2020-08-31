@@ -3,6 +3,7 @@ import { GridList, GridListTile, Button, Grid } from '@material-ui/core';
 import fetchUtil from './fetchUtil'
 import auth from '../auth/auth'
 import MatchBox from './MatchBox'
+import LeaderBoard from './LeaderBoard'
 
 class Profile extends Component {
 	constructor(props) {
@@ -64,15 +65,21 @@ class Profile extends Component {
 			matchItems.push(el);
 		}
 	    return (
-	    	<Grid container>
-	    	{matchItems.map(n => {
-	            return (
-	              <Grid item xs="3">
-	                {n}
-	              </Grid>
-	            );
-	          })}
-	    	</Grid>
+	    	<div>
+		    	<Grid container>
+		    	{matchItems.map(n => {
+		            return (
+		              <Grid item xs="3">
+		                {n}
+		              </Grid>
+		            );
+		          })}
+		    	</Grid>
+		    	<LeaderBoard>
+		    		
+		    	</LeaderBoard>
+	    	</div>
+	    	
 	    );
 	  }
 }

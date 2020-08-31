@@ -7,6 +7,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const connectDB = require("./db");
 const cors = require("cors");
+const User = require("./models/user");
+const Match = require("./models/match");
 
 
 
@@ -303,3 +305,47 @@ function onListening() {
   console.log("Listening on " + bind);
 }
 
+/**
+*	Input dummy data into database.
+*/
+/*
+setTimeout(function (){}, 10000);
+const users = [];
+for (let i = 0;i<200;i++) {
+	const username = "User"+i;
+	const email = "email"+i+"@email.com";
+	const password = "blahblah";
+	const matchIds = [];
+	const opponentsHits = Math.floor(Math.random()*100);
+	const correctHits = Math.floor(Math.random()*100);
+	const civiliansHits = Math.floor(Math.random()*100);
+	const assassinsHits = Math.floor(Math.random()*100);
+	const opponentsAssists = Math.floor(Math.random()*100);
+	const correctAssists = Math.floor(Math.random()*100);
+	const civiliansAssists = Math.floor(Math.random()*100);
+	const assassinsAssists = Math.floor(Math.random()*100);
+	const numHints = Math.floor(Math.random()*100);
+	const numWins = Math.floor(Math.random()*100);
+	const numLosses = Math.floor(Math.random()*100);
+	
+	const user = new User({
+		username: username,
+		email: email,
+		password: password,
+		matchIds: matchIds,
+		opponentsHits: opponentsHits,
+		correctHits: correctHits,
+		civiliansHits: civiliansHits,
+		assassinsHits: assassinsHits,
+		opponentsAssists: opponentsAssists,
+		correctAssists: correctAssists,
+		civiliansAssists: civiliansAssists,
+		assassinsAssists: assassinsAssists,
+		numHints: numHints,
+		numWins: numWins,
+		numLosses: numLosses
+	});
+	
+	user.save();
+	users.push(user);
+}*/

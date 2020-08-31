@@ -26,6 +26,11 @@ async function requestAndCache() {
 	console.log("Processing db data");
 }
 
+function sendBack(res, data) {
+	res.setHeader("Cache-Control", "no-store");
+	return res.status(200).send(data);
+}
+
 router.get("/byuser", async (req, res) => {
 	const userId = req.query.userId;
 	console.log(userId);
@@ -39,10 +44,13 @@ router.get("/byuser", async (req, res) => {
 		if (!users.has(String(userId))) {
 			const userObj = await User.findById(userId);
 			console.log("Getting user info from database");
-			return res.status(200).send(userObj);
+			sendBack(res, userObj);
 		} else {
 			console.log("Getting user info from cache map");
-			return res.status(200).send(users.get(userId));
+			const user = users.get(userId);
+			console.log("User")
+			res.setHeader("Cache-Control", "no-store");
+			sendBack(res, user);
 		}		
 	} catch (error) {
 		
@@ -62,13 +70,21 @@ router.get("/standings", async (req, res) => {
 		const cacheFunction = (sortFunc, sortByVal) => {
 			console.log("In caching function")
 			if (!sortBy.has(sortByVal)) {
+				console.log("Cache doesn't have it");
 				const allUsers = requestCache.get("allUsers");
 				const sortedUsers = [...allUsers];
+				console.log("Retrieved cache");
 				sortedUsers.sort(sortFunc);
 				sortBy.set(sortByVal, sortedUsers);
 			}
 			console.log("Returning value");
-			return res.status(200).send(sortBy.get(sortByVal));
+			const values = sortBy.get(sortByVal);
+			const index = pageSkip * 50;
+			let lastIndex = index + 50;
+			if (index>=values.length) return res.status(200).send();
+			if (lastIndex >= values.length) lastIndex = values.length;
+			const page = sortBy.get(sortByVal).slice(index, lastIndex);
+			return sendBack(res, page);
 		}
 		
 		if (sorting=="numWins") {

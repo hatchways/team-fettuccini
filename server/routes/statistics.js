@@ -28,6 +28,7 @@ async function requestAndCache() {
 
 function sendBack(res, data) {
 	res.setHeader("Cache-Control", "no-store");
+	console.log("Sending back");
 	return res.status(200).send(data);
 }
 
@@ -44,13 +45,13 @@ router.get("/byuser", async (req, res) => {
 		if (!users.has(String(userId))) {
 			const userObj = await User.findById(userId);
 			console.log("Getting user info from database");
-			sendBack(res, userObj);
+			sendBack(res, { data: userObj });
 		} else {
 			console.log("Getting user info from cache map");
 			const user = users.get(userId);
 			console.log("User")
 			res.setHeader("Cache-Control", "no-store");
-			sendBack(res, user);
+			sendBack(res, { data: user });
 		}		
 	} catch (error) {
 		
@@ -66,6 +67,7 @@ router.get("/standings", async (req, res) => {
 		
 		let pageSkip = req.query.page-1;
 		let sorting = req.query.sortBy;
+		let order = req.query.order;
 		console.log("fetching standings");
 		const cacheFunction = (sortFunc, sortByVal) => {
 			console.log("In caching function")
@@ -79,12 +81,27 @@ router.get("/standings", async (req, res) => {
 			}
 			console.log("Returning value");
 			const values = sortBy.get(sortByVal);
-			const index = pageSkip * 50;
+			let index = pageSkip * 50;
 			let lastIndex = index + 50;
 			if (index>=values.length) return res.status(200).send();
 			if (lastIndex >= values.length) lastIndex = values.length;
-			const page = sortBy.get(sortByVal).slice(index, lastIndex);
-			return sendBack(res, page);
+			console.log("here");
+			if (order=="asc") {
+				console.log("Getting ascending")
+				const tempIndex = index;
+				index = values.length - 1 - lastIndex;
+				lastIndex = values.length - 1 - tempIndex;
+			}
+			console.log("blah");
+			let page = values.slice(index, lastIndex);
+			console.log("blah2")
+			if (order == "asc") {
+				console.log("Reverse");
+				page = page.reverse();
+			}
+			
+			console.log(page);
+			return sendBack(res, { data: page });
 		}
 		
 		if (sorting=="numWins") {

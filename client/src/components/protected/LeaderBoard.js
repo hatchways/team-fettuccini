@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@material-ui/core';
+import { Button, Table, TableHead, TableRow, TableCell, TableBody, Paper, Input } from '@material-ui/core';
 import fetchUtil from './fetchUtil'
 import auth from '../auth/auth'
 
@@ -8,70 +8,124 @@ class LeaderBoard extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-				userList : [],
-				standings : [],
 				sortBy : "numWins",
-				order : "asc",
+				order : "desc",
 				page : 1
 		}
+		
+		this.userList = [];
+		this.standings = [];
+		this.getData = this.getData.bind(this);
 	}
 	
-	async componentDidMount () {
-		let finished = 0;
-		let newStandings = [];
-		let userList = [];
-				
-		const standingsRes = await fetch('/statistics/standings?sortBy='+this.state.sortBy+'&page='+this.state.page, {
-		      method: "GET",
-		      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*", "Cache-Control": "no-store" },
-		      body: null
-	    })
-		newStandings = await standingsRes.json();
-	    /*.then(res=>res.json())
-	    .then(standings=>{
-	    	newStandings=standings;
-	    	console.log(newStandings);
-	    	finished++;
-	    })*/
-	    
-	    const userListRes = await fetch('/statistics/byuser?userId='+auth.getUserInfo().id, {
+	 async getData(sortBy = this.state.sortBy, page = this.state.page, order = this.state.order) {
+		
+		/*const userListRes = await fetch('/statistics/byuser?userId='+auth.getUserInfo().id, {
 		      method: "GET",
 		      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*","Cache-Control": "no-store" },
 		      body: null
 	    })
-	    userList = await userListRes.json();
-	    /*.then(res=>res.json())
-	    .then(data => {
-	    	userList = data;
-	    	console.log(userList);
-	    	finished++;
-	    })*/
-	    //console.log("component");
-	    //while (finished<2) {}
-		console.log(newStandings);
-		this.setState({ userList: userList, standings: newStandings})
+	    this.userList = await userListRes.json();
+		this.userList = userList.data;*/
+		
+		const standingsRes = await fetch('/statistics/standings?sortBy='+sortBy+'&page='+page+'&order='+order, {
+		      method: "GET",
+		      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*", "Cache-Control": "no-store" },
+		      body: null
+	    })
+		const newStandingsRes = await standingsRes.json();
+		const newStandings = newStandingsRes.data;
+		if ( !newStandings || newStandings.length==0) return;
+		this.standings = newStandings;
+		this.setState({ sortBy: sortBy, page: page, order: order });
+	}
+	
+	
+	
+	async componentDidMount () {
+		await this.getData();
+	}
+	
+	newSortCriteria = (sortBy) => {
+		console.log("new sort "+sortBy);
+		console.log(sortBy);
+		this.getData(sortBy, this.state.page);
+	}
+	
+	pageChange = (page) => {
+		console.log("page"+page);
+		console.log(page);
+		this.getData(this.state.sortBy, page);
+	}
+	
+	nextPage = (page) => {
+		this.getData( this.state.sortBy, this.state.page+1 );
+	}
+	
+	previousPage = (page) => {
+		if (this.state.page == 0) return;
+		this.getData( this.state.sortBy, this.state.page-1);
+	}
+	
+	enterPage = (e) => {
+		if(e.key === 'Enter'){
+			const page = e.target.value;
+			if (page<0) return;
+			this.getData( this.state.sortBy, page );
+		}
+		
+	}
+	
+	order = (e) => {
+		if (this.state.order == "asc") {
+			console.log("Getting descending values")
+			this.getData( this.state.sortBy, 1, "desc" );
+		} else {
+			console.log("Getting ascending values")
+			this.getData( this.state.sortBy, 1, "asc" );
+		}
 	}
 	
 	render() {
-		const tableHeaders = ["Wins", "Losses", "Win Rate", "Correct Guesses", "Opposing Agent Hit", "Civilians Hit", "Assassins Hit",
-				"Correct Assists", "Opposing Agents Assists", "Civilians Assists", "Assassins Assists", "Correct Guess Rate",
-				"Correct Assist Rate", "Assists Per Hint", "Number of Hints Given"
+		console.log("In render");
+		const tableHeaders = [
+				{ label: "Wins", sortBy: "numWins" }, 
+				{ label: "Losses", sortBy: "numLosses" },
+				{ label: "Win Rate", sortBy: "winPercent" },
+				{ label: "Correct Guesses", sortBy: "correctHits" },
+				{ label: "Opposing Agent Hit", sortBy: "opponentsHits" },
+				{ label: "Civilians Hit", sortBy: "civiliansHits" },
+				{ label: "Assassins Hit", sortBy: "assassinsHits" },
+				{ label: "Correct Assists", sortBy: "correctAssists" },
+				{ label: "Opposing Agents Assists", sortBy: "opponentsAssists" },
+				{ label: "Civilians Assists", sortBy: "civiliansAssists" },
+				{ label: "Assassins Assists", sortBy: "assassinsAssists" },
+				{ label: "Correct Guess Rate", sortBy: "correctGuessPercent" },
+				{ label: "Correct Assist Rate", sortBy: "correctAssistsPercent" },
+				{ label: "Assists Per Hint", sortBy: "correctGuessesPerHint" },
+				{ label: "Number of Hints Given", sortBy: "numHints" }
 			];
 		return (
 				<Paper>
-					<Table size="small">
-						<TableHead>
-							<TableRow>
+					<span key="utilities">
+						<Button key="Previous" variant="contained" color="primary" onClick={ this.previousPage.bind(null, this.state.page-1) }>Previous</Button>
+						<Button key="Next" variant="contained" color="primary" onClick={ this.nextPage.bind(null, this.state.page+1) }>Next</Button>
+						<Input key="page" onKeyPress={this.enterPage}></Input>
+						<Button key="switch" variant="contained" color="primary" onClick={ this.order }>Switch Order</Button>
+					</span>
+					<Table key="standingsTable" size="small">
+						<TableHead key="headline">
+							<TableRow key="headlineRow">
 								{
 									tableHeaders.map(( header )=>{
-										return (<TableCell key={header+"head"} align="center">{header}</TableCell>);
+										return (<TableCell key={header.label+"_head"} align="center"><Button key={header+"_button"} sortBy={header.sortBy} onClick={this.newSortCriteria.bind(null, header.sortBy)}>{header.label}</Button></TableCell>);
 									})
 								}
 							</TableRow>
 						</TableHead>
-						<TableBody>
+						<TableBody key="standingsBody">
 							{
-								this.state.standings.map((stats) => {
+								this.standings.map((stats) => {
 									const rowData = [
 										stats.numWins, 
 										stats.numLosses, 
@@ -90,10 +144,10 @@ class LeaderBoard extends Component {
 										stats.numHints
 									]
 									return (
-											<TableRow key={ stats._id }>
+										<TableRow key={ stats._id }>
 											{
-												rowData.map((cellData)=> {
-													return (<TableCell align="center">{cellData}</TableCell>);
+												rowData.map((cellData, index)=> {
+													return (<TableCell key={stats._id+"_"+tableHeaders[index].label} align="center">{cellData}</TableCell>);
 												})
 											}
 										</TableRow>

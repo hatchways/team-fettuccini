@@ -4,6 +4,7 @@ import fetchUtil from './fetchUtil'
 import auth from '../auth/auth'
 import MatchBox from './MatchBox'
 import LeaderBoard from './LeaderBoard'
+import UserStats from './UserStats'
 
 class Profile extends Component {
 	constructor(props) {
@@ -75,6 +76,9 @@ class Profile extends Component {
 		            );
 		          })}
 		    	</Grid>
+		    	<UserStats username={auth.getUserInfo().name}>
+		    	
+		    	</UserStats>
 		    	<LeaderBoard>
 		    		
 		    	</LeaderBoard>

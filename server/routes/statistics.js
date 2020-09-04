@@ -33,8 +33,8 @@ function sendBack(res, data) {
 }
 
 router.get("/byuser", async (req, res) => {
-	const userId = req.query.userId;
-	console.log(userId);
+	const name = req.query.username;
+	console.log(name);
 	//const matches = await User.getMatches(userId);
 	
 	try {
@@ -42,9 +42,11 @@ router.get("/byuser", async (req, res) => {
 			console.log("Refreshing cache");
 			await requestAndCache();
 		}
-		if (!users.has(String(userId))) {
-			const userObj = await User.findById(userId);
+		console.log("here");
+		if (!users.has(String(name))) {
 			console.log("Getting user info from database");
+			const userObj = await User.find({ username: name });
+			console.log(userObj)
 			sendBack(res, { data: userObj });
 		} else {
 			console.log("Getting user info from cache map");
@@ -85,22 +87,18 @@ router.get("/standings", async (req, res) => {
 			let lastIndex = index + 50;
 			if (index>=values.length) return res.status(200).send();
 			if (lastIndex >= values.length) lastIndex = values.length;
-			console.log("here");
 			if (order=="asc") {
 				console.log("Getting ascending")
 				const tempIndex = index;
 				index = values.length - 1 - lastIndex;
 				lastIndex = values.length - 1 - tempIndex;
 			}
-			console.log("blah");
 			let page = values.slice(index, lastIndex);
-			console.log("blah2")
 			if (order == "asc") {
 				console.log("Reverse");
 				page = page.reverse();
 			}
 			
-			console.log(page);
 			return sendBack(res, { data: page });
 		}
 		

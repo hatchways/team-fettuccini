@@ -116,10 +116,7 @@ export default (theme) => ({
     margin: "0 auto",
   },
   gridElement: {
-    display: "flex",
     alignItems: "center",
-    margin: "7px",
-    borderRadius: "7px",
     cursor: "pointer",
     wordWrap: "break-word",
     justifyContent: "space-evenly"

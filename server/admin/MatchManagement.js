@@ -162,7 +162,7 @@ class MatchManager {
 		} else if (game.getRedSpy().id == userID && position == "RS") {
 			game.setRedSpy("", "");
 		}
-		game.sockets.remove(userID);
+		game.sockets.delete(userID);
 		console.log(this.getMatchInfo(matchID, userID));
 		return { info: this.getMatchInfo(matchID, userID), message: "Left Match" };
 	}

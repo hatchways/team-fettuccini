@@ -31,72 +31,7 @@ class WaitingRoom
       positions: {},
       matchState: {},
     }
-    this.ping = this.ping.bind(this)
     this.changePosition = this.changePosition.bind(this)
-  }
-
-  async ping() {
-    let { userId, matchId, positions, matchState } = this.state
-
-    let res
-    let updateState = false
-
-    try {
-      res = await fetchUtil({
-        url: `/matches/${matchId}/nextmove`,
-        method: "POST",
-        body: {
-          userID: userId,
-          position: "_PING",
-          move: "_PING"
-        }
-      })
-    } catch (error) {
-      console.log('error @ PING .json() \n', error)
-    }
-    console.log('res ping ', res)
-
-    updateState = (matchState.state !== res.state && res.state != undefined);
-
-    for (let pos in waitingRoomDictionary) {
-      if (res.hasOwnProperty(pos)) {
-        if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
-          if (positions.hasOwnProperty(pos)) {
-            delete positions[pos]
-            updateState = true
-          }
-        } else { // if role is filled
-          if (positions.hasOwnProperty(pos)) {
-            if (positions[pos].userId !== res[pos].id) {
-              positions[pos] = {
-                userId: res[pos].id,
-                name: res[pos].name
-              }
-              updateState = true
-            }
-          } else {
-            positions[pos] = {
-              role: waitingRoomDictionary[pos],
-              userId: res[pos].id,
-              name: res[pos].name
-            }
-            updateState = true
-          }
-        }
-      } else {
-        if (positions.hasOwnProperty(pos)) {
-          delete positions[pos]
-          updateState = true
-        }
-      }
-    }
-    if (updateState) {
-      this.setState({
-        ...this.state,
-        positions,
-        matchState: res
-      })
-    }
   }
 
   componentWillUnmount = async () => {

@@ -39,44 +39,22 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
 	const columnSpace = 10;
     const xs = "auto";
     const rowStyle ={ height: "30%" };
-  return words.length === 0 ? null : (
     
+    const rowIndices = [[0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24]];
+  return words.length === 0 ? null : (
     <Grid container alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
-    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
-    		{cardForGrid(0)}
-    		{cardForGrid(1)}
-    		{cardForGrid(2)}
-    		{cardForGrid(3)}
-    		{cardForGrid(4)}
-    	</Grid>
-    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
-    		{cardForGrid(5)}
-    		{cardForGrid(6)}
-    		{cardForGrid(7)}
-    		{cardForGrid(8)}
-    		{cardForGrid(9)}
-    	</Grid>
-    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
-    		{cardForGrid(10)}
-    		{cardForGrid(11)}
-    		{cardForGrid(12)}
-    		{cardForGrid(13)}
-    		{cardForGrid(14)}
-    	</Grid>
-    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
-    		{cardForGrid(15)}
-    		{cardForGrid(16)}
-    		{cardForGrid(17)}
-    		{cardForGrid(18)}
-    		{cardForGrid(19)}
-    	</Grid>
-    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
-    		{cardForGrid(20)}
-    		{cardForGrid(21)}
-    		{cardForGrid(22)}
-    		{cardForGrid(23)}
-    		{cardForGrid(24)}
-    	</Grid>
+	    {
+	    	rowIndices.map((row) => {
+	    		const cells = row.map((card) => {
+	    			return cardForGrid(card);
+	    		});
+	    		return (
+	    			<Grid item container alignItems="center" justify="center" spacing={columnSpace}>
+	    				{cells};
+	    			</Grid>
+	    		);
+	    	})
+	    }
     </Grid>
-  );
+   );
 };

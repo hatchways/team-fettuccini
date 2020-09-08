@@ -66,7 +66,9 @@ class Game {
 		this.matchHistory = [];
 		this.board = new Board();
 		this.addState();*/
+		clearInterval(this.turnInterval);
 		this.init();
+		this.startTime();
 	}
 	
 	init() {
@@ -89,14 +91,19 @@ class Game {
 		this.spyHint = "";
 		this.madeGuess = false;
 		this.turnId = (new Date()).toUTCString();
-		this.turnInterval = setInterval(async () => {
-			this.nextTurn(true);
-			this.timeOut();
-		}, 60 * 1000);
+		
 		this.chatHistory = [];
 		this.board = new Board();
 		this.matchHistory = [];
 		this.addState();
+	}
+	
+	startTime() {
+		this.turnInterval = setInterval(async () => {
+			this.nextTurn(true);
+			console.log("Timeout");
+			this.timeOut();
+		}, 60 * 1000);
 	}
 	
 	addState() {

@@ -132,7 +132,7 @@ class MatchManager {
 		}
 
 		if (game.getRedField().id && game.getRedSpy().id && game.getBlueSpy().id && game.getBlueField().id) {
-			game.reset();
+			game.startTime();
 			return { gamestart: true, info: this.getMatchInfo(matchID, userID), message: mess };
 		}
 

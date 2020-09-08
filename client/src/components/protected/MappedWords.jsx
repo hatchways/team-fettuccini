@@ -14,7 +14,7 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
         }
         console.log(cardStyle);
 		return (
-          <Grid item xs={2}>
+          <Grid style={{ height: "100%" }} item xs={2}>
 	          <Card
 	            key={`word-${i}-${chosen}`}
 	            data-tag={i}
@@ -37,39 +37,40 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
 
 	}
 	const columnSpace = 10;
-    const xs = 10;
+    const xs = "auto";
+    const rowStyle ={ height: "30%" };
   return words.length === 0 ? null : (
     
-    <Grid container alignItems="center" justify="center" style={{ margin: "0%"}} spacing={10}>
-    	<Grid item container xs={xs} spacing={columnSpace}>
+    <Grid container alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
+    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
     		{cardForGrid(0)}
     		{cardForGrid(1)}
     		{cardForGrid(2)}
     		{cardForGrid(3)}
     		{cardForGrid(4)}
     	</Grid>
-    	<Grid item container xs={xs} spacing={columnSpace}>
+    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
     		{cardForGrid(5)}
     		{cardForGrid(6)}
     		{cardForGrid(7)}
     		{cardForGrid(8)}
     		{cardForGrid(9)}
     	</Grid>
-    	<Grid item container xs={xs} spacing={columnSpace}>
+    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
     		{cardForGrid(10)}
     		{cardForGrid(11)}
     		{cardForGrid(12)}
     		{cardForGrid(13)}
     		{cardForGrid(14)}
     	</Grid>
-    	<Grid item container xs={xs} spacing={columnSpace}>
+    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
     		{cardForGrid(15)}
     		{cardForGrid(16)}
     		{cardForGrid(17)}
     		{cardForGrid(18)}
     		{cardForGrid(19)}
     	</Grid>
-    	<Grid item container xs={xs} spacing={columnSpace}>
+    	<Grid item style={rowStyle} alignItems="center" justify="center" container spacing={columnSpace}>
     		{cardForGrid(20)}
     		{cardForGrid(21)}
     		{cardForGrid(22)}

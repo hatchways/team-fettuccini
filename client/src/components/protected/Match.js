@@ -64,6 +64,7 @@ class Match extends Component {
       console.log(positions);
       const thisUser = auth.getUserInfo().id;
       let myRole;
+      //Assign users to their respective positions
       if (positions.RS.userId == thisUser) {
         myRole = "RS";
       } else if (positions.RF.userId == thisUser) {
@@ -128,10 +129,12 @@ class Match extends Component {
       this.props.history.push("/welcome")
     }*/
 
+    //update the state if something has changed.
     let updateState = (resInfo.state !== positionState)
       || (Number(resInfo.numGuess) !== guessesLeft)
       || chatHistory.length !== resInfo.chatHistory.length
 
+    //update the mapping of users to positions.
     Object.keys(roles).forEach(role => {
       if (userId === resInfo[role].id) {
         myRole = role
@@ -154,6 +157,7 @@ class Match extends Component {
     console.log("update state")
     console.log(this.state)
     console.log(res)
+    //update the board if the state of a word has changed.
     for (let i = 0; i < words.length; i++) {
       if (words[i].slice(0, 2) !== resInfo.info.board[i].slice(0, 2)) {
         updateState = true

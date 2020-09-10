@@ -14,7 +14,7 @@ class MatchBox extends Component {
 		this.blueField = this.props.blueField;
 		this.won = this.props.won;
 		this.date = this.props.date;
-		this.cardClick = this.props.cardClick;
+		this.match = this.props.match;
 		this.words = this.props.words;
 		this.factions = this.props.factions;
 		this.history = this.props.history;
@@ -30,7 +30,7 @@ class MatchBox extends Component {
 		//if (this.won == "Blue") cardStyle = {backgroundColor: 'BLUE'}
 		
 		return (
-				<Card align="top" justify="left" onClick={() => {this.cardClick(this.words, this.factions, this.history)}}>
+				<Card align="top" justify="left" onClick={() => {this.match(this.words, this.factions, this.history)}}>
 					<CardContent style={redText1}><Typography  variant="h5"> Red Spy: {this.redSpy}</Typography></CardContent>
 					<CardContent style={redText2}><Typography  variant="h5"> Red Field: {this.redField}</Typography></CardContent>
 					<CardContent style={blueText1}><Typography  variant="h5"> Blue Spy: {this.blueSpy}</Typography></CardContent>

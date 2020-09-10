@@ -18,6 +18,7 @@ class MatchHistory extends Component {
 		this.clickWord = this.clickWord.bind(this);
 		this.onForward = this.onForward.bind(this);
 		this.onBack = this.onBack.bind(this);
+		this.goBack = this.goBack.bind(this);
 	}
 	
 	clickWord = async (e) => {
@@ -46,7 +47,9 @@ class MatchHistory extends Component {
 		})
 	} 
 	
-	
+	goBack = (e) => {
+		this.props.history.goBack();
+	}
 	
 	render() {
 		const {histIndex} = this.state;
@@ -72,6 +75,7 @@ class MatchHistory extends Component {
 		
 		return (
 				<div className={`${classes.paper} ${classes.centerText}`}>
+					<Button variant="contained" color="primary" onClick={this.goBack}>Previous Page</Button>
 					<Typography variant="h4">
 			          {positionState}
 			        </Typography>

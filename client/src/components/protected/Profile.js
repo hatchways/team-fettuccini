@@ -12,7 +12,8 @@ class Profile extends Component {
 		this.state = {
 				matches: []
 		}
-		this.cardClick = this.cardClick.bind(this);
+		this.match = this.match.bind(this);
+		this.goBack = this.goBack.bind(this);
 	}
 	
 	componentDidMount = () => {
@@ -32,7 +33,7 @@ class Profile extends Component {
 	    
 	}
 	
-	cardClick = (words, factions, history) => {
+	match = (words, factions, history) => {
 		this.props.history.push({
 		      pathname: `/profile/matchhistory`,
 		      state: { words: words, factions: factions, history: history}
@@ -42,46 +43,61 @@ class Profile extends Component {
 		})
 	}
 	
+	goBack = (e) => {
+		this.props.history.goBack();
+	}
+	
 	render() {
-		const matchItems = []
-		for (var i = 0;i<this.state.matches.length;i++) {
-			const match = this.state.matches[i];
-			const parts = match.participants;
-			let rs = "";
-			let rf = "";
-			let bs = "";
-			let bf = "";
-			for (var j = 0;j<parts.length;j++) {
-				if (parts[j].role == "Red spy") {
-					rs = parts[j].user.username;
-				} else if (parts[j].role == "Red field") {
-					rf = parts[j].user.username;
-				} else if (parts[j].role == "Blue spy") {
-					bs = parts[j].user.username;
-				} else {
-					bf = parts[j].user.username;
+		const matchItems = this.state.matches.map(
+			(match, index) => {
+				const parts = match.participants;
+				let rs = "";
+				let rf = "";
+				let bs = "";
+				let bf = "";
+				for (var j = 0;j<parts.length;j++) {
+					if (parts[j].role == "Red spy") {
+						rs = parts[j].user.username;
+					} else if (parts[j].role == "Red field") {
+						rf = parts[j].user.username;
+					} else if (parts[j].role == "Blue spy") {
+						bs = parts[j].user.username;
+					} else {
+						bf = parts[j].user.username;
+					}
 				}
-			}
-			const el = <MatchBox date={match.date} cardClick={this.cardClick} words={match.words} factions={match.factions} history={match.history} won={match.winner} redSpy={rs} blueSpy={bs} redField={rf} blueField={bf}/>
-			matchItems.push(el);
-		}
+				return <MatchBox 
+						date={match.date} 
+						match={this.match} 
+						words={match.words} 
+						factions={match.factions} 
+						history={match.history} 
+						won={match.winner} 
+						redSpy={rs} 
+						blueSpy={bs} 
+						redField={rf} 
+						blueField={bf}/>
+			} 
+		)
+
 	    return (
 	    	<div>
-		    	<Grid container>
+	    	  <Button variant="contained" color="primary" onClick={this.goBack}>Back</Button>
+		      <Grid container>
 		    	{matchItems.map(n => {
-		            return (
-		              <Grid item xs="3">
-		                {n}
-		              </Grid>
-		            );
-		          })}
-		    	</Grid>
-		    	<UserStats username={auth.getUserInfo().name}>
+		          return (
+		            <Grid item xs="3">
+		              {n}
+		            </Grid>
+		          );
+		        })}
+		      </Grid>
+		      <UserStats username={auth.getUserInfo().name}>
 		    	
-		    	</UserStats>
-		    	<LeaderBoard>
+		      </UserStats>
+		      <LeaderBoard>
 		    		
-		    	</LeaderBoard>
+		      </LeaderBoard>
 	    	</div>
 	    	
 	    );

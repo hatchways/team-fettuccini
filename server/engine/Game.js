@@ -429,6 +429,7 @@ class Game {
 	//Check if the game is over.
 	isGameOver() {
 		if (this.state == gameState.RED_WON || this.state == gameState.BLUE_WON) {
+			clearInterval(this.turnInterval);
 			console.log("The game has ended");
 			return true;
 		}

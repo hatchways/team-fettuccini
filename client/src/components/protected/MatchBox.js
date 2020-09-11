@@ -26,8 +26,6 @@ class MatchBox extends Component {
 		const blueText1 = {color: '#0000ff', fontWeight: 'bold', backgroundColor: "#ffebcd", position: "relative", textAlign: "center"}
 		const blueText2 = {color: '#0000ff', fontWeight: 'bold', backgroundColor: "#ffebcd", position: "relative", textAlign: "center"}
 		const winText = {fontWeight: 'bold', backgroundColor: "#ffebcd", textAlign: "center"}
-		//let cardStyle = {backgroundColor: 'RED', width: {width}, height: {height}, top: {t}, left: {l}, position: 'absolute'}
-		//if (this.won == "Blue") cardStyle = {backgroundColor: 'BLUE'}
 		
 		return (
 				<Card align="top" justify="left" onClick={() => {this.match(this.words, this.factions, this.history)}}>

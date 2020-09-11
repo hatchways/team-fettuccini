@@ -123,11 +123,8 @@ class Match extends Component {
     console.log("in updateStateRes");
     let res = data;
     console.log('res ping ', res)
-    let { matchId, userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
+    let { userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
     let resInfo = res.info
-    /*if (res.info === "") {
-      this.props.history.push("/welcome")
-    }*/
 
     //update the state if something has changed.
     let updateState = (resInfo.state !== positionState)
@@ -207,7 +204,7 @@ class Match extends Component {
     if (!this.isMyTurn() || this.amISpy()) {
       return
     } else {
-      let { matchId, positionState, words, userId, myRole, secondsLeft, turnId, factions } = this.state
+      let { myRole, turnId } = this.state
       let index = e.currentTarget.dataset.tag
 
       this.socket.emit('nextMove', {
@@ -240,10 +237,10 @@ class Match extends Component {
   async submitHint(move) {
     console.log("submit hint");
     console.log(this.state);
-    const { myRole, matchId, userId, turnId, secondsLeft, positionState, guessesLeft } = this.state
+    const { myRole, matchId, userId, turnId } = this.state
 
 
-    let res, reqMove, reqPosition
+    let reqMove, reqPosition
 
     if (this.amISpy()) {
       if (this.isMyTurn()) {
@@ -277,7 +274,7 @@ class Match extends Component {
       redScore
     } = this.props;
 
-    const { words, factions, positionState, matchId, userId, guessesLeft, message, isOver, winner, chatHistory, myRole, secondsLeft } = this.state;
+    const { words, factions, positionState, guessesLeft, message, isOver, winner, chatHistory, secondsLeft } = this.state;
 
     let guessText;
     if (guessesLeft >= 0) guessText = (guessesLeft - 1) + " +1 guesses left";

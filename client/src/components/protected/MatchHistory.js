@@ -60,18 +60,16 @@ class MatchHistory extends Component {
 		const guessText = "Guesses left: "+history.numGuessesLeft;
 		const words = history.words;
 		const spyHint = history.spyHint;
-		const redLeft = history.redLeft;
-		const blueLeft = history.blueLeft;
 		
-		const newWords = [];
-		for (var i = 0;i<words.length;i++) {
-			const w = words[i];
-			if (w.charAt(0)=='_') {
-				newWords.push(w.substr(0,2)+this.initWords[i])
-			} else {
-				newWords.push(w);
+		const newWords = words.map(
+			(word, i) => {
+				if (word.charAt(0)=='_') {
+					return (word.substr(0,2)+this.initWords[i])
+				} else {
+					return word;
+				}
 			}
-		}
+		);
 		
 		return (
 				<div className={`${classes.paper} ${classes.centerText}`}>

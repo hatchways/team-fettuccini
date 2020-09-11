@@ -41,20 +41,20 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
     const rowStyle ={ height: "30%" };
     
     const rowIndices = [[0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24]];
-  return words.length === 0 ? null : (
-    <Grid container alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
-	    {
-	    	rowIndices.map((row) => {
-	    		const cells = row.map((card) => {
-	    			return cardForGrid(card);
-	    		});
-	    		return (
-	    			<Grid item container alignItems="center" justify="center" spacing={columnSpace}>
-	    				{cells};
-	    			</Grid>
-	    		);
-	    	})
-	    }
-    </Grid>
-   );
+	  return words.length === 0 ? null : (
+	    <Grid container alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
+		    {
+		    	rowIndices.map((row) => {
+		    		const cells = row.map((card) => {
+		    			return cardForGrid(card);
+		    		});
+		    		return (
+		    			<Grid item container alignItems="center" justify="center" spacing={columnSpace}>
+		    				{cells};
+		    			</Grid>
+		    		);
+		    	})
+		    }
+	    </Grid>
+	   );
 };

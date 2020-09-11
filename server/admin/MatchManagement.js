@@ -187,9 +187,6 @@ class MatchManager {
 
 		let mess = "Move failed";
 
-		console.log("HELLLOOOOOO!!!!!!!!");
-
-
 		if ((userID == game.getBlueSpy().id && game.getState() == gameState.BLUE_SPY) ||
 			(userID == game.getRedSpy().id && game.getState() == gameState.RED_SPY)) {
 			if (!game.dict.has(word)) {

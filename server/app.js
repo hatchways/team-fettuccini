@@ -41,6 +41,9 @@ server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
 
+/**
+ * Create socket functionality
+ */
 var socket = require("socket.io");
 var io = socket(server);
 module.exports = {app, io};

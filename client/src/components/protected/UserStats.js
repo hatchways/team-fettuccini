@@ -35,6 +35,8 @@ class UserStats extends Component {
 		await this.addData(this.props.username);
 	}
 	
+	//It is assumed that the list will not get so big that the linear runtime will become significant.
+	//This is because this widget is for the user to compare small groups of players to each other.
 	removeData(username, refresh = true) {
 		const newUsersList = this.state.users.filter((element)=>{
 			console.log(username, element.username)

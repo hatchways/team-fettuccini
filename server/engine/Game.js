@@ -52,20 +52,6 @@ class Game {
 
 	//Function to restart game.
 	reset() {
-		/*this.state = gameState.RED_SPY;
-		this.redLeft = 9;
-		this.blueLeft = 8;
-		this.numGuessesLeft = 0;
-		this.spyHint = "";
-		this.madeGuess = false;
-		this.turnId = (new Date()).toUTCString();
-		this.turnInterval = setInterval(async () => {
-			this.nextTurn(true);
-			this.timeOut();
-		}, 60 * 1000);
-		this.matchHistory = [];
-		this.board = new Board();
-		this.addState();*/
 		clearInterval(this.turnInterval);
 		this.init();
 		this.startTime();

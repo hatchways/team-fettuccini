@@ -35,7 +35,6 @@ function sendBack(res, data) {
 router.get("/byuser", async (req, res) => {
 	const name = req.query.username;
 	console.log(name);
-	//const matches = await User.getMatches(userId);
 	
 	try {
 		if (requestCache.getStats().keys == 0) {
@@ -62,6 +61,7 @@ router.get("/byuser", async (req, res) => {
 
 router.get("/standings", async (req, res) => {
 	try {
+		//If cache needs to be refreshed retrieve the list of users.
 		if (requestCache.getStats().keys == 0) {
 			console.log("Refreshing cache");
 			await requestAndCache();
@@ -71,6 +71,7 @@ router.get("/standings", async (req, res) => {
 		let sorting = req.query.sortBy;
 		let order = req.query.order;
 		console.log("fetching standings");
+		//Cache function caches the results of the standings if it has not been cached with that ordering already.
 		const cacheFunction = (sortFunc, sortByVal) => {
 			console.log("In caching function")
 			if (!sortBy.has(sortByVal)) {
@@ -101,7 +102,7 @@ router.get("/standings", async (req, res) => {
 			
 			return sendBack(res, { data: page });
 		}
-		
+		//Cache by each sort criteria
 		if (sorting=="numWins") {
 			const sortFunction = function(x, y) {
 					const val1 = x.numWins;
@@ -209,10 +210,12 @@ router.get("/standings", async (req, res) => {
 			return cacheFunction(sortFunction, "winPercent");
 		}
 		
-		return res.status(200).send();
+		return res.status(400).send({ message: "Sorting criteria not identified"});
 		
 	} catch (error) {
-		
+		console.log("Error:");
+		console.log(error);
+		return res.status(500).send({ message: "Internal Server Error" });
 	}
 })
 

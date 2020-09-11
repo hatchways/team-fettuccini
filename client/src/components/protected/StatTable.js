@@ -65,7 +65,7 @@ class StatTable extends Component {
 				  console.log(stats)
 				  return (
 				    <TableRow key={ stats._id }>
-				    <TableCell>{ this.props.rank ? (index+1+50*(this.props.page-1))+". " : <RemoveIcon onClick={this.props.removeFunc.bind(null, stats.username)} style={{}}/>}</TableCell>
+				    <TableCell>{ this.props.rank ? (parseInt(this.props.startIndex)+index)+". " : <RemoveIcon onClick={this.props.removeFunc.bind(null, stats.username)} style={{}}/>}</TableCell>
 					<TableCell>{stats.username}</TableCell>
 					  {
 						rowData.map((cellData, index)=> {

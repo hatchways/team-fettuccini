@@ -82,25 +82,29 @@ router.get("/standings", async (req, res) => {
 				sortedUsers.sort(sortFunc);
 				sortBy.set(sortByVal, sortedUsers);
 			}
-			console.log("Returning value");
-			const values = sortBy.get(sortByVal);
-			let index = pageSkip * 50;
-			let lastIndex = index + 50;
-			if (index>=values.length) return res.status(200).send();
-			if (lastIndex >= values.length) lastIndex = values.length;
-			if (order=="asc") {
-				console.log("Getting ascending")
-				const tempIndex = index;
-				index = values.length - 1 - lastIndex;
-				lastIndex = values.length - 1 - tempIndex;
-			}
-			let page = values.slice(index, lastIndex);
-			if (order == "asc") {
-				console.log("Reverse");
-				page = page.reverse();
+			
+			if (order == "asc" && !sortBy.has(sortByVal+"Reverse")) {
+				const inOrder = sortBy.get(sortByVal);
+				const reverseOrder = [];
+				for (let i = inOrder.length-1;i>=0;i--) reverseOrder.push(inOrder[i]);
+				sortBy.set(sortByVal+"Reverse", reverseOrder);
 			}
 			
-			return sendBack(res, { data: page });
+			console.log("Returning value");
+			let values;
+			if (order == "asc") {
+				values = sortBy.get(sortByVal+"Reverse");
+			} else {
+				values = sortBy.get(sortByVal);
+			}
+			
+			let index = pageSkip * 50;
+			let lastIndex = index + 50;
+			if (index>=values.length) return res.status(200).send({ message: "None" });
+			if (lastIndex >= values.length) lastIndex = values.length;
+			let page = values.slice(index, lastIndex);
+			
+			return sendBack(res, { start: index+1, data: page });
 		}
 		//Cache by each sort criteria
 		if (sorting=="numWins") {

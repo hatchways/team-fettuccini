@@ -1,7 +1,6 @@
 const Board = require("./Board.js");
 const GameWord = require("./GameWord.js");
 const WordStates = require("./WordStates.js");
-const fs = require("fs");
 const {app, io} = require("../app.js");
 
 var gameState = {
@@ -19,9 +18,6 @@ class Game {
 		this.matchID = matchID;
 		this.sockets = new Map();
 		this.hostID = "";
-		var text = fs.readFileSync("engine/engmix.txt");
-		const dictArr = text.toString().split("\n");
-		this.dict = new Set(dictArr);
 		this.redSpy = {};
 		this.blueSpy = {};
 		this.redField = {};

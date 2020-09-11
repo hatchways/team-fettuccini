@@ -6,6 +6,11 @@ const turnExpired = { info: "", RS: "", RF: "", BS: "", BF: "", message: "Turn e
 const Match = require("../models/match");
 const User = require("../models/user");
 const mongoose = require('mongoose');
+const fs = require("fs");
+
+const text = fs.readFileSync("engine/engmix.txt");
+const dictArr = text.toString().split("\n");
+const dict = new Set(dictArr);
 
 class MatchManager {
 	constructor() {
@@ -189,7 +194,7 @@ class MatchManager {
 
 		if ((userID == game.getBlueSpy().id && game.getState() == gameState.BLUE_SPY) ||
 			(userID == game.getRedSpy().id && game.getState() == gameState.RED_SPY)) {
-			if (!game.dict.has(word)) {
+			if (!dict.has(word)) {
 				console.log(word + " is not a real word");
 			} else if (!game.validWord(word)) {
 				console.log(word + " is a substring or superstring of a word that exists on board.");

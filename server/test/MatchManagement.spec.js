@@ -24,7 +24,6 @@ describe('MatchManagement', () => {
 		MatchManager.onGoingMatchesByID.clear();
 		MatchManager.publicMatches.clear();
 		MatchManager.privateMatches.clear();
-		MatchManager.numberInMatch.clear();
 	});
 	
 	it("Need to be able to get every game type (onGoing, private, public)", () => {
@@ -115,4 +114,110 @@ describe('MatchManagement', () => {
 		checkFieldInfo(info);
 	});
 	
+	it("Random public match", () => {
+		let randomMatch = MatchManager.randomPublicMatch();
+		equal(randomMatch == undefined || randomMatch.matchID == undefined, true );
+		
+		MatchManager.publicMatches.set("aMatch", "something");
+		randomMatch = MatchManager.randomPublicMatch();
+		equal(randomMatch.matchID, "aMatch");
+		
+		MatchManager.publicMatches.set("anotherThing", "anotherSomething");
+		randomMatch = MatchManager.randomPublicMatch();
+		equal(randomMatch.matchID == "aMatch" || randomMatch.matchID == "anotherThing", true);
+	});
+	
+	it("Players need to join the match", () => {
+		let getRedSpyStub = sinon.stub().returns({});
+		let getBlueSpyStub = sinon.stub().returns({});
+		let getRedFieldStub = sinon.stub().returns({});
+		let getBlueFieldStub = sinon.stub().returns({});
+		const setRedSpyStub = sinon.stub().returns({});
+		const setBlueSpyStub = sinon.stub().returns({});
+		const setRedFieldStub = sinon.stub().returns({});
+		const setBlueFieldStub = sinon.stub().returns({});
+		const startTimeStub = sinon.stub().returns({});
+		const getMatchInfoStub = sinon.stub(MatchManager, "getMatchInfo");
+		getMatchInfoStub.returns("MatchInfo");
+		
+		const stubbedGame = {
+			getMatchInfo:  getMatchInfoStub,
+			getRedSpy: getRedSpyStub,
+			getBlueSpy: getBlueSpyStub,
+			getRedField: getRedFieldStub,
+			getBlueField: getBlueFieldStub,
+			setRedSpy: setRedSpyStub,
+			setBlueSpy: setBlueSpyStub,
+			setRedField: setRedFieldStub,
+			setBlueField: setBlueFieldStub,
+			startTime: startTimeStub
+		}
+		
+		const setRSSpy = sinon.spy(setRedSpyStub)
+		const setRFSpy = sinon.spy(setRedFieldStub)
+		const setBSSpy = sinon.spy(setBlueSpyStub)
+		const setBFSpy = sinon.spy(setBlueFieldStub)
+		const startTimeSpy = sinon.spy(startTimeStub);
+		
+		MatchManager.publicMatches.set("match", stubbedGame);
+		
+		function checkSetCalls(isSet) {
+			if (isSet["RS"]==true) { setRSSpy.calledOnce}
+			else setRSSpy.notCalled;
+		
+			if (isSet["RF"]==true) { setRFSpy.calledOnce}
+			else setRFSpy.notCalled;
+			
+			if (isSet["BS"]==true) { setBSSpy.calledOnce}
+			else setBSSpy.notCalled;
+			
+			if (isSet["BF"]==true) { setBFSpy.calledOnce}
+			else setBFSpy.notCalled;
+		}
+		
+		let res = MatchManager.joinMatch("match", "red spy", "RS", "name1", "socket1");
+		getRedSpyStub = sinon.stub().returns({id: "red spy", name: "name1" });
+		stubbedGame["getRedSpy"] = getRedSpyStub;
+		checkSetCalls({RS: true, RF: false, BS: false, BF: false});
+		
+		res = MatchManager.joinMatch("match", "red spy", "RS", "name1", "socket1");
+		checkSetCalls({RS: true, RF: false, BS: false, BF: false});
+		
+		res = MatchManager.joinMatch("match", "red field", "RF", "name2", "socket2");
+		getRedFieldStub = sinon.stub().returns({id: "red field", name: "name2" });
+		stubbedGame["getRedField"] = getRedFieldStub;
+		checkSetCalls({RS: true, RF: true, BS: false, BF: false});
+		
+		res = MatchManager.joinMatch("match", "red field", "RF", "name2", "socket2");
+		checkSetCalls({RS: true, RF: true, BS: false, BF: false});
+		
+		res = MatchManager.joinMatch("match", "blue spy", "BS", "name3", "socket3");
+		getBlueSpyStub = sinon.stub().returns({id: "blue spy", name: "name3" });
+		stubbedGame["getBlueSpy"] = getBlueSpyStub;
+		checkSetCalls({RS: true, RF: true, BS: true, BF: false});
+		
+		res = MatchManager.joinMatch("match", "blue spy", "BS", "name3", "socket3");
+		checkSetCalls({RS: true, RF: true, BS: true, BF: false});
+		
+		res = MatchManager.joinMatch("match", "intruder", "RS", "name1", "socket1");
+		checkSetCalls({RS: true, RF: true, BS: true, BF: false});
+		
+		res = MatchManager.joinMatch("match", "intruder", "RF", "name2", "socket2");
+		checkSetCalls({RS: true, RF: true, BS: true, BF: false});
+		equal(res.gamestart, false);
+		
+		res = MatchManager.joinMatch("match", "intruder", "BS", "name3", "socket3");
+		checkSetCalls({RS: true, RF: true, BS: true, BF: false});
+		
+		res = MatchManager.joinMatch("match", "blue field", "BF", "name4", "socket4");
+		getBlueFieldStub = sinon.stub().returns({id: "blue field", name: "name4" });
+		stubbedGame["getBlueField"] = getBlueFieldStub;
+		checkSetCalls({RS: true, RF: true, BS: true, BF: true});
+		
+		res = MatchManager.joinMatch("match", "blue field", "BF", "name4", "socket4");
+		checkSetCalls({RS: true, RF: true, BS: true, BF: true});
+		
+		res = MatchManager.joinMatch("match", "intruder", "BF", "name4", "socket4");
+		checkSetCalls({RS: true, RF: true, BS: true, BF: true});
+	});
 });

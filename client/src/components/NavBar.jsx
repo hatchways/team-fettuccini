@@ -15,6 +15,7 @@ import auth from "./auth/auth";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { buttonColors } from './protected/styleMatch'
+import fetchUtil from './protected/fetchUtil'
 
 const useStyles = makeStyles((theme) => ({
   blue: {
@@ -181,7 +182,23 @@ export default function NavBar(props) {
                 }}
               >
                 Signout
-                </MenuItem>
+              </MenuItem>
+			  
+			  <MenuItem
+                style={{ fontFamily: "Roboto" }}
+                onClick={async () => {
+					try {
+						history.push({
+							pathname: `/profile`
+						});
+				    } catch (error) {
+				      console.log('failed to create new game', error)
+				    }
+                    
+                }}
+              >
+                Profile
+              </MenuItem>
             </Menu>
           </Fragment>
         ) : null}

@@ -10,7 +10,6 @@ const {Game, gameState} = require("../engine/Game.js");
 const GameWord = require("../engine/GameWord.js");
 const WordStates = require("../engine/WordStates.js");
 
-chai.should();
 chai.use(chaiHttp);
 
 
@@ -20,6 +19,7 @@ describe('Game', () => {
   beforeEach(function() {
 	//Will run before all tests in this block
 	const g = new Game();
+	g.init();
 	var b = g.board;
 
 	var wordList = b.getWords();
@@ -63,6 +63,7 @@ describe('Game', () => {
 	//Check that board is initialized
   it("it should have a non-empty board", () => {
 	const g = new Game();
+	g.init();
 	isNotNull(g, 'The board must be initialized when the Game is initialized');
 	isNotNaN(g, 'The board must be initialized when the Game is initialized');
 	isDefined(g, 'Board must be defined');

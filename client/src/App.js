@@ -9,7 +9,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import WaitingRoom from "./components/protected/WaitingRoom";
 import Welcome from "./components/protected/Welcome";
 import Match from "./components/protected/Match";
-
+import Profile from "./components/protected/Profile";
+import MatchHistory from "./components/protected/MatchHistory";
 import { theme } from "./themes/theme";
 import "./index.css";
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route exact path="/signup" render={(props) => <Auth {...props} signIn={false} />} />
           <ProtectedRoute exact path="/welcome" component={Welcome} />
           <ProtectedRoute exact path="/waitingroom/:matchId" component={WaitingRoom} />
+          <ProtectedRoute exact path="/profile" component={Profile}/>
           <ProtectedRoute
             exact
             path="/match/:matchId"
@@ -45,6 +47,18 @@ function App() {
                 setRedScore={setRedScore}
               />
             )}
+          />
+          <ProtectedRoute 
+          	exact 
+          	path="/profile/matchhistory"
+          	component={MatchHistory}
+          	render={
+        		(props) => (
+        			<MatchHistory 
+        				{...props}
+        			/>
+        		)  
+            }
           />
           <Route path="/" component={Auth} />
         </Switch>

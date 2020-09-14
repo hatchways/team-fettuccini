@@ -30,6 +30,17 @@ const userSchema = mongoose.Schema({
   matchIds: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Match" }
   ],
+  opponentsHits: { type: Number, default: 0 },
+  civiliansHits: { type: Number, default: 0 },
+  assassinsHits: { type: Number, default: 0 },
+  correctHits: { type: Number, default: 0 },
+  opponentsAssists: { type: Number, default: 0 },
+  civiliansAssists: { type: Number, default: 0 },
+  assassinsAssists: { type: Number, default: 0 },
+  correctAssists: { type: Number, default: 0 },
+  numHints: { type: Number, default: 0 },
+  numWins: { type: Number, default: 0 },
+  numLosses: { type: Number, default: 0 }
 });
 
 // Hash the password before saving the user model
@@ -75,8 +86,11 @@ userSchema.methods.toJSON = function () {
 };
 
 userSchema.statics.getMatches = async function (userId) {
-  const user = await User.findById(userId).populate("Match");
-  return user.matchIds;
+  const user = await User.findById(userId);
+  console.log(user);
+  const ids = user.matchIds;
+  const matchDescs = Match.find({"_id" : { $in: ids}}).sort({date: -1}).limit(4).populate("participants.user");
+  return matchDescs;
 };
 
 const User = mongoose.model("User", userSchema);

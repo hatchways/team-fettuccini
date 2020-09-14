@@ -53,7 +53,16 @@ export default withStyles(style)(class SignUp extends Component {
         if (res.status === 201) {
           return res.json()
         } else {
-          console.log(res.message);
+          res.json().then(
+        	(result) => {
+                if (result.errors == undefined) {
+                  this.setState({ error: result.message })
+                } else if (result.errors.email != undefined) {
+              	  this.setState({ error: "Please enter valid email" })
+                }
+        	}	  
+          );
+          
         }
       }).then(data => {
         this.props.login(data.user);
@@ -80,7 +89,7 @@ export default withStyles(style)(class SignUp extends Component {
   render() {
     const { classes } = this.props
     const errorMessage = this.state.error.length !== 0 ? <p className={classes.formWarning}>{this.state.error}</p> : null;
-
+    console.log("Error", errorMessage);
     return (
       <>
         <form className={classes.form} onSubmit={this.handleSubmit}>

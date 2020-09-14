@@ -7,6 +7,8 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const connectDB = require("./db");
 const cors = require("cors");
+const User = require("./models/user");
+const Match = require("./models/match");
 
 
 
@@ -39,15 +41,18 @@ server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
 
+/**
+ * Create socket functionality
+ */
 var socket = require("socket.io");
 var io = socket(server);
 module.exports = {app, io};
 const MatchManager = require("./admin/MatchManagement");
 
-io.on('connection', function(socket) {
+io.on('connect', function(socket) {
 	console.log("made socket connection "+ socket.id);
 	console.log("cookie: "+socket.handshake.headers.cookie);
-	console.log("socket: "+socket.handshake.headers);
+	console.log("socket: "+JSON.stringify(socket.handshake));
 	console.log("Cookie");
     
 	try {
@@ -208,6 +213,8 @@ const indexRouter = require("./routes/index");
 const pingRouter = require("./routes/ping");
 const usersRouter = require("./routes/users");
 const matchHistoryRouter = require("./routes/matchHistory");
+const statisticsRouter = require("./routes/statistics");
+//const profileRouter = require("./routes/users");
 
 app.use(express.json({ extended: false }));
 app.get("/", (req, res) => res.send("API Running"));
@@ -223,6 +230,8 @@ app.use("/ping", pingRouter);
 app.use("/matches", require("./routes/matches"));
 app.use(usersRouter);
 app.use("/matchHistory", matchHistoryRouter);
+app.use("/statistics", statisticsRouter);
+//app.use("/profile", profileRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -299,3 +308,47 @@ function onListening() {
   console.log("Listening on " + bind);
 }
 
+/**
+*	Input dummy data into database.
+*/
+/*
+setTimeout(function (){}, 10000);
+const users = [];
+for (let i = 0;i<200;i++) {
+	const username = "User"+i;
+	const email = "email"+i+"@email.com";
+	const password = "blahblah";
+	const matchIds = [];
+	const opponentsHits = Math.floor(Math.random()*100);
+	const correctHits = Math.floor(Math.random()*100);
+	const civiliansHits = Math.floor(Math.random()*100);
+	const assassinsHits = Math.floor(Math.random()*100);
+	const opponentsAssists = Math.floor(Math.random()*100);
+	const correctAssists = Math.floor(Math.random()*100);
+	const civiliansAssists = Math.floor(Math.random()*100);
+	const assassinsAssists = Math.floor(Math.random()*100);
+	const numHints = Math.floor(Math.random()*100);
+	const numWins = Math.floor(Math.random()*100);
+	const numLosses = Math.floor(Math.random()*100);
+	
+	const user = new User({
+		username: username,
+		email: email,
+		password: password,
+		matchIds: matchIds,
+		opponentsHits: opponentsHits,
+		correctHits: correctHits,
+		civiliansHits: civiliansHits,
+		assassinsHits: assassinsHits,
+		opponentsAssists: opponentsAssists,
+		correctAssists: correctAssists,
+		civiliansAssists: civiliansAssists,
+		assassinsAssists: assassinsAssists,
+		numHints: numHints,
+		numWins: numWins,
+		numLosses: numLosses
+	});
+	
+	user.save();
+	users.push(user);
+}*/

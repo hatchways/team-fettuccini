@@ -17,7 +17,6 @@ class MatchManager {
 		this.onGoingMatchesByID = new Map();
 		this.publicMatches = new Map();
 		this.privateMatches = new Map();
-		this.numberInMatch = new Map();
 	}
 
 	getGame(matchID) {
@@ -38,7 +37,6 @@ class MatchManager {
 		} else {
 			this.privateMatches.set(matchID, game);
 		}
-		this.numberInMatch.set(matchID, 1);
 		console.log("Created game " + matchID);
 		console.log(this.getMatchInfo(matchID, hostID));
 		return { matchID: matchID };
@@ -62,15 +60,6 @@ class MatchManager {
 		return { info, RS, RF, BS, BF, Host, state, numGuess, chatHistory };
 	}
 
-	//Enter the waiting room.
-	enterWaitingRoom(matchID) {
-		if (!this.numberInMatch.has(matchID)) return { gamestart: false, message: "Match does not exist in waiting stage." }
-		let num = this.numberInMatch.get(matchID);
-		if (num >= 4) return { message: "Match Full" };
-		num++;
-		return { gamestart: false, message: "Successfully joined match." };
-	}
-
 	randomPublicMatch() {
 		const size = this.publicMatches.size;
 		if (size == 0) return { message: "No matches made public." }
@@ -78,7 +67,6 @@ class MatchManager {
 
 		const index = Math.floor(Math.random() * Math.floor(size));
 		const game = gameArr[index]
-		this.enterWaitingRoom(game);
 		return { matchID: game };
 	}
 

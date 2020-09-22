@@ -14,7 +14,7 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
         }
         console.log(cardStyle);
 		return (
-          <Grid style={{ height: "100%" }} item xs={2}>
+          <Grid key={`grid${i}`} style={{ height: "100%" }} item xs={2}>
 	          <Card
 	            key={`word-${i}-${chosen}`}
 	            data-tag={i}
@@ -23,7 +23,7 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
 	            style={{ height: "100%", width: "100%" }}
 	            onClick={clickWord}
 	          >
-	            <Typography variant="h5" className={classes.smallWords}>
+	            <Typography key={`type${i}`} variant="h5" className={classes.smallWords}>
 	              {wordsVal}
 	            </Typography>
 	          </Card>
@@ -42,14 +42,14 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
     
     const rowIndices = [[0,1,2,3,4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24]];
 	  return words.length === 0 ? null : (
-	    <Grid container alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
+	    <Grid container key="board" alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
 		    {
-		    	rowIndices.map((row) => {
+		    	rowIndices.map((row, index) => {
 		    		const cells = row.map((card) => {
 		    			return cardForGrid(card);
 		    		});
 		    		return (
-		    			<Grid item container alignItems="center" justify="center" spacing={columnSpace}>
+		    			<Grid key={`row+${index}`} item container alignItems="center" justify="center" spacing={columnSpace}>
 		    				{cells};
 		    			</Grid>
 		    		);

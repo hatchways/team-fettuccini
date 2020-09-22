@@ -13,10 +13,9 @@ class LeaderBoard extends Component {
 		}
 		
 		this.standings = [];
-		this.getData = this.getData.bind(this);
 	}
 	
-	 async getData(sortBy = this.state.sortBy, page = this.state.page, order = this.state.order) {
+	 getData = async (sortBy = this.state.sortBy, page = this.state.page, order = this.state.order) => {
 		console.log("Getting page "+page);		
 		const standingsRes = await fetch('/statistics/standings?sortBy='+sortBy+'&page='+page+'&order='+order, {
 		      method: "GET",

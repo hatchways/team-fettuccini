@@ -31,7 +31,6 @@ class WaitingRoom
       positions: {},
       matchState: {},
     }
-    this.changePosition = this.changePosition.bind(this)
   }
 
   componentWillUnmount = async () => {
@@ -121,7 +120,7 @@ class WaitingRoom
     });
   }
 
-  async changePosition(e) {
+  changePosition = (e) => {
     const { userId, matchId, positions, name } = this.state
     let res
     const position = e.currentTarget.dataset.id.slice(0, 2)

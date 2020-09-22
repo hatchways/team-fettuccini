@@ -41,12 +41,6 @@ class Match extends Component {
       roles: {},
       Host: ""
     }
-    this.submitHint = this.submitHint.bind(this);
-    this.clickWord = this.clickWord.bind(this);
-    this.endFieldTurn = this.endFieldTurn.bind(this);
-    this.updateStateRes = this.updateStateRes.bind(this);
-    this.isMyTurn = this.isMyTurn.bind(this);
-    this.amISpy = this.amISpy.bind(this);
     this.socket = undefined;
   }
 
@@ -186,7 +180,7 @@ class Match extends Component {
   }
 
 
-  isMyTurn() {
+  isMyTurn = () => {
     if (!this.state.roles.hasOwnProperty(this.state.myRole)) {
       return false
     }
@@ -194,7 +188,7 @@ class Match extends Component {
     return matchDictionary[this.state.positionState] === this.state.myRole
   }
 
-  amISpy() {
+  amISpy = () => {
     console.log("My role is " + this.state.myRole);
     return ["RS", "BS"].includes(this.state.myRole)
   }
@@ -234,7 +228,7 @@ class Match extends Component {
     });
   }
 
-  async submitHint(move) {
+  submitHint = async (move) => {
     console.log("submit hint");
     console.log(this.state);
     const { myRole, matchId, userId, turnId } = this.state

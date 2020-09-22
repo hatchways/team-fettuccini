@@ -15,10 +15,6 @@ class MatchHistory extends Component {
 				...this.state,
 				histIndex: 0
 		}
-		this.clickWord = this.clickWord.bind(this);
-		this.onForward = this.onForward.bind(this);
-		this.onBack = this.onBack.bind(this);
-		this.goBack = this.goBack.bind(this);
 	}
 	
 	clickWord = async (e) => {

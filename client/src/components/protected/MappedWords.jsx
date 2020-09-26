@@ -45,6 +45,7 @@ export default ({ words, factions, classes, clickWord, spyView }) => {
 	    <Grid container key="board" alignItems="center" justify="center" style={{ margin: "0%"}} spacing={6}>
 		    {
 		    	rowIndices.map((row, index) => {
+		    		console.log("Inserting cell");
 		    		const cells = row.map((card) => {
 		    			return cardForGrid(card);
 		    		});

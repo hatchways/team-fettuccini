@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback, useEffect } from "react";
 
 import { Paper, InputBase, Button, List, ListItem, Input, Typography, Grid } from "@material-ui/core";
 import { withStyles } from "@material-ui/styles";
@@ -11,94 +11,81 @@ const spyDictionary = {
   BF: "bluefield",
 }
 
-class ChatBox extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      num: '1',
-      word: '',
-      chatHistory: []
-    }
+function ChatBox(props) {
+  
+  const [ num, setNum ] = useState(1);
+  const [ word, setWord ] = useState("");
+
+  const handleChange = (e) => {
+    setWord(e.target.value);
   }
 
-  handleChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
+  const increment = (e) => {
+    if (num >= 9) return;
+    setNum(num + 1);
   }
 
-  increment = (e) => {
-    if (this.state.num >= 9) return;
-    this.setState({ num: parseInt(this.state.num) + 1 });
+  const decrement = (e) => {
+    if (num === 0) return;
+    setNum(num - 1);
   }
 
-  decrement = (e) => {
-    if (this.state.num === 0) return;
-    this.setState({ num: parseInt(this.state.num) - 1 });
-  }
-
-  sendCurrentMsg = (e) => {
+  const sendCurrentMsg = (e) => {
     e.preventDefault()
-    const { num, word } = this.state
     if (num === '' || word === '') {
       return
     }
 
-    this.props.submitHint({ num, word })
+    props.submitHint({ num, word })
 
-    this.setState({ num: '1', word: '' })
+    setNum(1);
+    setWord("");
   }
-
-  render() {
-    const { num, word } = this.state
-    const { classes } = this.props;
-
-    const text = this.props.chatHistory.map((msg, index) => (
-      <ListItem className={`${classes.listItem} ${classes['listItem' + spyDictionary[msg.role]]}`} key={`msg-${index}`}>
-        <Typography variant="subtitle2">{msg.name} ({msg.role}):</Typography>
-        <Typography variant="subtitle1">
-          {msg.text}
-        </Typography>
-      </ListItem>));
-
-    return (
-      <Paper className={classes.chatBox}>
-        <List className={classes.chatList}>
-          {text}
-        </List>
-        <form onSubmit={this.sendCurrentMsg} className={classes.chatForm}>
-          <div className={classes.inputStyle}>
-            <InputBase
-              className={classes.inputBox}
-              name="word"
-              value={word}
-              onChange={this.handleChange}
-              inputProps={{ 'aria-label': 'naked' }}
-              placeholder="Type here..." />
-
-            <div className={classes.inlineGrid} >
-              <Button
-                disabled={this.state.num <= 1 ? true : false}
-                className={`${classes.plusMinus} MuiPaper-elevation1`}
-                onClick={this.decrement}>-</Button>
-              <Typography className={classes.numInput} variant="h5">
-                {num}
-              </Typography>
-              <Button
-                disabled={this.state.num >= 9 ? true : false}
-                className={`${classes.plusMinus} MuiPaper-elevation1`}
-                onClick={this.increment}>+</Button>
-            </div>
-          </div>
-          <Button onClick={this.sendCurrentMsg} type='submit' color='primary' variant='contained'>
-            Done
-          </Button>
-        </form>
-      </Paper>
-
-
-    );
-  }
+  
+  const { classes } = props;
+  const text = props.chatHistory.map((msg, index) => (
+   <ListItem className={`${classes.listItem} ${classes['listItem' + spyDictionary[msg.role]]}`} key={`msg-${index}`}>
+	 <Typography variant="subtitle2">{msg.name} ({msg.role}):</Typography>
+	 <Typography variant="subtitle1">
+	   {msg.text}
+	 </Typography>
+    </ListItem>));
+	
+	return (
+	  <Paper className={classes.chatBox}>
+	    <List className={classes.chatList}>
+	      {text}
+	    </List>
+	    <form onSubmit={(e)=>sendCurrentMsg(e)} className={classes.chatForm}>
+	      <div className={classes.inputStyle}>
+	        <InputBase
+	          className={classes.inputBox}
+	          name="word"
+	          value={word}
+	          onChange={(e)=>handleChange(e)}
+	          inputProps={{ 'aria-label': 'naked' }}
+	          placeholder="Type here..." />
+	
+	        <div className={classes.inlineGrid} >
+	          <Button
+	            disabled={num <= 1 ? true : false}
+	            className={`${classes.plusMinus} MuiPaper-elevation1`}
+	            onClick={(e)=>decrement(e)}>-</Button>
+	          <Typography className={classes.numInput} variant="h5">
+	            {num}
+	          </Typography>
+	          <Button
+	            disabled={num >= 9 ? true : false}
+	            className={`${classes.plusMinus} MuiPaper-elevation1`}
+	            onClick={(e)=>increment(e)}>+</Button>
+	        </div>
+	      </div>
+	      <Button onClick={(e)=>sendCurrentMsg(e)} type='submit' color='primary' variant='contained'>
+	        Done
+	      </Button>
+	    </form>
+	  </Paper>	
+	);
 }
 
 export default withStyles(styleChatBox)(ChatBox)

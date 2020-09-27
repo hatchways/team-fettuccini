@@ -1,71 +1,57 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Paper, Input } from '@material-ui/core';
 import StatTable from './StatTable'
 import auth from '../auth/auth'
 
-class UserStats extends Component {
-	constructor(props) {
-		super(props)
-		this.state = {
-			users: []
-		}
-		this.addData = this.addData.bind(this);
-		this.removeData = this.removeData.bind(this);
-	}
+function UserStats(props) {
 	
-	async addData(username) {
-		let newUsersList = this.removeData(username, false);
-		if (!newUsersList) newUsersList = this.state.users;
+	const [ users, setUsers ] = useState([]);
+	
+	const addData = (username) => {
+		let newUsersList = removeData(username, false);
+		if (!newUsersList) newUsersList = users;
 		console.log("Getting user info "+username)
-		const userListRes = await fetch('/statistics/byuser?username='+username, {
+		fetch('/statistics/byuser?username='+username, {
 		      method: "GET",
 		      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*","Cache-Control": "no-store" },
 		      body: null
 	    })
-		console.log("User List Response "+userListRes)
-	    const userRes = await userListRes.json();
-		console.log("User Response "+userRes)
-		const user = userRes.data;
-		console.log(user);
-		const newUsers = newUsersList.concat(user)
-		this.setState({ users: newUsers })
+	    .then((res)=>{return res.json()})
+	    .then((res)=>{
+	    	const user = res.data;
+	    	const newUsers = newUsersList.concat(user);
+	    	setUsers(newUsers)
+	    })
 	}
 	
-	async componentDidMount () {
-		await this.addData(this.props.username);
-	}
+	useEffect(()=>addData(props.username), []);
 	
 	//It is assumed that the list will not get so big that the linear runtime will become significant.
 	//This is because this widget is for the user to compare small groups of players to each other.
-	removeData(username, refresh = true) {
-		const newUsersList = this.state.users.filter((element)=>{
-			console.log(username, element.username)
+	const removeData = (username, refresh = true) => {
+		const newUsersList = users.filter((element)=>{
 			if (element.username != username) return true;
 			return false;
 		})
-		console.log("Length is "+newUsersList.length)
-		if (this.state.users.length===newUsersList.length) return undefined;
-		if (refresh) this.setState({ users: newUsersList })
+		if (users.length===newUsersList.length) return undefined;
+		if (refresh) setUsers(newUsersList);
 		return newUsersList;
 	}
 	
-	enterID = (e) => {
+	const enterID = (e) => {
 		if(e.key === 'Enter'){
 			const username = e.target.value;
-			this.addData(username);
+			addData(username);
 		}
 		
 	}
 	
-	render() {		
-		console.log(this.state.users);
-		return (
-			<Paper>
-				<Input onKeyPress={this.enterID}></Input>
-				<StatTable removeFunc={this.removeData} statistics={this.state.users} ></StatTable>
-			</Paper>
-		);
-	}
+	return (
+		<Paper>
+			<Input onKeyPress={enterID}></Input>
+			<StatTable removeFunc={removeData} statistics={users} ></StatTable>
+		</Paper>
+	);
 }
 
 export default UserStats

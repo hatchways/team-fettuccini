@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 
 import { Typography, Paper, Button, FormLabel, Grid, List, ListItem } from "@material-ui/core";
@@ -20,70 +20,68 @@ const waitingRoomDictionary = {
   BF: "Blue Field Agent"
 }
 
-class WaitingRoom
-  extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+function WaitingRoom(props) {
+
+    const [ state, setState] = useState({
       userId: '',
       name: '',
       matchId: '',
       positions: {},
       matchState: {},
-    }
-  }
+    });
 
-  componentWillUnmount = async () => {
-    this.socket.disconnect(true);
-  }
+    const socketRef = useRef(io("http://localhost:3001"));
+    const stateRef = useRef(state);
+    const textArea = useRef(undefined);
+    
+    useEffect(()=>{
+    	const userId = auth.getUserInfo().id
+        const name = auth.getUserInfo().name
+        const { matchId } = props.match.params
+        
+        setState({
+          ...state,
+          matchId,
+          name,
+          userId
+        })
+	
+        socketRef.current.on('changePosition', updatePositions)
 
-  componentDidMount = () => {
-    const userId = auth.getUserInfo().id
-    const name = auth.getUserInfo().name
-    const { matchId } = this.props.match.params
+        socketRef.current.emit('changePosition', {
+          matchID: matchId,
+          userID: userId,
+          name: name,
+          position: "",
+          action: "joinmatch"
+        });
+        return ()=>socketRef.current.disconnect(true);
+    }, [])
 
-    this.setState({
-      ...this.state,
-      matchId,
-      name,
-      userId,
-    }, () => {
-      
-      this.socket = io("http://localhost:3001");
-    	
-      this.socket.on('changePosition', this.updatePositions)
-
-      this.socket.emit('changePosition', {
-        matchID: this.state.matchId,
-        userID: this.state.userId,
-        name: this.state.name,
-        position: "",
-        action: "joinmatch"
-      });
-    })
-
-  }
-
-  copyLink = () => {
-    this.textArea.value = this.state.matchId
-    this.textArea.select();
+    useEffect(()=>{
+    	stateRef.current = state;
+    }, [state]);
+    
+  const copyLink = () => {
+    textArea.current.value = state.matchId
+    textArea.current.select();
     document.execCommand('copy')
   }
 
-  startMatch = () => {
-    const { matchId, matchState, positions } = this.state
-    this.props.history.push({
+  const startMatch = () => {
+    const { matchId, matchState, positions } = state
+    props.history.push({
       pathname: `/match/${matchId}`,
       state: { matchId, matchState, positions }
     })
 
   }
 
-  updatePositions = (data) => {
+  const updatePositions = (data) => {
     console.log("in update positions")
     console.log(data);
     let res = data.info;
-    const { userId, matchId, positions, name } = this.state
+    const { userId, matchId, positions, name } = stateRef.current
     for (let pos in waitingRoomDictionary) {
       if (res.hasOwnProperty(pos)) {
         if (res[pos].id === "" || Object.keys(res[pos]).length == 0) { // if role is empty
@@ -113,20 +111,20 @@ class WaitingRoom
       }
     }
     console.log(positions);
-    this.setState({
-      ...this.state,
+    setState({
+      ...stateRef.current,
       positions,
       matchState: data
     });
   }
 
-  changePosition = (e) => {
-    const { userId, matchId, positions, name } = this.state
+  const changePosition = (e) => {
+    const { userId, matchId, positions, name } = state
     let res
     const position = e.currentTarget.dataset.id.slice(0, 2)
     const action = e.currentTarget.dataset.id.slice(2)
 
-    this.socket.emit('changePosition', {
+    socketRef.current.emit('changePosition', {
       matchID: matchId,
       userID: userId,
       name: name,
@@ -135,12 +133,11 @@ class WaitingRoom
     });
   }
 
-  render() {
-    const { positions, userId } = this.state
-    const { classes } = this.props;
+    const { positions, userId } = state
+    const { classes } = props;
 
     if (Object.keys(positions).length === 4) {
-      this.startMatch()
+      startMatch()
     }
 
     const mapAvailablePos = Object.keys(waitingRoomDictionary)
@@ -150,7 +147,7 @@ class WaitingRoom
           <Typography variant="body1">{waitingRoomDictionary[pos]}
             &nbsp;&nbsp;
           </Typography>
-          <AddCircleIcon className={classes.iconHover} data-id={`${pos}joinmatch`} onClick={this.changePosition} />
+          <AddCircleIcon className={classes.iconHover} data-id={`${pos}joinmatch`} onClick={changePosition} />
         </ListItem>))
 
     const mappedPlayers = Object.keys(positions)
@@ -162,7 +159,7 @@ class WaitingRoom
             {positions[pos].role}
             {positions[pos].userId === userId ? ' (You)' : null} &nbsp;&nbsp;
           </Typography>
-          <CancelIcon className={classes.iconHover} data-id={`${pos}leavematch`} onClick={this.changePosition} />
+          <CancelIcon className={classes.iconHover} data-id={`${pos}leavematch`} onClick={changePosition} />
         </ListItem>))
 
     return <Fragment>
@@ -170,9 +167,9 @@ class WaitingRoom
         <Typography variant="h4">New Game</Typography>
         {document.queryCommandSupported('copy') && <textarea
           readOnly
-          ref={(textarea) => this.textArea = textarea}
+          ref={(textarea) => textArea.current = textarea}
           className={classes.hiddenText}
-          value={this.state.matchId} />}
+          value={state.matchId} />}
 
         <List className={classes.availableRoles}>
           <Typography variant="h5">Available roles</Typography>
@@ -186,14 +183,14 @@ class WaitingRoom
           </Grid>
           <Grid item className={classes.borderLeft}>
             <FormLabel className={classes.centerText}>Share match id:</FormLabel>
-            <Button variant="outlined" onClick={this.copyLink}><LinkIcon className={classes.rotate45} />Copy</Button>
+            <Button variant="outlined" onClick={copyLink}><LinkIcon className={classes.rotate45} />Copy</Button>
           </Grid>
         </Grid>
         <div>
-          <Button variant="contained" disabled={Object.keys(positions).length !== 4} color="primary" onClick={this.startMatch}>Start Match</Button>
+          <Button variant="contained" disabled={Object.keys(positions).length !== 4} color="primary" onClick={startMatch}>Start Match</Button>
         </div>
       </Paper>
     </Fragment>
-  }
+
 }
 export default withStyles(style)(WaitingRoom)

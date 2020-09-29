@@ -1,6 +1,8 @@
-import React, { Component } from "react";
 
-import { Typography, Paper, Button, Grid } from "@material-ui/core";
+
+import React, { useRef, useEffect, useState } from "react";
+
+import { Typography, Button } from "@material-ui/core";
 
 import ChatBox from './ChatBox'
 import MappedWords from './MappedWords'
@@ -15,15 +17,9 @@ import socketIOClient from "socket.io-client";
 
 import fetchUtil from './fetchUtil'
 
-class Match extends Component {
-  constructor(props) {
-    super(props);
-
-    this.props.setIsMatchInProgres(true);
-    this.props.setBlueScore(0);
-    this.props.setRedScore(0);
-
-    this.state = {
+function Match(props) {
+	
+    const [ state, setState ] = useState({
       matchId: '',
       factions: [],
       myRole: '',
@@ -40,84 +36,85 @@ class Match extends Component {
       chatHistory: [],
       roles: {},
       Host: ""
-    }
-    this.socket = undefined;
-  }
+    });
+    
+    const socketRef = useRef(socketIOClient("http://localhost:3001/"));
+    const stateRef = useRef(state);
+    const intervalRef = useRef(undefined);
+    const blueScoreRef = useRef(0);
+    const redScoreRef = useRef(0);
+    
+    useEffect(()=>{
+    	if (props.location.state == null) {
+	      props.setIsMatchInProgres(false);
+	      props.history.push(`/waitingroom/${this.props.match.params.matchId}`);
+	    } else {
+	      const { matchId, matchState, positions } = props.location.state
+	      props.setIsMatchInProgres(true);
+	      props.setBlueScore(blueScoreRef.current);
+	      props.setRedScore(redScoreRef.current);
+	      console.log("In game positions ");
+	      console.log(positions);
+	      const thisUser = auth.getUserInfo().id;
+	      let myRole;
+	      //Assign users to their respective positions
+	      if (positions.RS.userId == thisUser) {
+	        myRole = "RS";
+	      } else if (positions.RF.userId == thisUser) {
+	        myRole = "RF";
+	      } else if (positions.BS.userId == thisUser) {
+	        myRole = "BS";
+	      } else if (positions.BF.userId == thisUser) {
+	        myRole = "BF";
+	      }
+	      console.log("Match State ");
+	      console.log(matchState);
+	      setState({
+	        ...state,
+	        userId: auth.getUserInfo().id,
+	        matchId: matchId,
+	        words: matchState.info.info.board,
+	        positionState: matchState.info.state,
+	        factions: matchState.info.info.factions,
+	        roles: { ...positions },
+	        myRole: myRole
+	      });
 
-  componentDidUnmount = async () => {
-    this.socket.disconnect(true);
-  }
+	      socketRef.current.on('updateState', updateStateRes)
+	      socketRef.current.on('needToUpdate', () => {
+	        socketRef.current.emit('updateState', {
+	          matchID: matchId,
+	          userID: auth.getUserInfo().id,
+	          updateToEveryone: false
+	        });
+	      });
 
-  componentDidMount = () => {
-    if (this.props.location.state == null) {
-      this.props.setIsMatchInProgres(false);
-      this.props.history.push(`/waitingroom/${this.props.match.params.matchId}`);
-    } else {
-      const { matchId, matchState, positions } = this.props.location.state
-      console.log("In game positions ");
-      console.log(positions);
-      const thisUser = auth.getUserInfo().id;
-      let myRole;
-      //Assign users to their respective positions
-      if (positions.RS.userId == thisUser) {
-        myRole = "RS";
-      } else if (positions.RF.userId == thisUser) {
-        myRole = "RF";
-      } else if (positions.BS.userId == thisUser) {
-        myRole = "BS";
-      } else if (positions.BF.userId == thisUser) {
-        myRole = "BF";
-      }
-      console.log("Match State ");
-      console.log(matchState);
-      this.setState({
-        ...this.state,
-        userId: auth.getUserInfo().id,
-        matchId: matchId,
-        words: matchState.info.info.board,
-        positionState: matchState.info.state,
-        factions: matchState.info.info.factions,
-        roles: { ...positions },
-        myRole: myRole
-      }, () => {
+	      socketRef.current.emit('updateState', {
+	        matchID: matchId,
+	        userID: auth.getUserInfo().id,
+	        updateToEveryone: true
+	      });
 
-        this.socket = socketIOClient("http://localhost:3001/");
-        this.socket.on('updateState', this.updateStateRes)
-        this.socket.on('needToUpdate', () => {
-          this.socket.emit('updateState', {
-            matchID: this.state.matchId,
-            userID: this.state.userId,
-            updateToEveryone: false
-          });
-        });
+	      intervalRef.current = setInterval(() => {
+		      if (!state.isOver && state.secondsLeft > 0) {
+		        setState((st)=>{ return { ...st, secondsLeft: --st.secondsLeft } });
+		      }
+		    }, 1000);
+	    }
+	    
+	    return ()=>{socketRef.current.disconnect(true);clearInterval(intervalRef.current);}
 
-        this.socket.emit('updateState', {
-          matchID: this.state.matchId,
-          userID: this.state.userId,
-          updateToEveryone: true
-        });
+    }, [])
 
-        console.log("After emit " + this.state);
-      })
-    }
-
-    setInterval(() => {
-      if (!this.state.isOver && this.state.secondsLeft > 0) {
-        this.setState({
-          secondsLeft: --this.state.secondsLeft
-        });
-      }
-    }, 1000);
-
-  }
-
-
-
-  updateStateRes = (data) => {
+    useEffect(()=>{
+    	stateRef.current = state;
+    }, [state])
+    
+  const updateStateRes = (data) => {
     console.log("in updateStateRes");
     let res = data;
     console.log('res ping ', res)
-    let { userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = this.state
+    let { userId, positionState, words, guessesLeft, isOver, secondsLeft, turnId, roles, myRole, chatHistory } = stateRef.current
     let resInfo = res.info
 
     //update the state if something has changed.
@@ -146,7 +143,6 @@ class Match extends Component {
     })
 
     console.log("update state")
-    console.log(this.state)
     console.log(res)
     //update the board if the state of a word has changed.
     for (let i = 0; i < words.length; i++) {
@@ -157,11 +153,11 @@ class Match extends Component {
     }
 
     if (updateState) {
-      this.props.setBlueScore(res.blueScore);
-      this.props.setRedScore(res.redScore);
+      props.setBlueScore(res.blueScore);
+      props.setRedScore(res.redScore);
 
-      this.setState({
-        ...this.state,
+      setState({
+        ...stateRef.current,
         words,
         positionState: resInfo.state,
         guessesLeft: Number(resInfo.numGuess),
@@ -180,30 +176,30 @@ class Match extends Component {
   }
 
 
-  isMyTurn = () => {
-    if (!this.state.roles.hasOwnProperty(this.state.myRole)) {
+  const isMyTurn = () => {
+    if (!state.roles.hasOwnProperty(state.myRole)) {
       return false
     }
 
-    return matchDictionary[this.state.positionState] === this.state.myRole
+    return matchDictionary[state.positionState] === state.myRole
   }
 
-  amISpy = () => {
-    console.log("My role is " + this.state.myRole);
-    return ["RS", "BS"].includes(this.state.myRole)
+  const amISpy = () => {
+    console.log("My role is " + state.myRole);
+    return ["RS", "BS"].includes(state.myRole)
   }
 
-  clickWord = async (e) => {
+  const clickWord = async (e) => {
 
-    if (!this.isMyTurn() || this.amISpy()) {
+    if (!isMyTurn() || amISpy()) {
       return
     } else {
-      let { myRole, turnId } = this.state
+      let { myRole, turnId } = state
       let index = e.currentTarget.dataset.tag
 
-      this.socket.emit('nextMove', {
-        matchID: this.state.matchId,
-        userID: this.state.userId,
+      socketRef.current.emit('nextMove', {
+        matchID: state.matchId,
+        userID: state.userId,
         position: myRole,
         move: index,
         turnId: turnId
@@ -211,44 +207,43 @@ class Match extends Component {
     }
   }
 
-  endFieldTurn = async () => {
-    if (!this.isMyTurn() || this.amISpy()) {
+  const endFieldTurn = async () => {
+    if (!isMyTurn() || amISpy()) {
       return
     }
-    const { myRole, turnId } = this.state
+    const { myRole, turnId } = state
 
     let res
 
-    this.socket.emit('nextMove', {
-      matchID: this.state.matchId,
-      userID: this.state.userId,
+    socketRef.current.emit('nextMove', {
+      matchID: state.matchId,
+      userID: state.userId,
       position: myRole,
       move: "_END",
       turnId: turnId
     });
   }
 
-  submitHint = async (move) => {
+  const submitHint = async (move) => {
     console.log("submit hint");
-    console.log(this.state);
-    const { myRole, matchId, userId, turnId } = this.state
+    const { myRole, matchId, userId, turnId } = state
 
 
     let reqMove, reqPosition
 
-    if (this.amISpy()) {
-      if (this.isMyTurn()) {
+    if (amISpy()) {
+      if (isMyTurn()) {
         reqMove = `${move.num} ${move.word}`
         reqPosition = myRole
       } else {
         return
       }
-    } else if (!this.amISpy()) {
+    } else if (!amISpy()) {
       reqMove = move.word
       reqPosition = "_CHAT"
     }
 
-    this.socket.emit('nextMove', {
+    socketRef.current.emit('nextMove', {
       matchID: matchId,
       userID: userId,
       position: reqPosition,
@@ -259,40 +254,38 @@ class Match extends Component {
     })
   }
 
-  render() {
-    console.log('local state', this.state)
     const {
       classes,
       setIsMatchInProgres,
       blueScore,
       redScore
-    } = this.props;
+    } = props;
 
-    const { words, factions, positionState, guessesLeft, message, isOver, winner, chatHistory, secondsLeft } = this.state;
+    const { words, factions, positionState, guessesLeft, message, isOver, winner, chatHistory, secondsLeft } = state;
 
     let guessText;
     if (guessesLeft >= 0) guessText = (guessesLeft - 1) + " +1 guesses left";
     else guessText = "0 guesses left";
     document.body.style.overflow = "noscroll";
-    const spy = this.amISpy();
+    const spy = amISpy();
     return (<div className={classes.matchStyle}>
       <ChatBox
-        submitHint={this.submitHint}
+        submitHint={submitHint}
         chatHistory={chatHistory}
       />
 
       <div className={`${classes.paper} ${classes.centerText}`}>
         <Typography variant="h4">
           {positionState} &nbsp;
-      {this.isMyTurn() ? "(You)" : null}
+      {isMyTurn() ? "(You)" : null}
         </Typography>
         <Typography variant="body1">{["RF", "BF"].includes(matchDictionary[positionState]) ? guessText : <>&nbsp;</>}</Typography>
         {message !== "" ? <p>{message}</p> : null}
         <div>
           <Typography variant="body1">Time remaining: {secondsLeft}</Typography>
         </div>
-        <MappedWords classes={classes} words={words} factions={factions} clickWord={this.clickWord} spyView={spy} />
-        {spy ? null : <Button variant="contained" color="primary" onClick={this.endFieldTurn}>End Turn</Button>}
+        <MappedWords classes={classes} words={words} factions={factions} clickWord={clickWord} spyView={spy} />
+        {spy ? null : <Button variant="contained" color="primary" onClick={endFieldTurn}>End Turn</Button>}
       </div>
       {
         isOver ? (
@@ -306,7 +299,7 @@ class Match extends Component {
         ) : null
       }
     </div >)
-  }
 }
 
 export default withStyles(styleMatch)(Match)
+

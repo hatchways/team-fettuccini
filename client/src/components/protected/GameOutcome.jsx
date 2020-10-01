@@ -4,9 +4,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
 import { withRouter } from "react-router-dom";
 
-class GameOutcome extends Component {
-  render() {
-    const { isOver, winner, blueScore, redScore } = this.props;
+function GameOutcome(props) {
+    const { isOver, winner, blueScore, redScore } = props;
 
     const styles = {
       blue: {
@@ -82,15 +81,14 @@ class GameOutcome extends Component {
           variant="contained"
           color="primary"
           onClick={() => {
-            this.props.history.push("/welcome");
-            this.props.setIsMatchInProgres(false);
+            props.history.push("/welcome");
+            props.setIsMatchInProgres(false);
           }}
         >
           New Game
         </Button>
       </Dialog>
     );
-  }
 }
 
 export default withRouter(GameOutcome);

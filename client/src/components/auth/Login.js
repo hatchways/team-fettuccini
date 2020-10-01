@@ -1,33 +1,31 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { TextField, FormLabel, Button, FormControl } from "@material-ui/core";
 
 import { withStyles } from "@material-ui/core/styles";
 import style from './styleAuth'
 
-export default withStyles(style)(class Login extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+export default withStyles(style)(function Login(props) {
+  
+    const [ state, setState ]= useState({
       email: '',
       password: '',
       error: ''
-    }
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-  }
+    })
 
-  handleChange(event) {
-    this.setState({
-      [event.target.name]: event.target.value
+  const handleChange = (event) => {
+    setState({
+        ...state,
+    	[event.target.name]: event.target.value
     })
   }
-  handleSubmit(event) {
+  
+  const handleSubmit = (event) => {
     event.preventDefault()
 
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-      body: JSON.stringify({ email: this.state.email, password: this.state.password })
+      body: JSON.stringify({ email: state.email, password: state.password })
     };
 
     fetch('/users/login', requestOptions)
@@ -38,20 +36,19 @@ export default withStyles(style)(class Login extends Component {
           console.error('API error /users/login ', res);
         }
       }).then(data => {
-        this.props.login(data.user);
+        props.login(data.user);
       })
       .catch(error => {
         console.log(error.message)
       })
   }
 
-  render() {
-    const { classes } = this.props
+    const { classes } = props
 
-    const errorMessage = this.state.error.length !== 0 ? <p className={classes.formWarning}>{this.state.error}</p> : null;
+    const errorMessage = state.error.length !== 0 ? <p className={classes.formWarning}>{state.error}</p> : null;
     return (
       <>
-        <form className={classes.form} onSubmit={this.handleSubmit}>
+        <form className={classes.form} onSubmit={handleSubmit}>
           <FormControl className="inputBlock">
             <FormLabel htmlFor="email">Email:</FormLabel>
             <TextField
@@ -59,8 +56,8 @@ export default withStyles(style)(class Login extends Component {
               id="email"
               name="email"
               type="email"
-              value={this.state.email}
-              onChange={this.handleChange}
+              value={state.email}
+              onChange={handleChange}
               placeholder="johndoe@gmail.com"
               required />
           </FormControl>
@@ -71,8 +68,8 @@ export default withStyles(style)(class Login extends Component {
               id="password"
               name="password"
               type="password"
-              value={this.state.password}
-              onChange={this.handleChange}
+              value={state.password}
+              onChange={handleChange}
               placeholder="Password"
               required />
           </FormControl>
@@ -83,5 +80,4 @@ export default withStyles(style)(class Login extends Component {
         </form>
       </>
     );
-  }
 })

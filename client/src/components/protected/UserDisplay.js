@@ -2,23 +2,21 @@ import React from "react";
 
 import { Paper, Button, List, ListItem, Input } from "@material-ui/core";
 
-export default class UserDisplay extends React.Component {
+export default function UserDisplay(props) {
 
-  createItem = (pos, userID) => {
+  const createItem = (pos, userID) => {
     return (<ListItem style={{width: 200}}>
-      <Button disabled={(userID=="" || userID==this.props.thisUser) ? false : true} onClick={()=>this.props.onJoin(this.props.thisUser, pos)} style={{ height: 30 }} color='primary' variant='contained'>{pos}</Button>
+      <Button disabled={(userID=="" || userID==props.thisUser) ? false : true} onClick={()=>props.onJoin(props.thisUser, pos)} style={{ height: 30 }} color='primary' variant='contained'>{pos}</Button>
       {userID}
     </ListItem>);
   }
 
-  render() {
     return (
       <Paper>
-        {this.createItem("RS", this.props.RS)}
-        {this.createItem("RF", this.props.RF)}
-        {this.createItem("BS", this.props.BS)}
-        {this.createItem("BF", this.props.BF)}
+        {createItem("RS", props.RS)}
+        {createItem("RF", props.RF)}
+        {createItem("BS", props.BS)}
+        {createItem("BF", props.BF)}
       </Paper>
     );
-  }
 }

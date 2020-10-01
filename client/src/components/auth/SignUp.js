@@ -1,51 +1,47 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { FormLabel, TextField, Button, FormControl } from "@material-ui/core";
 
 import { withStyles } from "@material-ui/core/styles";
 import style from './styleAuth'
 
-export default withStyles(style)(class SignUp extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
+export default withStyles(style)(function SignUp(props) {
+
+    const [ state, setState ] = useState({
       name: '',
       email: '',
       password: '',
       passwordConfirm: '',
       error: ''
-    }
-    this.handleSubmit = this.handleSubmit.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleConfirmPassword = this.handleConfirmPassword.bind(this)
-  }
+    });
 
-  handleChange(event) {
-    this.setState({
-      ...this.state,
+
+  const handleChange = (event) => {
+    setState({
+      ...state,
       [event.target.name]: event.target.value
     })
   }
 
-  handleSubmit(event) {
+  const handleSubmit = (event) => {
     event.preventDefault()
 
     let error = ''
-    if (this.state.password !== this.state.passwordConfirm) {
+    if (state.password !== state.passwordConfirm) {
       error = "Passwords must match"
-      this.setState({ ...this.state, error })
+      setState({ ...state, error })
       return
     }
 
-    if (this.state.password.length < 6) {
+    if (state.password.length < 6) {
       error = "Password must be at least 6 characters long"
-      this.setState({ ...this.state, error })
+      setState({ ...state, error })
       return
     }
 
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
-      body: JSON.stringify({ username: this.state.name, email: this.state.email, password: this.state.password })
+      body: JSON.stringify({ username: state.name, email: state.email, password: state.password })
     };
 
     fetch('/users', requestOptions)
@@ -56,16 +52,16 @@ export default withStyles(style)(class SignUp extends Component {
           res.json().then(
         	(result) => {
                 if (result.errors == undefined) {
-                  this.setState({ error: result.message })
+                  setState({ error: result.message })
                 } else if (result.errors.email != undefined) {
-              	  this.setState({ error: "Please enter valid email" })
+              	  setState({ error: "Please enter valid email" })
                 }
         	}	  
           );
           
         }
       }).then(data => {
-        this.props.login(data.user);
+        props.login(data.user);
       })
       .catch(error => {
         console.log(error.message)
@@ -74,25 +70,24 @@ export default withStyles(style)(class SignUp extends Component {
 
   }
 
-  handleConfirmPassword(event) {
-    let error = this.state.password !== event.target.value
+  const handleConfirmPassword = (event) => {
+    let error = state.password !== event.target.value
       ? "Passwords must match"
       : '';
 
-    this.setState({
-      ...this.state,
+    setState({
+      ...state,
       [event.target.name]: event.target.value,
       error
     })
   }
 
-  render() {
-    const { classes } = this.props
-    const errorMessage = this.state.error.length !== 0 ? <p className={classes.formWarning}>{this.state.error}</p> : null;
+    const { classes } = props
+    const errorMessage = state.error.length !== 0 ? <p className={classes.formWarning}>{state.error}</p> : null;
     console.log("Error", errorMessage);
     return (
       <>
-        <form className={classes.form} onSubmit={this.handleSubmit}>
+        <form className={classes.form} onSubmit={handleSubmit}>
           <FormControl>
             <FormLabel htmlFor="name">Name:</FormLabel>
             <TextField
@@ -100,8 +95,8 @@ export default withStyles(style)(class SignUp extends Component {
               id="name"
               name="name"
               type="text"
-              value={this.state.name}
-              onChange={this.handleChange}
+              value={state.name}
+              onChange={handleChange}
               placeholder="Enter your Name"
               required />
           </FormControl>
@@ -112,8 +107,8 @@ export default withStyles(style)(class SignUp extends Component {
               name="email"
               id="email"
               type="email"
-              value={this.state.email}
-              onChange={this.handleChange}
+              value={state.email}
+              onChange={handleChange}
               placeholder="Enter your Email"
               required />
           </FormControl>
@@ -125,8 +120,8 @@ export default withStyles(style)(class SignUp extends Component {
               name="password"
               type="password"
               minLength='6'
-              value={this.state.password}
-              onChange={this.handleChange}
+              value={state.password}
+              onChange={handleChange}
               placeholder="Enter Password"
               required />
           </FormControl>
@@ -138,8 +133,8 @@ export default withStyles(style)(class SignUp extends Component {
               name="passwordConfirm"
               type="password"
               minLength='6'
-              value={this.state.passwordConfirm}
-              onChange={this.handleConfirmPassword}
+              value={state.passwordConfirm}
+              onChange={handleConfirmPassword}
               placeholder="Enter Password Again"
               required />
           </FormControl>
@@ -150,5 +145,4 @@ export default withStyles(style)(class SignUp extends Component {
         </form>
       </>
     );
-  }
 })

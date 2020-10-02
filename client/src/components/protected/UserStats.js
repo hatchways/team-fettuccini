@@ -11,7 +11,7 @@ function UserStats(props) {
 		let newUsersList = removeData(username, false);
 		if (!newUsersList) newUsersList = users;
 		console.log("Getting user info "+username)
-		fetch('/statistics/byuser?username='+username, {
+		fetch(`/statistics/byuser?username=${username}`, {
 		      method: "GET",
 		      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*","Cache-Control": "no-store" },
 		      body: null

@@ -16,7 +16,7 @@ function LeaderBoard(props) {
 	
 	const getData = (sortBy = stateRef.current.sortBy, page = stateRef.current.page, order = stateRef.current.order) => {
 		console.log("Getting page "+page);		
-		const standingsRes = fetch('/statistics/standings?sortBy='+sortBy+'&page='+page+'&order='+order, {
+		const standingsRes = fetch(`/statistics/standings?sortBy=${sortBy}&page=${page}&order=${order}`, {
 		      method: "GET",
 		      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*", "Cache-Control": "no-store" },
 		      body: null

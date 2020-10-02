@@ -43,25 +43,23 @@ export default withStyles(style)(function SignUp(props) {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': "*" },
       body: JSON.stringify({ username: state.name, email: state.email, password: state.password })
     };
-
+    
+    let failed = false;
     fetch('/users', requestOptions)
       .then(res => {
-        if (res.status === 201) {
-          return res.json()
-        } else {
-          res.json().then(
-        	(result) => {
-                if (result.errors == undefined) {
-                  setState({ error: result.message })
-                } else if (result.errors.email != undefined) {
-              	  setState({ error: "Please enter valid email" })
-                }
-        	}	  
-          );
-          
-        }
-      }).then(data => {
-        props.login(data.user);
+    	  if (res.status!== 201) failed = true;
+    	  return res.json();
+      })
+      .then(data => {
+          if (failed) {
+            if (data.errors == undefined) {
+              setState({...state, error: data.message })
+            } else if (data.errors.email != undefined) {
+          	  setState({...state, error: "Please enter valid email" })
+            }
+          } else {
+        	  props.login(data.user);
+          }
       })
       .catch(error => {
         console.log(error.message)
